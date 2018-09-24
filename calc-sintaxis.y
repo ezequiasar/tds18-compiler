@@ -109,7 +109,17 @@ void printTree(ASTNode *root) {
  
 %union { int i; char *s; ASTNode *node; }
  
+%token<i> PROGRAM
+%token<i> FUNCTION
+%token<i> BEGIN
+%token<i> END
+%token<i> VOID
+%token<i> IF
+%token<i> ELSE
 %token<i> INT
+%token<i> BOOL
+%token<i> RETURN
+%token<i> MAIN
 %token<s> ID
 %token<s> VAR
 
