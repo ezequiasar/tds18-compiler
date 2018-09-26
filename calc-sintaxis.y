@@ -187,35 +187,21 @@ return_type: INT
            | BOOL
   ;
 
-expr: INT               {
-                          $$ = $1;
-                          $$ = add_leave($1);
-                        }
-    | ID                {
-                          char *var_name = $1;
-                          VarNode *searchResult = find_var(var_name);
-                          if (searchResult != NULL) {
-                            $$ = add_leave(searchResult->value);
-                          }
-                          else {
-                            yyerror();
-                            return -1;
-                          }
-                        }
-    | expr '+' expr     {
-                          $$ = add_node($1, '+', $3);
-                        }
-    | expr '*' expr     {
-                          $$ = add_node($1, '*', $3);
-                        }
-    | '(' expr ')'      {
-                          $$ =  $2;
-                        }
-    ;
-
-def: VAR ID '=' expr    {
-                          add_var($2, eval($4));
-                        }
-    ;
+expr: ID
+    | method_call
+    | literal
+    | expr PLUS expr
+    | expr MINUS expr
+    | expr MULTIPLY expr
+    | expr DIVIDE expr
+    | expr MOD expr
+    | expr LESS_THAN expr
+    | expr GREATER_THAN expr
+    | expr EQUALS expr
+    | expr AND expr
+    | expr OR expr
+    | MINUS expr
+    | NOT expr
+    | L_PARENTHESIS expr R_PARENTHESIS
     
 %%
