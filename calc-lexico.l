@@ -50,6 +50,9 @@ main
 bool
 	return BOOL;
 
+print
+	return PRINT;
+
 {digit}+ { 
 	yylval.i = atoi(yytext);
 	return INT;
