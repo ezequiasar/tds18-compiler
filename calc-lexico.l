@@ -14,29 +14,41 @@ id {letter}({letter}|{digit})*
 
 %%
 
-var       return VAR;
+var
+	return VAR;
 
-program   return PROGRAM;
+program
+	return PROGRAM;
 
-function  return FUNCTION;
+function
+	return FUNCTION;
 
-begin   return BEGIN;
+begin
+	return BEGIN;
 
-end   return END;
+end
+	return END;
 
-void   return VOID;
+void
+	return VOID;
 
-if   return IF;
+if
+	return IF;
 
-else   return ELSE;
+else
+	return ELSE;
 
-int   return INT;
+int
+	return INT;
 
-return   return RETURN;
+return
+	return RETURN;
 
-main   return MAIN;
+main
+	return MAIN;
 
-bool   return BOOL;
+bool
+	return BOOL;
 
 {digit}+ { 
 	yylval.i = atoi(yytext);
