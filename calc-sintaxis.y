@@ -120,6 +120,7 @@ void printTree(ASTNode *root) {
 %token<i> BOOL
 %token<i> RETURN
 %token<i> MAIN
+%token<i> PRINT
 %token<s> ID
 %token<s> VAR
 
@@ -134,12 +135,58 @@ void printTree(ASTNode *root) {
  
 %%
 
-prog: def ';' prog
-    | expr ';'          {
-                          printf("\n%s %d\n", "Resultado de la expresion:", eval($1));
-                        }
-    ;
-    
+prog: PROGRAM BEGIN vars_block methods_block END  
+  ;
+
+vars_block: var_decl vars_block
+          |
+  ;
+
+methods_block: method_decl methods_block
+             | return_type MAIN L_PARENTHESIS params_def R_PARENTHESIS BEGIN code_block END
+  ;
+
+code_block: BEGIN vars_block statements_block
+
+statements_block: statement statements_block
+                | 
+  ;
+
+statement:  ID = expr SEMICOLON
+          | method_call SEMICOLON
+          | conditional_statement
+          | WHILE L_PARENTHESIS expr R_PARENTHESIS code_block
+          | RETURN expr SEMICOLON
+          | RETURN SEMICOLON
+          | code_block
+  ;
+
+var_decl: return_type ID another_var_decl SEMICOLON
+  ;
+
+another_var_decl: COMMA ID another_var_decl
+                |
+  ;
+
+method_decl: return_type ID L_PARENTHESIS params R_PARENTHESIS BEGIN code_block END
+  ;
+
+method_call: ID L_PARENTHESIS params_call R_PARENTHESIS
+  ;
+
+params_call: expr COMMA params_call
+           | expr
+           |
+  ;
+
+params_def: return_type ID COMMA params_def
+          | return_type ID
+          | 
+
+return_type: INT
+           | BOOL
+  ;
+
 expr: INT               {
                           $$ = $1;
                           $$ = add_leave($1);
