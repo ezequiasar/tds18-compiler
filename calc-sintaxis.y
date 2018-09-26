@@ -173,6 +173,10 @@ statement:  ID = expr SEMICOLON
           | code_block
   ;
 
+conditional_statement: IF L_PARENTHESIS expr R_PARENTHESIS THEN code_block
+                     | IF L_PARENTHESIS expr R_PARENTHESIS THEN code_block ELSE code_block
+  ;
+
 method_call: ID L_PARENTHESIS params_call R_PARENTHESIS
   ;
 
@@ -207,4 +211,16 @@ expr: ID
     | NOT expr
     | L_PARENTHESIS expr R_PARENTHESIS
   ;
+
+literal: integer_literal
+       | bool_literal
+  ;
+
+bool_literal: TRUE
+            | FALSE
+  ;
+
+integer_literal: INT
+  ;
+  
 %%
