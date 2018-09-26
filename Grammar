@@ -1,0 +1,47 @@
+Program -> PROGRAM BEGIN vars_block methods_block END
+
+vars_block -> var_decl var_block
+            |
+
+
+methods_block -> method_decl method_block
+        | return_type MAIN L_PARENTHESIS params R_PARENTHESIS code_block
+
+
+code_block -> BEGIN var_block statements END
+
+
+statements_block -> statement statements_block
+            | 
+
+statement -> ID = expr SEMICOLON
+            | method_call SEMICOLON
+            | conditional_statement
+            | WHILE L_PARENTHESIS expr R_PARENTHESIS code_block
+            | RETURN expr SEMICOLON
+            | RETURN SEMICOLON
+            | SEMICOLON
+            | code_block
+
+
+method_call -> ID L_PARENTHESIS params_call R_PARENTHESIS
+
+
+params_def -> 
+
+params_call -> expr COMMA params_call
+            | expr
+            | 
+
+
+conditional_statement -> IF L_PARENTHESIS expr R_PARENTHESIS THEN code_block
+                        | IF L_PARENTHESIS expr R_PARENTHESIS THEN code_block ELSE code_block
+                    
+
+expr -> ID
+        | method_call
+        | INT
+        | expr bin_operator expr
+        | MINUS expr
+        | NOT expr
+        | L_PARENTHESIS expr R_PARENTHESIS
