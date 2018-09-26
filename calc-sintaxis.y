@@ -142,11 +142,22 @@ vars_block: var_decl vars_block
           |
   ;
 
-methods_block: method_decl methods_block
-             | return_type MAIN L_PARENTHESIS params_def R_PARENTHESIS BEGIN code_block END
+var_decl: return_type ID another_var_decl SEMICOLON
   ;
 
-code_block: BEGIN vars_block statements_block
+another_var_decl: COMMA ID another_var_decl
+                |
+  ;
+
+methods_block: method_decl methods_block
+             | return_type MAIN L_PARENTHESIS params_def R_PARENTHESIS code_block
+  ;
+
+method_decl: return_type ID L_PARENTHESIS params_def R_PARENTHESIS code_block
+  ;
+
+code_block: BEGIN vars_block statements_block END
+  ;
 
 statements_block: statement statements_block
                 | 
@@ -158,17 +169,8 @@ statement:  ID = expr SEMICOLON
           | WHILE L_PARENTHESIS expr R_PARENTHESIS code_block
           | RETURN expr SEMICOLON
           | RETURN SEMICOLON
+          | SEMICOLON
           | code_block
-  ;
-
-var_decl: return_type ID another_var_decl SEMICOLON
-  ;
-
-another_var_decl: COMMA ID another_var_decl
-                |
-  ;
-
-method_decl: return_type ID L_PARENTHESIS params R_PARENTHESIS BEGIN code_block END
   ;
 
 method_call: ID L_PARENTHESIS params_call R_PARENTHESIS
@@ -179,12 +181,13 @@ params_call: expr COMMA params_call
            |
   ;
 
-params_def: return_type ID COMMA params_def
-          | return_type ID
+params_def: type ID COMMA params_def
+          | type ID
           | 
+  ;
 
-return_type: INT
-           | BOOL
+type: INT
+    | BOOL
   ;
 
 expr: ID
@@ -203,5 +206,5 @@ expr: ID
     | MINUS expr
     | NOT expr
     | L_PARENTHESIS expr R_PARENTHESIS
-    
+  ;
 %%

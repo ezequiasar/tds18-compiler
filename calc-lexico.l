@@ -53,6 +53,14 @@ bool
 print
 	return PRINT;
 
+true
+	return TRUE;
+
+false 
+	return FALSE;
+
+
+
 {digit}+ { 
 	yylval.i = atoi(yytext);
 	return INT;

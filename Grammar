@@ -3,6 +3,11 @@ Program -> PROGRAM BEGIN vars_block methods_block END
 vars_block -> var_decl var_block
             |
 
+var_decl -> return_type ID another_var_decl SEMICOLON
+
+another_var_decl -> COMMA ID another_var_decl
+                    |
+
 
 methods_block -> method_decl method_block
         | return_type MAIN L_PARENTHESIS params R_PARENTHESIS code_block
@@ -40,8 +45,23 @@ conditional_statement -> IF L_PARENTHESIS expr R_PARENTHESIS THEN code_block
 
 expr -> ID
         | method_call
-        | INT
-        | expr bin_operator expr
+        | literal
+        | expr PLUS expr
+        | expr MINUS expr
+        | expr MULTIPLY expr
+        | expr DIVIDE expr
+        | expr MOD expr
+        | expr LESS_THAN expr
+        | expr GREATER_THAN expr
+        | expr EQUALS expr
+        | expr AND expr
+        | expr OR expr
         | MINUS expr
         | NOT expr
         | L_PARENTHESIS expr R_PARENTHESIS
+
+literal -> INT
+        | bool_literal
+
+bool_literal -> TRUE
+            | FALSE
