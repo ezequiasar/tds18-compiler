@@ -109,39 +109,39 @@ void printTree(ASTNode *root) {
  
 %union { int i; char *s; ASTNode *node; }
  
-%token<i> PROGRAM
-%token<i> FUNCTION
-%token<i> BEGIN
-%token<i> END
-%token<i> VOID
-%token<i> IF
-%token<i> ELSE
-%token<i> INT
-%token<i> BOOL
-%token<i> RETURN
-%token<i> MAIN
-%token<i> PRINT
-%token<i> THEN
-%token<i> SEMICOLON
-%token<i> COMMA
-%token<i> L_PARENTHESIS
-%token<i> R_PARENTHESIS
-%token<i> PLUS
-%token<i> MINUS
-%token<i> MULTIPLY
-%token<i> DIVIDE
-%token<i> MOD
-%token<i> GREATER_THAN
-%token<i> LESSER_THAN
-%token<i> EQUALS
-%token<i> AND
-%token<i> OR
-%token<i> NOT
-%token<i> ASSIGNMENT
-%token<i> WHILE
-%token<i> TRUE
-%token<i> FALSE
-%token<s> ID
+%token<i> _PROGRAM_
+%token<i> _FUNCTION_
+%token<i> _BEGIN_
+%token<i> _END_
+%token<i> _VOID_
+%token<i> _IF_
+%token<i> _ELSE_
+%token<i> _INT_
+%token<i> _BOOL_
+%token<i> _RETURN_
+%token<i> _MAIN_
+%token<i> _PRINT_
+%token<i> _THEN_
+%token<i> _SEMICOLON_
+%token<i> _COMMA_
+%token<i> _L_PARENTHESIS_
+%token<i> _R_PARENTHESIS_
+%token<i> _PLUS_
+%token<i> _MINUS_
+%token<i> _MULTIPLY_
+%token<i> _DIVIDE_
+%token<i> _MOD_
+%token<i> _GREATER_THAN_
+%token<i> _LESSER_THAN_
+%token<i> _EQUALS_
+%token<i> _AND_
+%token<i> _OR_
+%token<i> _NOT_
+%token<i> _ASSIGNMENT_
+%token<i> _WHILE_
+%token<i> _TRUE_
+%token<i> _FALSE_
+%token<s> _ID_
 
 %start prog
 
@@ -152,92 +152,92 @@ void printTree(ASTNode *root) {
  
 %%
 
-prog: PROGRAM BEGIN vars_block methods_block END  
+prog: _PROGRAM_ _BEGIN_ vars_block methods_block _END_ 
   ;
 
 vars_block: var_decl vars_block
           |
   ;
 
-var_decl: type ID another_var_decl SEMICOLON
+var_decl: type _ID_ another_var_decl _SEMICOLON_
   ;
 
-another_var_decl: COMMA ID another_var_decl
+another_var_decl: _COMMA_ _ID_ another_var_decl
                 |
   ;
 
 methods_block: method_decl methods_block
-             | type MAIN L_PARENTHESIS params_def R_PARENTHESIS code_block
+             | type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
   ;
 
-method_decl: type ID L_PARENTHESIS params_def R_PARENTHESIS code_block
+method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
   ;
 
-code_block: BEGIN vars_block statements_block END
+code_block: _BEGIN_ vars_block statements_block _END_
   ;
 
 statements_block: statement statements_block
                 | 
   ;
 
-statement:  ID ASSIGNMENT expr SEMICOLON
-          | method_call SEMICOLON
+statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
+          | method_call _SEMICOLON_
           | conditional_statement
-          | WHILE L_PARENTHESIS expr R_PARENTHESIS code_block
-          | RETURN expr SEMICOLON
-          | RETURN SEMICOLON
-          | SEMICOLON
+          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
+          | _RETURN_ expr _SEMICOLON_
+          | _RETURN_ _SEMICOLON_
+          | _SEMICOLON_
           | code_block
   ;
 
-conditional_statement: IF L_PARENTHESIS expr R_PARENTHESIS THEN code_block
-                     | IF L_PARENTHESIS expr R_PARENTHESIS THEN code_block ELSE code_block
+conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
+                     | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block
   ;
 
-method_call: ID L_PARENTHESIS params_call R_PARENTHESIS
+method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_
   ;
 
-params_call: expr COMMA params_call
+params_call: expr _COMMA_ params_call
            | expr
            |
   ;
 
-params_def: type ID COMMA params_def
-          | type ID
+params_def: type _ID_ _COMMA_ params_def
+          | type _ID_
           | 
   ;
 
-type: INT
-    | BOOL
+type: _INT_
+    | _BOOL_
   ;
 
-expr: ID
+expr: _ID_
     | method_call
     | literal
-    | expr PLUS expr
-    | expr MINUS expr
-    | expr MULTIPLY expr
-    | expr DIVIDE expr
-    | expr MOD expr
-    | expr LESSER_THAN expr
-    | expr GREATER_THAN expr
-    | expr EQUALS expr
-    | expr AND expr
-    | expr OR expr
-    | MINUS expr
-    | NOT expr
-    | L_PARENTHESIS expr R_PARENTHESIS
+    | expr _PLUS_ expr
+    | expr _MINUS_ expr
+    | expr _MULTIPLY_ expr
+    | expr _DIVIDE_ expr
+    | expr _MOD_ expr
+    | expr _LESSER_THAN_ expr
+    | expr _GREATER_THAN_ expr
+    | expr _EQUALS_ expr
+    | expr _AND_ expr
+    | expr _OR_ expr
+    | _MINUS_ expr
+    | _NOT_ expr
+    | _L_PARENTHESIS_ expr _R_PARENTHESIS_
   ;
 
 literal: integer_literal
        | bool_literal
   ;
 
-bool_literal: TRUE
-            | FALSE
+bool_literal: _TRUE_
+            | _FALSE_
   ;
 
-integer_literal: INT
+integer_literal: _INT_
   ;
   
 %%

@@ -14,48 +14,80 @@ id {letter}({letter}|{digit})*
 
 %%
 
-"program"     {return PROGRAM; }
-"function"    {return FUNCTION; }
-"begin"       {return BEGIN; }
-"end"         {return END; }
-"void"        {return VOID; }
-"if"          {return IF; }
-"else"        {return ELSE; }
-"then"        {return THEN; }
-"int"         {return INT; }
-"return"      {return RETURN; }
-"main"        {return MAIN; }
-"bool"        {return BOOL; }
-"print"       {return PRINT; }
-"true"        {return TRUE; }
-"false"       {return FALSE; }
-"while"       {return WHILE; }
-"="           {return ASSIGNMENT; }
-";"           {return SEMICOLON; }
-","           {return COMMA; }
-"("           {return L_PARENTHESIS; }
-")"           {return R_PARENTHESIS; }
-"+"           {return PLUS; }
-"-"           {return MINUS; }
-"*"           {return MULTIPLY; }
-"/"           {return DIVIDE; }
-"%"           {return MOD; }
-">"           {return GREATER_THAN; }
-"<"           {return LESSER_THAN; }
-"=="          {return EQUALS; }
-"&&"          {return AND; }
-"||"          {return OR; }
-"!"           {return NOT; }
+"program"
+	return _PROGRAM_;
+"function"
+	return _FUNCTION_;
+"begin"
+	return _BEGIN_;
+"end"
+	return _END_;
+"void"   
+	return _VOID_;
+"if"     
+	return _IF_;
+"else"   
+	return _ELSE_;
+"then"   
+	return _THEN_;
+"int"    
+	return _INT_;
+"return" 
+	return _RETURN_;
+"main"   
+	return _MAIN_;
+"bool"   
+	return _BOOL_;
+"print"  
+	return _PRINT_;
+"true"   
+	return _TRUE_;
+"false"  
+	return _FALSE_;
+"while"  
+	return _WHILE_;
+"="      
+	return _ASSIGNMENT_;
+";"      
+	return _SEMICOLON_;
+","      
+	return _COMMA_;
+"("      
+	return _L_PARENTHESIS_;
+")"      
+	return _R_PARENTHESIS_;
+"+"      
+	return _PLUS_;
+"-"      
+	return _MINUS_;
+"*"      
+	return _MULTIPLY_;
+"/"      
+	return _DIVIDE_;
+"%"      
+	return _MOD_;
+">"      
+	return _GREATER_THAN_;
+"<"      
+	return _LESSER_THAN_;
+"=="     
+	return _EQUALS_;
+"&&"     
+	return _AND_;
+"||"     
+	return _OR_;
+"!"      
+	return _NOT_;
 
 {digit}+      { 
 	            yylval.i = atoi(yytext);
-	            return INT;
+	            return _INT_;
               }
 
 {id}          { 
 	            yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
 	            strcpy(yylval.s,yytext);
-	            return ID;
+	            return _ID_;
               }
 
 .|\n ;
