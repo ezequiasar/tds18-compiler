@@ -14,65 +14,49 @@ id {letter}({letter}|{digit})*
 
 %%
 
-var
-	return VAR;
+"program"     {return PROGRAM; }
+"function"    {return FUNCTION; }
+"begin"       {return BEGIN; }
+"end"         {return END; }
+"void"        {return VOID; }
+"if"          {return IF; }
+"else"        {return ELSE; }
+"then"        {return THEN; }
+"int"         {return INT; }
+"return"      {return RETURN; }
+"main"        {return MAIN; }
+"bool"        {return BOOL; }
+"print"       {return PRINT; }
+"true"        {return TRUE; }
+"false"       {return FALSE; }
+"while"       {return WHILE; }
+"="           {return ASSIGNMENT; }
+";"           {return SEMICOLON; }
+","           {return COMMA; }
+"("           {return L_PARENTHESIS; }
+")"           {return R_PARENTHESIS; }
+"+"           {return PLUS; }
+"-"           {return MINUS; }
+"*"           {return MULTIPLY; }
+"/"           {return DIVIDE; }
+"%"           {return MOD; }
+">"           {return GREATER_THAN; }
+"<"           {return LESSER_THAN; }
+"=="          {return EQUALS; }
+"&&"          {return AND; }
+"||"          {return OR; }
+"!"           {return NOT; }
 
-program
-	return PROGRAM;
+{digit}+      { 
+	            yylval.i = atoi(yytext);
+	            return INT;
+              }
 
-function
-	return FUNCTION;
-
-begin
-	return BEGIN;
-
-end
-	return END;
-
-void
-	return VOID;
-
-if
-	return IF;
-
-else
-	return ELSE;
-
-int
-	return INT;
-
-return
-	return RETURN;
-
-main
-	return MAIN;
-
-bool
-	return BOOL;
-
-print
-	return PRINT;
-
-true
-	return TRUE;
-
-false 
-	return FALSE;
-
-
-
-{digit}+ { 
-	yylval.i = atoi(yytext);
-	return INT;
-}
-
-{id} { 
-	yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
-	strcpy(yylval.s,yytext);
-	return ID;
-}
-
-[+*;()=] return *yytext;
+{id}          { 
+	            yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
+	            strcpy(yylval.s,yytext);
+	            return ID;
+              }
 
 .|\n ;
 

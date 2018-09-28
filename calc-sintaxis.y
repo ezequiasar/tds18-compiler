@@ -121,14 +121,31 @@ void printTree(ASTNode *root) {
 %token<i> RETURN
 %token<i> MAIN
 %token<i> PRINT
+%token<i> THEN
+%token<i> SEMICOLON
+%token<i> COMMA
+%token<i> L_PARENTHESIS
+%token<i> R_PARENTHESIS
+%token<i> PLUS
+%token<i> MINUS
+%token<i> MULTIPLY
+%token<i> DIVIDE
+%token<i> MOD
+%token<i> GREATER_THAN
+%token<i> LESSER_THAN
+%token<i> EQUALS
+%token<i> AND
+%token<i> OR
+%token<i> NOT
+%token<i> ASSIGNMENT
+%token<i> WHILE
+%token<i> TRUE
+%token<i> FALSE
 %token<s> ID
-%token<s> VAR
 
 %start prog
 
-%type<node> expr
-%type<node> def
- 
+
 %right '='
 %left '+' 
 %left '*'
@@ -142,7 +159,7 @@ vars_block: var_decl vars_block
           |
   ;
 
-var_decl: return_type ID another_var_decl SEMICOLON
+var_decl: type ID another_var_decl SEMICOLON
   ;
 
 another_var_decl: COMMA ID another_var_decl
@@ -150,10 +167,10 @@ another_var_decl: COMMA ID another_var_decl
   ;
 
 methods_block: method_decl methods_block
-             | return_type MAIN L_PARENTHESIS params_def R_PARENTHESIS code_block
+             | type MAIN L_PARENTHESIS params_def R_PARENTHESIS code_block
   ;
 
-method_decl: return_type ID L_PARENTHESIS params_def R_PARENTHESIS code_block
+method_decl: type ID L_PARENTHESIS params_def R_PARENTHESIS code_block
   ;
 
 code_block: BEGIN vars_block statements_block END
@@ -163,7 +180,7 @@ statements_block: statement statements_block
                 | 
   ;
 
-statement:  ID = expr SEMICOLON
+statement:  ID ASSIGNMENT expr SEMICOLON
           | method_call SEMICOLON
           | conditional_statement
           | WHILE L_PARENTHESIS expr R_PARENTHESIS code_block
@@ -202,7 +219,7 @@ expr: ID
     | expr MULTIPLY expr
     | expr DIVIDE expr
     | expr MOD expr
-    | expr LESS_THAN expr
+    | expr LESSER_THAN expr
     | expr GREATER_THAN expr
     | expr EQUALS expr
     | expr AND expr
