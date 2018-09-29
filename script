@@ -1,6 +1,6 @@
 #!/bin/bash
 
 flex calc-lexico.l 
-bison -d calc-sintaxis.y
+bison -d -v calc-sintaxis.y
 gcc lex.yy.c calc-sintaxis.tab.c
 mv a.out parser.out

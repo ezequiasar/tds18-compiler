@@ -14,70 +14,99 @@ id {letter}({letter}|{digit})*
 
 %%
 
-"program"
+program {
 	return _PROGRAM_;
-"function"
-	return _FUNCTION_;
-"begin"
+}
+begin {
 	return _BEGIN_;
-"end"
+}
+end {
 	return _END_;
-"void"   
+}
+void {
 	return _VOID_;
-"if"     
+}
+if {
 	return _IF_;
-"else"   
+}
+else {
 	return _ELSE_;
-"then"   
+}
+then {
 	return _THEN_;
-"int"    
-	return _INT_;
-"return" 
+}
+integer {
+	return _INTEGER_;
+}
+return {
 	return _RETURN_;
-"main"   
+}
+main {
 	return _MAIN_;
-"bool"   
+}
+bool {
 	return _BOOL_;
-"print"  
+}
+print {
 	return _PRINT_;
-"true"   
+}
+true {
 	return _TRUE_;
-"false"  
+}
+false {
 	return _FALSE_;
-"while"  
+}
+while {
 	return _WHILE_;
-"="      
+}
+= {
 	return _ASSIGNMENT_;
-";"      
+}
+; {
 	return _SEMICOLON_;
-","      
+}
+, {
 	return _COMMA_;
-"("      
+}
+\( {
 	return _L_PARENTHESIS_;
-")"      
+}
+\) {
 	return _R_PARENTHESIS_;
-"+"      
+}
+\+ {
 	return _PLUS_;
-"-"      
+}
+- {
 	return _MINUS_;
-"*"      
+}
+\* {
 	return _MULTIPLY_;
-"/"      
+}
+\/ {
 	return _DIVIDE_;
-"%"      
+}
+% {
 	return _MOD_;
-">"      
+}
+> {
 	return _GREATER_THAN_;
-"<"      
+}
+\< {
 	return _LESSER_THAN_;
-"=="     
+}
+== {
 	return _EQUALS_;
-"&&"     
+}
+&& {
 	return _AND_;
-"||"     
+}
+\|\| {
 	return _OR_;
-"!"      
+}
+! {
 	return _NOT_;
+}
 
 {digit}+      { 
 	            yylval.i = atoi(yytext);
@@ -90,7 +119,14 @@ id {letter}({letter}|{digit})*
 	            return _ID_;
               }
 
-.|\n ;
+(\n)+                         {}
+
+[ \t]                         {}
+
+"//".*\n                      {}
+
+.                             { error("Unrecognized input");
+                                yyterminate();};
 
 %%
 
