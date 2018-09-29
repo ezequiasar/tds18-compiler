@@ -144,18 +144,27 @@ void printTree(ASTNode *root) {
 %token<s> _ID_
 
 %start prog
+
+%nonassoc _ASSIGNMENT_
+%left _AND_ _OR_
+%nonassoc _EQUALS_ _GREATER_THAN_ _LESSER_THAN_
+%left _PLUS_ _MINUS_
+%left _MULTIPLY_ _DIVIDE_ _MOD_
+%right NEG
+%nonassoc LOWER_THAN_ELSE
+%nonassoc _ELSE_
  
 %%
 
-prog: _PROGRAM_ _BEGIN_ vars_block methods_block _END_                                                  {printf("\nEntontre: prog");}
+prog: _PROGRAM_ _BEGIN_ vars_block methods_block _END_                                                   {printf("\nEntontre: prog");}
   ;
 
 methods_block: method_decl methods_block
-             | type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                        {printf("\nEntontre: declaracion de main");}
-             | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                   {printf("\nEntontre: declaracion de main");}
+             | meth_type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                         {printf("\nEntontre: declaracion de main");}
+             | meth_type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                    {printf("\nEntontre: declaracion de main");}
   ;
 
-method_decl: meth_type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                       {printf("\nEntontre: declaracion de metodo");}
+method_decl: meth_type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                        {printf("\nEntontre: declaracion de metodo");}
            | meth_type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block
   ;
 
@@ -164,77 +173,77 @@ vars_block: var_decl
           | vars_block _SEMICOLON_ var_decl
   ;
 
-var_decl: type _ID_                                                                                     {printf("\nEntontre: Declaracion de Variable");}
+var_decl: type _ID_                                                                                      {printf("\nEntontre: Declaracion de Variable");}
         | var_decl _COMMA_ _ID_
   ;
 
-code_block: _BEGIN_ vars_block statements_block _END_                                                   {printf("\nEntontre: code_block");}
+code_block: _BEGIN_ vars_block statements_block _END_                                                    {printf("\nEntontre: code_block");}
   ;
 
-statements_block: statement                                                                             {printf("\nEntontre: statements_block");}
+statements_block: statement                                                                              {printf("\nEntontre: statements_block");}
                 | statements_block statement
   ;
 
-statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_                                                          {printf("\nEntontre: asignacion en statement");}
-          | method_call _SEMICOLON_                                                                     {printf("\nEntontre: llamado_a_metodo en statement");}
-          | conditional_statement                                                                       {printf("\nEntontre: conditional en statement");}
-          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block                                     {printf("\nEntontre: while block en statement");}
-          | _RETURN_ expr _SEMICOLON_                                                                   {printf("\nEntontre: return_expr_; en statement");}
-          | _RETURN_ _SEMICOLON_                                                                        {printf("\nEntontre: return_; en statement");}
-          | _SEMICOLON_                                                                                 {printf("\nEntontre: ; en statement");}
-          | code_block                                                                                  {printf("\nEntontre: codeblock en statement");}
+statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_                                                           {printf("\nEntontre: asignacion en statement");}
+          | method_call _SEMICOLON_                                                                      {printf("\nEntontre: llamado_a_metodo en statement");}
+          | conditional_statement                                                                        {printf("\nEntontre: conditional en statement");}
+          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block                                      {printf("\nEntontre: while block en statement");}
+          | _RETURN_ expr _SEMICOLON_                                                                    {printf("\nEntontre: return_expr_; en statement");}
+          | _RETURN_ _SEMICOLON_                                                                         {printf("\nEntontre: return_; en statement");}
+          | _SEMICOLON_                                                                                  {printf("\nEntontre: ; en statement");}
+          | code_block                                                                                   {printf("\nEntontre: codeblock en statement");}
   ;
 
-conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block    {printf("\nEntontre: if-then-else blocok\n");}
-                     | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block                      {printf("\nEntontre: if-then block\n");}
+conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block %prec LOWER_THAN_ELSE {printf("\nEntontre: if-then block\n");}
+                     | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block     {printf("\nEntontre: if-then-else blocok\n");}
   ;
 
-method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_                                           {printf("\nEntontre: llamado a metodo\n");}
-           | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_                                                       {printf("\nEntontre: llamado a metodo\n");}
+method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_                                            {printf("\nEntontre: llamado a metodo\n");}
+           | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_                                                        {printf("\nEntontre: llamado a metodo\n");}
   ;
 
 params_call: expr
-           | params_call _COMMA_ expr                                                                   {printf("\nEntontre: parametros de llamada");}
+           | params_call _COMMA_ expr                                                                    {printf("\nEntontre: parametros de llamada");}
   ;
 
-params_def: type _ID_                                                                                   {printf("\nEntontre: Parametros de definicion");}
+params_def: type _ID_                                                                                    {printf("\nEntontre: Parametros de definicion");}
           | params_def _COMMA_ _ID_
   ;
 
 meth_type: _VOID_
          | type
 
-type: _INTEGER_                                                                                         {printf("\nEntontre: type_INTEGER");}
-    | _BOOL_                                                                                            {printf("\nEntontre: type_BOOL");}
+type: _INTEGER_                                                                                          {printf("\nEntontre: type_INTEGER");}
+    | _BOOL_                                                                                             {printf("\nEntontre: type_BOOL");}
   ;
 
-expr: _ID_                                                                                              {printf("\nEntontre: id_expr");}
-    | method_call                                                                                       {printf("\nEntontre: llamado a metodo en expr");}
-    | literal                                                                                           {printf("\nEntontre: literal expr");}
-    | expr _PLUS_ expr                                                                                  {printf("\nEntontre: expr + expr");}
-    | expr _MINUS_ expr                                                                                 {printf("\nEntontre: expr - expr");}
-    | expr _MULTIPLY_ expr                                                                              {printf("\nEntontre: expr x expr");}
-    | expr _DIVIDE_ expr                                                                                {printf("\nEntontre: expr / expr");}
-    | expr _MOD_ expr                                                                                   {printf("\nEntontre: expr \% expr");}
-    | expr _LESSER_THAN_ expr                                                                           {printf("\nEntontre: expr < expr");}
-    | expr _GREATER_THAN_ expr                                                                          {printf("\nEntontre: expr > expr");}
-    | expr _EQUALS_ expr                                                                                {printf("\nEntontre: expr == expr");}
-    | expr _AND_ expr                                                                                   {printf("\nEntontre: expr && expr");}
-    | expr _OR_ expr                                                                                    {printf("\nEntontre: expr || expr");}
-    | _MINUS_ expr                                                                                      {printf("\nEntontre: -expr");}
-    | _NOT_ expr                                                                                        {printf("\nEntontre: !expr");}
-    | _L_PARENTHESIS_ expr _R_PARENTHESIS_                                                              {printf("\nEntontre: (expr)");}
+expr: _ID_                                                                                               {printf("\nEntontre: id_expr");}
+    | method_call                                                                                        {printf("\nEntontre: llamado a metodo en expr");}
+    | literal                                                                                            {printf("\nEntontre: literal expr");}
+    | expr _PLUS_ expr                                                                                   {printf("\nEntontre: expr + expr");}
+    | expr _MINUS_ expr                                                                                  {printf("\nEntontre: expr - expr");}
+    | expr _MULTIPLY_ expr                                                                               {printf("\nEntontre: expr x expr");}
+    | expr _DIVIDE_ expr                                                                                 {printf("\nEntontre: expr / expr");}
+    | expr _MOD_ expr                                                                                    {printf("\nEntontre: expr \% expr");}
+    | expr _LESSER_THAN_ expr                                                                            {printf("\nEntontre: expr < expr");}
+    | expr _GREATER_THAN_ expr                                                                           {printf("\nEntontre: expr > expr");}
+    | expr _EQUALS_ expr                                                                                 {printf("\nEntontre: expr == expr");}
+    | expr _AND_ expr                                                                                    {printf("\nEntontre: expr && expr");}
+    | expr _OR_ expr                                                                                     {printf("\nEntontre: expr || expr");}
+    | _MINUS_ expr %prec NEG                                                                             {printf("\nEntontre: -expr");}
+    | _NOT_ expr %prec NEG                                                                               {printf("\nEntontre: !expr");}
+    | _L_PARENTHESIS_ expr _R_PARENTHESIS_                                                               {printf("\nEntontre: (expr)");}
   ;
 
-literal: integer_literal                                                                                {printf("\nEntontre: literal_integer");}
-       | bool_literal                                                                                   {printf("\nEntontre: literal_bool");}
+literal: integer_literal                                                                                 {printf("\nEntontre: literal_integer");}
+       | bool_literal                                                                                    {printf("\nEntontre: literal_bool");}
   ;
 
-bool_literal: _TRUE_                                                                                    {printf("\nEntontre: literal_bool true");}
-            | _FALSE_                                                                                   {printf("\nEntontre: literal_bool false");}
+bool_literal: _TRUE_                                                                                     {printf("\nEntontre: literal_bool true");}
+            | _FALSE_                                                                                    {printf("\nEntontre: literal_bool false");}
   ;
 
-integer_literal: _INT_                                                                                  {printf("\nEntontre: un literal_integer");}
+integer_literal: _INT_                                                                                   {printf("\nEntontre: un literal_integer");}
   ;
   
 %%
