@@ -141,7 +141,7 @@ void printTree(ASTNode *root) {
 %token<i> _WHILE_
 %token<i> _TRUE_
 %token<i> _FALSE_
-%token<s> _ID_
+%token<i> _ID_
 
 %start prog
 
@@ -156,94 +156,112 @@ void printTree(ASTNode *root) {
  
 %%
 
-prog: _PROGRAM_ _BEGIN_ vars_block methods_block _END_                                                   {printf("\nEntontre: prog");}
+prog: _PROGRAM_ _BEGIN_ prog_body _END_                                                   {printf("\nEncontre: prog");}
   ;
 
-methods_block: method_decl methods_block
-             | meth_type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                         {printf("\nEntontre: declaracion de main");}
-             | meth_type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                    {printf("\nEntontre: declaracion de main");}
+prog_body: vars_block methods_block main_decl
+         | methods_block main_decl
+         | main_decl
   ;
 
-method_decl: meth_type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                        {printf("\nEntontre: declaracion de metodo");}
-           | meth_type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block
+decl: type _ID_
   ;
-
 
 vars_block: var_decl
           | vars_block _SEMICOLON_ var_decl
   ;
 
-var_decl: type _ID_                                                                                      {printf("\nEntontre: Declaracion de Variable");}
+var_decl: decl
         | var_decl _COMMA_ _ID_
+        | var_decl _SEMICOLON_                                                                                      {printf("\nEncontre: Declaracion de Variable");}
   ;
 
-code_block: _BEGIN_ vars_block statements_block _END_                                                    {printf("\nEntontre: code_block");}
+methods_block: method_decl
+             | methods_block method_decl
   ;
 
-statements_block: statement                                                                              {printf("\nEntontre: statements_block");}
+method_decl: decl _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                         {printf("\nEncontre: declaracion de un metodo");}
+           | decl _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                    {printf("\nEncontre: declaracion de un metodo");}
+           | methonly_type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                {printf("\nEncontre: declaracion de un metodo");}
+           | methonly_type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                           {printf("\nEncontre: declaracion de un metodo");}
+  ;
+
+main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                         {printf("\nEncontre: declaracion de main");}
+         | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                    {printf("\nEncontre: declaracion de main");}
+         | methonly_type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                {printf("\nEncontre: declaracion de main");}
+         | methonly_type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                           {printf("\nEncontre: declaracion de main");}
+
+code_block: _BEGIN_ code_block_body _END_                                                    {printf("\nEncontre: code_block");}
+  ;
+
+code_block_body: vars_block statements_block
+               | statements_block
+               | %empty
+
+statements_block: statement                                                                              {printf("\nEncontre: statements_block");}
                 | statements_block statement
   ;
 
-statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_                                                           {printf("\nEntontre: asignacion en statement");}
-          | method_call _SEMICOLON_                                                                      {printf("\nEntontre: llamado_a_metodo en statement");}
-          | conditional_statement                                                                        {printf("\nEntontre: conditional en statement");}
-          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block                                      {printf("\nEntontre: while block en statement");}
-          | _RETURN_ expr _SEMICOLON_                                                                    {printf("\nEntontre: return_expr_; en statement");}
-          | _RETURN_ _SEMICOLON_                                                                         {printf("\nEntontre: return_; en statement");}
-          | _SEMICOLON_                                                                                  {printf("\nEntontre: ; en statement");}
-          | code_block                                                                                   {printf("\nEntontre: codeblock en statement");}
+statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_                                                           {printf("\nEncontre: asignacion en statement");}
+          | method_call _SEMICOLON_                                                                      {printf("\nEncontre: llamado_a_metodo en statement");}
+          | conditional_statement                                                                        {printf("\nEncontre: conditional en statement");}
+          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block                                      {printf("\nEncontre: while block en statement");}
+          | _RETURN_ expr _SEMICOLON_                                                                    {printf("\nEncontre: return_expr_; en statement");}
+          | _RETURN_ _SEMICOLON_                                                                         {printf("\nEncontre: return_; en statement");}
+          | _SEMICOLON_                                                                                  {printf("\nEncontre: ; en statement");}
+          | code_block                                                                                   {printf("\nEncontre: codeblock en statement");}
   ;
 
-conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block %prec LOWER_THAN_ELSE {printf("\nEntontre: if-then block\n");}
-                     | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block     {printf("\nEntontre: if-then-else blocok\n");}
+conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block %prec LOWER_THAN_ELSE {printf("\nEncontre: if-then block\n");}
+                     | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block     {printf("\nEncontre: if-then-else block\n");}
   ;
 
-method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_                                            {printf("\nEntontre: llamado a metodo\n");}
-           | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_                                                        {printf("\nEntontre: llamado a metodo\n");}
+method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_                                            {printf("\nEncontre: llamado a metodo\n");}
+           | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_                                                        {printf("\nEncontre: llamado a metodo\n");}
   ;
 
 params_call: expr
-           | params_call _COMMA_ expr                                                                    {printf("\nEntontre: parametros de llamada");}
+           | params_call _COMMA_ expr                                                                    {printf("\nEncontre: parametros de llamada");}
   ;
 
-params_def: type _ID_                                                                                    {printf("\nEntontre: Parametros de definicion");}
+params_def: type _ID_                                                                                    {printf("\nEncontre: Parametros de definicion");}
           | params_def _COMMA_ _ID_
   ;
 
-meth_type: _VOID_
-         | type
-
-type: _INTEGER_                                                                                          {printf("\nEntontre: type_INTEGER");}
-    | _BOOL_                                                                                             {printf("\nEntontre: type_BOOL");}
+methonly_type: _VOID_
   ;
 
-expr: _ID_                                                                                               {printf("\nEntontre: id_expr");}
-    | method_call                                                                                        {printf("\nEntontre: llamado a metodo en expr");}
-    | literal                                                                                            {printf("\nEntontre: literal expr");}
-    | expr _PLUS_ expr                                                                                   {printf("\nEntontre: expr + expr");}
-    | expr _MINUS_ expr                                                                                  {printf("\nEntontre: expr - expr");}
-    | expr _MULTIPLY_ expr                                                                               {printf("\nEntontre: expr x expr");}
-    | expr _DIVIDE_ expr                                                                                 {printf("\nEntontre: expr / expr");}
-    | expr _MOD_ expr                                                                                    {printf("\nEntontre: expr \% expr");}
-    | expr _LESSER_THAN_ expr                                                                            {printf("\nEntontre: expr < expr");}
-    | expr _GREATER_THAN_ expr                                                                           {printf("\nEntontre: expr > expr");}
-    | expr _EQUALS_ expr                                                                                 {printf("\nEntontre: expr == expr");}
-    | expr _AND_ expr                                                                                    {printf("\nEntontre: expr && expr");}
-    | expr _OR_ expr                                                                                     {printf("\nEntontre: expr || expr");}
-    | _MINUS_ expr %prec NEG                                                                             {printf("\nEntontre: -expr");}
-    | _NOT_ expr %prec NEG                                                                               {printf("\nEntontre: !expr");}
-    | _L_PARENTHESIS_ expr _R_PARENTHESIS_                                                               {printf("\nEntontre: (expr)");}
+type: _INTEGER_                                                                                          {printf("\nEncontre: type_INTEGER");}
+    | _BOOL_                                                                                             {printf("\nEncontre: type_BOOL");}
   ;
 
-literal: integer_literal                                                                                 {printf("\nEntontre: literal_integer");}
-       | bool_literal                                                                                    {printf("\nEntontre: literal_bool");}
+expr: _ID_                                                                                               {printf("\nEncontre: id_expr");}
+    | method_call                                                                                        {printf("\nEncontre: llamado a metodo en expr");}
+    | literal                                                                                            {printf("\nEncontre: literal expr");}
+    | expr _PLUS_ expr                                                                                   {printf("\nEncontre: expr + expr");}
+    | expr _MINUS_ expr                                                                                  {printf("\nEncontre: expr - expr");}
+    | expr _MULTIPLY_ expr                                                                               {printf("\nEncontre: expr x expr");}
+    | expr _DIVIDE_ expr                                                                                 {printf("\nEncontre: expr / expr");}
+    | expr _MOD_ expr                                                                                    {printf("\nEncontre: expr \% expr");}
+    | expr _LESSER_THAN_ expr                                                                            {printf("\nEncontre: expr < expr");}
+    | expr _GREATER_THAN_ expr                                                                           {printf("\nEncontre: expr > expr");}
+    | expr _EQUALS_ expr                                                                                 {printf("\nEncontre: expr == expr");}
+    | expr _AND_ expr                                                                                    {printf("\nEncontre: expr && expr");}
+    | expr _OR_ expr                                                                                     {printf("\nEncontre: expr || expr");}
+    | _MINUS_ expr %prec NEG                                                                             {printf("\nEncontre: -expr");}
+    | _NOT_ expr %prec NEG                                                                               {printf("\nEncontre: !expr");}
+    | _L_PARENTHESIS_ expr _R_PARENTHESIS_                                                               {printf("\nEncontre: (expr)");}
   ;
 
-bool_literal: _TRUE_                                                                                     {printf("\nEntontre: literal_bool true");}
-            | _FALSE_                                                                                    {printf("\nEntontre: literal_bool false");}
+literal: integer_literal                                                                                 {printf("\nEncontre: literal_integer");}
+       | bool_literal                                                                                    {printf("\nEncontre: literal_bool");}
   ;
 
-integer_literal: _INT_                                                                                   {printf("\nEntontre: un literal_integer");}
+bool_literal: _TRUE_                                                                                     {printf("\nEncontre: literal_bool true");}
+            | _FALSE_                                                                                    {printf("\nEncontre: literal_bool false");}
+  ;
+
+integer_literal: _INT_                                                                                   {printf("\nEncontre: un literal_integer");}
   ;
   
 %%
