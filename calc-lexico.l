@@ -114,7 +114,7 @@ while {
               }
 
 {id}          { 
-	            yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
+	            	yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
 	            strcpy(yylval.s,yytext);
 	            return _ID_;
               }

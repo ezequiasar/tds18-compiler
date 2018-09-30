@@ -151,8 +151,8 @@ void printTree(ASTNode *root) {
 %left _PLUS_ _MINUS_
 %left _MULTIPLY_ _DIVIDE_ _MOD_
 %right NEG
-%nonassoc LOWER_THAN_ELSE
 %nonassoc _ELSE_
+
  
 %%
 
@@ -164,14 +164,11 @@ prog_body: vars_block methods_block main_decl
          | main_decl
   ;
 
-decl: type _ID_
-  ;
-
 vars_block: var_decl
           | vars_block _SEMICOLON_ var_decl
   ;
 
-var_decl: decl
+var_decl: type _ID_
         | var_decl _COMMA_ _ID_
         | var_decl _SEMICOLON_                                                                                      {printf("\nEncontre: Declaracion de Variable");}
   ;
@@ -180,16 +177,17 @@ methods_block: method_decl
              | methods_block method_decl
   ;
 
-method_decl: decl _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                         {printf("\nEncontre: declaracion de un metodo");}
-           | decl _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                    {printf("\nEncontre: declaracion de un metodo");}
-           | methonly_type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                {printf("\nEncontre: declaracion de un metodo");}
-           | methonly_type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                           {printf("\nEncontre: declaracion de un metodo");}
+method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                         {printf("\nEncontre: declaracion de un metodo");}
+           | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                    {printf("\nEncontre: declaracion de un metodo");}
+           | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                {printf("\nEncontre: declaracion de un metodo");}
+           | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                           {printf("\nEncontre: declaracion de un metodo");}
   ;
 
 main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                         {printf("\nEncontre: declaracion de main");}
          | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                    {printf("\nEncontre: declaracion de main");}
-         | methonly_type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                {printf("\nEncontre: declaracion de main");}
-         | methonly_type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                           {printf("\nEncontre: declaracion de main");}
+         | _VOID_ _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                {printf("\nEncontre: declaracion de main");}
+         | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                           {printf("\nEncontre: declaracion de main");}
+ ;
 
 code_block: _BEGIN_ code_block_body _END_                                                    {printf("\nEncontre: code_block");}
   ;
@@ -197,6 +195,7 @@ code_block: _BEGIN_ code_block_body _END_                                       
 code_block_body: vars_block statements_block
                | statements_block
                | %empty
+  ;
 
 statements_block: statement                                                                              {printf("\nEncontre: statements_block");}
                 | statements_block statement
@@ -212,7 +211,7 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_                                  
           | code_block                                                                                   {printf("\nEncontre: codeblock en statement");}
   ;
 
-conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block %prec LOWER_THAN_ELSE {printf("\nEncontre: if-then block\n");}
+conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block                       {printf("\nEncontre: if-then block\n");}
                      | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block     {printf("\nEncontre: if-then-else block\n");}
   ;
 
@@ -228,9 +227,6 @@ params_def: type _ID_                                                           
           | params_def _COMMA_ _ID_
   ;
 
-methonly_type: _VOID_
-  ;
-
 type: _INTEGER_                                                                                          {printf("\nEncontre: type_INTEGER");}
     | _BOOL_                                                                                             {printf("\nEncontre: type_BOOL");}
   ;
@@ -242,7 +238,7 @@ expr: _ID_                                                                      
     | expr _MINUS_ expr                                                                                  {printf("\nEncontre: expr - expr");}
     | expr _MULTIPLY_ expr                                                                               {printf("\nEncontre: expr x expr");}
     | expr _DIVIDE_ expr                                                                                 {printf("\nEncontre: expr / expr");}
-    | expr _MOD_ expr                                                                                    {printf("\nEncontre: expr \% expr");}
+    | expr _MOD_ expr                                                                                    {printf("\nEncontre: expr MOD expr");}
     | expr _LESSER_THAN_ expr                                                                            {printf("\nEncontre: expr < expr");}
     | expr _GREATER_THAN_ expr                                                                           {printf("\nEncontre: expr > expr");}
     | expr _EQUALS_ expr                                                                                 {printf("\nEncontre: expr == expr");}
