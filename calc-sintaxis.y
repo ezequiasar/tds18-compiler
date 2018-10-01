@@ -142,6 +142,7 @@ void printTree(ASTNode *root) {
 %token<i> _TRUE_
 %token<i> _FALSE_
 %token<i> _ID_
+%token<i> _EXTERN_
 
 %start prog
 
@@ -150,8 +151,6 @@ void printTree(ASTNode *root) {
 %nonassoc _EQUALS_ _GREATER_THAN_ _LESSER_THAN_
 %left _PLUS_ _MINUS_
 %left _MULTIPLY_ _DIVIDE_ _MOD_
-%precedence _THEN_
-%precedence _ELSE_
 %right NEG
  
 %%
@@ -180,6 +179,10 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block    
            | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                    {printf("\nEncontre: declaracion de un metodo");}
            | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                {printf("\nEncontre: declaracion de un metodo");}
            | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                           {printf("\nEncontre: declaracion de un metodo");}
+           | type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_                         
+           | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block _EXTERN_   
+           | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_              
+           | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ _EXTERN_   
   ;
 
 main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                         {printf("\nEncontre: declaracion de main");}
@@ -243,8 +246,8 @@ expr: _ID_                                                                      
     | expr _EQUALS_ expr                                                                                 {printf("\nEncontre: expr == expr");}
     | expr _AND_ expr                                                                                    {printf("\nEncontre: expr && expr");}
     | expr _OR_ expr                                                                                     {printf("\nEncontre: expr || expr");}
-    | _MINUS_ expr  %prec NEG                                                                           {printf("\nEncontre: -expr");}
-    | _NOT_ expr    %prec NEG                                                                                    {printf("\nEncontre: !expr");}
+    | _MINUS_ expr %prec NEG                                                                           {printf("\nEncontre: -expr");}
+    | _NOT_ expr %prec NEG                                                                                    {printf("\nEncontre: !expr");}
     | _L_PARENTHESIS_ expr _R_PARENTHESIS_                                                               {printf("\nEncontre: (expr)");}
   ;
 

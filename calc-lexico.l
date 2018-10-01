@@ -107,6 +107,9 @@ while {
 ! {
 	return _NOT_;
 }
+extern {
+	return _EXTERN_;
+}
 
 {digit}+      { 
 	            yylval.i = atoi(yytext);

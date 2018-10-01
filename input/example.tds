@@ -1,5 +1,6 @@
 program
 	begin
+		integer externFunction(integer x) extern
 		integer inc(integer x)
 			begin
 				return x + 1;
