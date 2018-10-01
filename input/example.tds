@@ -3,6 +3,8 @@ program
 		integer externFunction(integer x) extern
 		integer inc(integer x)
 			begin
+				{Este es un comentario}
+				{Este es otro}
 				return x + 1;
 			end
 		void main()

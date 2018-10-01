@@ -12,6 +12,11 @@ letter [a-zA-z]
 digit [0-9]
 id {letter}({letter}|{digit})*
 
+START "{"
+END "}"
+SIMPLE [^}]
+COMPLEX ["{"|\n][^/]
+
 %%
 
 program {
@@ -127,7 +132,7 @@ extern {
 [ \t]                         {}
 
 "//".*\n                      {}
-"{"[.|\b|\n]*"}"			  {} 
+{START}({SIMPLE}|{COMPLEX})*{END} {}
 
 .                             { error("Unrecognized input");
                                 yyterminate();};
