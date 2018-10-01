@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "structs.h"
- 
+
 VarNode *head = (VarNode *) NULL, *last = (VarNode *) NULL;
 ASTNode *expr_root = (ASTNode *) NULL, *expr_last = (ASTNode *) NULL;
 
-// Adds a variable into the symbol table  
+// Adds a variable into the symbol table
 void add_var(char *n, int v) {
   VarNode *new_node = (VarNode *) malloc (sizeof(VarNode));
   if (new_node==NULL)
@@ -77,7 +77,7 @@ ASTNode *add_node(ASTNode *hi, char op, ASTNode *hd) {
 
 // Evaluates an expression
 int eval(ASTNode *root) {
-  if (root->hi == NULL && root->hd == NULL) 
+  if (root->hi == NULL && root->hd == NULL)
     return root->data;
   if ((char) root->data == '+')
     return eval(root->hi) + eval(root->hd);
@@ -106,9 +106,9 @@ void printTree(ASTNode *root) {
 }
 
 %}
- 
+
 %union { int i; char *s; ASTNode *node; }
- 
+
 %token<i> _PROGRAM_
 %token<i> _BEGIN_
 %token<i> _END_
@@ -152,7 +152,7 @@ void printTree(ASTNode *root) {
 %left _PLUS_ _MINUS_
 %left _MULTIPLY_ _DIVIDE_ _MOD_
 %right NEG
- 
+
 %%
 
 prog: _PROGRAM_ _BEGIN_ prog_body _END_                                                   {printf("\nEncontre: prog");}
@@ -179,10 +179,10 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block    
            | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                                    {printf("\nEncontre: declaracion de un metodo");}
            | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                {printf("\nEncontre: declaracion de un metodo");}
            | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                           {printf("\nEncontre: declaracion de un metodo");}
-           | type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_                         
-           | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block _EXTERN_   
-           | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_              
-           | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ _EXTERN_   
+           | type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_
+           | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block _EXTERN_
+           | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_
+           | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ _EXTERN_
   ;
 
 main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block                         {printf("\nEncontre: declaracion de main");}
@@ -196,7 +196,7 @@ code_block: _BEGIN_ code_block_body _END_                                       
 
 code_block_body: vars_block statements_block
                | statements_block
-               | %empty
+               | 
   ;
 
 statements_block: statement                                                                              {printf("\nEncontre: statements_block");}
@@ -261,5 +261,5 @@ bool_literal: _TRUE_                                                            
 
 integer_literal: _INT_                                                                                   {printf("\nEncontre: un literal_integer");}
   ;
-  
+
 %%
