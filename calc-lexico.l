@@ -124,6 +124,7 @@ while {
 [ \t]                         {}
 
 "//".*\n                      {}
+"{"[.|\b|\n]*"}"			  {} 
 
 .                             { error("Unrecognized input");
                                 yyterminate();};
