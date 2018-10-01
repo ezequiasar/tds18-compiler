@@ -147,12 +147,12 @@ void printTree(ASTNode *root) {
 
 %nonassoc _ASSIGNMENT_
 %left _AND_ _OR_
-%precedence _NOT_
 %nonassoc _EQUALS_ _GREATER_THAN_ _LESSER_THAN_
 %left _PLUS_ _MINUS_
 %left _MULTIPLY_ _DIVIDE_ _MOD_
 %precedence _THEN_
 %precedence _ELSE_
+%right NEG
  
 %%
 
@@ -164,13 +164,12 @@ prog_body: vars_block methods_block main_decl
          | main_decl
   ;
 
-vars_block: var_decl
-          | vars_block _SEMICOLON_ var_decl
+vars_block: type id_list _SEMICOLON_
+          | vars_block type id_list _SEMICOLON_
   ;
 
-var_decl: type _ID_
-        | var_decl _COMMA_ _ID_
-        | var_decl _SEMICOLON_                                                                                  {printf("\nEncontre: Declaracion de Variable");}
+id_list: _ID_
+        | id_list _COMMA_ _ID_                                                                               {printf("\nEncontre: Declaracion de Variable");}
   ;
 
 methods_block: method_decl
@@ -244,8 +243,8 @@ expr: _ID_                                                                      
     | expr _EQUALS_ expr                                                                                 {printf("\nEncontre: expr == expr");}
     | expr _AND_ expr                                                                                    {printf("\nEncontre: expr && expr");}
     | expr _OR_ expr                                                                                     {printf("\nEncontre: expr || expr");}
-    | _MINUS_ expr                                                                            {printf("\nEncontre: -expr");}
-    | _NOT_ expr                                                                                         {printf("\nEncontre: !expr");}
+    | _MINUS_ expr  %prec NEG                                                                           {printf("\nEncontre: -expr");}
+    | _NOT_ expr    %prec NEG                                                                                    {printf("\nEncontre: !expr");}
     | _L_PARENTHESIS_ expr _R_PARENTHESIS_                                                               {printf("\nEncontre: (expr)");}
   ;
 
