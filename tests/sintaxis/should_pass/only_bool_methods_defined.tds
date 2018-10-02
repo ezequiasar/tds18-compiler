@@ -1,0 +1,15 @@
+program
+begin
+	bool fun(integer w)
+		begin
+			integer a;
+			integer b;
+			return (w == b - a);
+		end
+
+	bool main()
+		begin
+			integer h;
+			return fun(h);
+		end
+end

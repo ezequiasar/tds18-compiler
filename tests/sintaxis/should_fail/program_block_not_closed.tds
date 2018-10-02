@@ -1,0 +1,12 @@
+program
+begin
+	integer fun()
+		begin
+			{insert code here}
+		end
+	void print()
+		begin
+			//insert code here
+		end
+	begin
+	end

@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include "structs.h"
 #include "calc-sintaxis.tab.h"
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 %}
 
 %option noyywrap
@@ -12,63 +15,143 @@ letter [a-zA-z]
 digit [0-9]
 id {letter}({letter}|{digit})*
 
-%%
-
-var
-	return VAR;
-
-program
-	return PROGRAM;
-
-function
-	return FUNCTION;
-
-begin
-	return BEGIN;
-
-end
-	return END;
-
-void
-	return VOID;
-
-if
-	return IF;
-
-else
-	return ELSE;
-
-int
-	return INT;
-
-return
-	return RETURN;
-
-main
-	return MAIN;
-
-bool
-	return BOOL;
-
-{digit}+ { 
-	yylval.i = atoi(yytext);
-	return INT;
-}
-
-{id} { 
-	yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
-	strcpy(yylval.s,yytext);
-	return ID;
-}
-
-[+*;()=] return *yytext;
-
-.|\n ;
+START "{"
+END "}"
+SIMPLE [^}]
+COMPLEX [{|\n]
 
 %%
 
-void yyerror() {
-	printf("%s%d\n","-> ERROR Sintactico en la linea: ",yylineno);
+program {
+	return _PROGRAM_;
+}
+begin {
+	return _BEGIN_;
+}
+end {
+	return _END_;
+}
+void {
+	return _VOID_;
+}
+if {
+	return _IF_;
+}
+else {
+	return _ELSE_;
+}
+then {
+	return _THEN_;
+}
+integer {
+	return _INTEGER_;
+}
+return {
+	return _RETURN_;
+}
+main {
+	return _MAIN_;
+}
+bool {
+	return _BOOL_;
+}
+print {
+	return _PRINT_;
+}
+true {
+	return _TRUE_;
+}
+false {
+	return _FALSE_;
+}
+while {
+	return _WHILE_;
+}
+= {
+	return _ASSIGNMENT_;
+}
+; {
+	return _SEMICOLON_;
+}
+, {
+	return _COMMA_;
+}
+\( {
+	return _L_PARENTHESIS_;
+}
+\) {
+	return _R_PARENTHESIS_;
+}
+\+ {
+	return _PLUS_;
+}
+- {
+	return _MINUS_;
+}
+\* {
+	return _MULTIPLY_;
+}
+\/ {
+	return _DIVIDE_;
+}
+% {
+	return _MOD_;
+}
+> {
+	return _GREATER_THAN_;
+}
+\< {
+	return _LESSER_THAN_;
+}
+== {
+	return _EQUALS_;
+}
+&& {
+	return _AND_;
+}
+\|\| {
+	return _OR_;
+}
+! {
+	return _NOT_;
+}
+extern {
+	return _EXTERN_;
+}
+
+{digit}+      { 
+	            yylval.i = atoi(yytext);
+	            return _INT_;
+              }
+
+{id}          { 
+	            	yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
+	            strcpy(yylval.s,yytext);
+	            return _ID_;
+              }
+
+(\n)+                         {}
+
+[ \t]                         {}
+
+"//".*\n                      {}
+{START}({SIMPLE}|{COMPLEX})*{END} {}
+
+.                             { 
+								printf(ANSI_COLOR_RED "error!\n" ANSI_COLOR_RESET, yylineno);
+								printf("\t" ANSI_COLOR_RED "'%s'" ANSI_COLOR_RESET " is not a valid / recognized input\n", yytext);
+                                yyterminate();
+                              }
+
+%%
+
+void yyerror(char *errtype) {
+	if (errtype == "sintax") {
+		printf("%s%d\n", "\t-> Sintax Error in Line: ", yylineno);
+	}
+	else {
+		printf("%s%d\n", "\t-> error line: ", yylineno);
+	}
 }
 
 int main(int argc,char *argv[]) {

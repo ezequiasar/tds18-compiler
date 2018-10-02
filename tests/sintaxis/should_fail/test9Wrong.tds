@@ -1,0 +1,26 @@
+{
+    this test
+    has no main
+    function
+}
+program
+begin
+
+    bool x,y,z;
+    integer a,b,c;
+
+    void functionWithWhile()
+    begin
+        integer i;
+        i = 0;		
+        while (i < 10) begin
+            i = i + 1;
+        end
+    end
+
+    integer functionX()
+    begin
+        return a+b+c;
+    end
+
+end 

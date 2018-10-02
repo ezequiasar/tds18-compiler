@@ -1,0 +1,33 @@
+{
+    this test
+    should
+    pass
+}
+
+program
+    begin
+
+        integer a;
+        bool t,f;
+
+        bool functionBool(t,f,a)
+        begin
+            if(a > 2) then
+                begin
+                    return t;
+                end
+            else
+                begin
+                    return f;
+                end
+            end
+        end
+        //main function
+        void main()
+            begin
+                t = true;
+                f = false;
+                a = 3;
+                return functionBool(t,f,a);
+            end
+    end
