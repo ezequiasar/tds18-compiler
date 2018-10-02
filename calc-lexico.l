@@ -145,8 +145,13 @@ extern {
 
 %%
 
-void yyerror() {
-	printf("%s%d\n", "\t-> error line: ", yylineno);
+void yyerror(char *errtype) {
+	if (errtype == "sintax") {
+		printf("%s%d\n", "\t-> Sintax Error in Line: ", yylineno);
+	}
+	else {
+		printf("%s%d\n", "\t-> error line: ", yylineno);
+	}
 }
 
 int main(int argc,char *argv[]) {

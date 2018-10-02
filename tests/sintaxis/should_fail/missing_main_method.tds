@@ -1,0 +1,8 @@
+program
+begin
+	bool fun(integer w)
+		begin
+			integer a = 5;
+			integer b = a + (7 + 15);
+		end
+end

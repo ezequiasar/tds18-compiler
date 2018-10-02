@@ -1,0 +1,7 @@
+program
+begin
+	bool fun(integer w)
+		begin
+			integer a = 5
+		end
+end
