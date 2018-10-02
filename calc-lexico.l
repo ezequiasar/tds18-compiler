@@ -146,7 +146,7 @@ extern {
 %%
 
 void yyerror() {
-	printf("%s%d\n", "\t-> linea: ", yylineno);
+	printf("%s%d\n", "\t-> error line: ", yylineno);
 }
 
 int main(int argc,char *argv[]) {
