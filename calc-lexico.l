@@ -15,7 +15,7 @@ id {letter}({letter}|{digit})*
 START "{"
 END "}"
 SIMPLE [^}]
-COMPLEX ["{"|\n][^/]
+COMPLEX [{|\n]
 
 %%
 
@@ -134,8 +134,11 @@ extern {
 "//".*\n                      {}
 {START}({SIMPLE}|{COMPLEX})*{END} {}
 
-.                             { error("Unrecognized input");
-                                yyterminate();};
+.                             { 
+								//perror("Unrecognized input");
+								error_at_line (1, 1, "", yylineno, "%s", "Invalid Input Detected");
+								printf(": %s is not a valid / recognized input", yytext);
+                                yyterminate();}
 
 %%
 
