@@ -1,0 +1,37 @@
+{
+    this test
+    should
+    fail
+    Semicolon missed on global var definition and
+    does not return anything in the statement else
+
+}
+
+program
+    begin
+        integer a,b
+
+        bool functionWrong(x,y)
+            begin
+                if( x > y ) then
+                    begin
+                        return true;
+                    end
+                else
+                    begin
+                        return
+                    end
+                end
+            end
+        {
+         main function
+         with multiline
+         comment
+        }
+        void main()
+            begin
+                a = 1;
+                b = 2;
+                return functionWrong(a,b);
+            end
+    end

@@ -1,0 +1,27 @@
+{
+    this test
+    should
+    pass
+}
+program
+    begin
+     bool a;
+
+     integer functionTest(x)
+        begin
+            if (x == true) then
+                begin
+                    return 1;
+                else
+                    return 0;
+                end
+            end
+        end
+
+     //main function
+     void main()
+        begin
+            a = true;
+            return functionTest(a);
+        end //End of main
+    end
