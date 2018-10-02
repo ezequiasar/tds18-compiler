@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include "structs.h"
 #include "calc-sintaxis.tab.h"
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 %}
 
 %option noyywrap
@@ -135,15 +138,15 @@ extern {
 {START}({SIMPLE}|{COMPLEX})*{END} {}
 
 .                             { 
-								//perror("Unrecognized input");
-								error_at_line (1, 1, "", yylineno, "%s", "Invalid Input Detected");
-								printf(": %s is not a valid / recognized input", yytext);
-                                yyterminate();}
+								printf(ANSI_COLOR_RED "error!\n" ANSI_COLOR_RESET, yylineno);
+								printf("\t" ANSI_COLOR_RED "'%s'" ANSI_COLOR_RESET " is not a valid / recognized input\n", yytext);
+                                yyterminate();
+                              }
 
 %%
 
 void yyerror() {
-	printf("%s%d\n","-> ERROR Sintactico en la linea: ",yylineno);
+	printf("%s%d\n", "\t-> linea: ", yylineno);
 }
 
 int main(int argc,char *argv[]) {
