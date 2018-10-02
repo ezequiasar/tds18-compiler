@@ -2,7 +2,9 @@
     this test
     should
     fail
-    Does not return anything in the statement else
+    Semicolon missed on global var definition and
+    does not return anything in the statement else
+
 }
 
 program
