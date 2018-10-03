@@ -6,9 +6,9 @@ typedef struct var_struct {
   struct var_struct *next;
 }VarNode;
 
-typedef struct expression_struct {
+typedef struct ast_node_struct {
   int data;
   bool es_operador;
-  struct expression_struct *hi;
-  struct expression_struct *hd;
+  struct ast_node_struct *hi;
+  struct ast_node_struct *hd;
 }ASTNode;
