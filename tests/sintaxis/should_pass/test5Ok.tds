@@ -10,7 +10,7 @@ program
         integer a;
         bool t,f;
 
-        bool functionBool(t,f,a)
+        bool functionBool(bool t, bool f, integer a)
         begin
             if(a > 2) then
                 begin
@@ -20,7 +20,6 @@ program
                 begin
                     return f;
                 end
-            end
         end
         //main function
         void main()

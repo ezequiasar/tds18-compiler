@@ -226,7 +226,7 @@ params_call: expr
   ;
 
 params_def: type _ID_                                                                                    {printf("\nEncontre: Parametros de definicion");}
-          | params_def _COMMA_ _ID_
+          | params_def _COMMA_ type _ID_
   ;
 
 type: _INTEGER_                                                                                          {printf("\nEncontre: type_INTEGER");}
