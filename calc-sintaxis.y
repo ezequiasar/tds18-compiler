@@ -1,37 +1,45 @@
 %{
-#include <stdlib.h>
+#include <stdlib.h> 
 #include <stdio.h>
 #include "structs.h"
 
-VarNode *head = (VarNode *) NULL, *last = (VarNode *) NULL;
-ASTNode *expr_root = (ASTNode *) NULL, *expr_last = (ASTNode *) NULL;
+VarNode *var_list_head = (VarNode *) NULL, *var_list_last = (VarNode *) NULL;
+FunctionNode *fun_list_head = (FunctionNode *) NULL, *fun_list_last = (FunctionNode *) NULL;
+ASTNode *tree_root = (ASTNode *) NULL, *tree_last = (ASTNode *) NULL;
+
 
 // Adds a variable into the symbol table
-void add_var(char *n, int v) {
+void add_var(char *n, int v, bool is_boolean) {
   VarNode *new_node = (VarNode *) malloc (sizeof(VarNode));
   if (new_node==NULL)
     printf( "No hay memoria disponible!\n");
   new_node->name = n;
   new_node->value = v;
+  new_node->is_boolean = is_boolean;
   new_node->next = NULL;
-  if (head==NULL) {
-    head = new_node;
-    last = new_node;
+  if (var_list_head == NULL) {
+    var_list_head = new_node;
+    var_list_last = new_node;
   }
   else {
-    last->next = new_node;
-    last = new_node;
+    var_list_last->next = new_node;
+    var_list_last = new_node;
   }
 }
 
 // Prints the list of variables
 void list_vars() {
-  VarNode *aux = head;
+  VarNode *aux = var_list_head;
   int i = 0;
   printf("\n\nLista de Variables:\n");
   while (aux!=NULL) {
-    printf( "name: %s, value: %d\n",
-      aux->name,aux->value);
+    if (aux->is_boolean) {
+      printf( "name: %s, value: %s", aux->name, aux->value ? "true" : "false"); //Cero = false; !Cero = true
+    }
+    else {
+      printf( "name: %s, value: %d", aux->name, aux->value);
+    }
+
     aux = aux->next;
     i++;
   }
@@ -39,69 +47,22 @@ void list_vars() {
     printf( "\nLa lista está vacía!!\n" );
 }
 
-// Searchs for a variable, if it exist it returns the node, cc  it returns null
-VarNode *find_var(char *var_name) {
-  VarNode *aux = head;
-  while (aux != NULL) {
-    if (strcmp(aux->name, var_name) == 0) {
-      return aux;
-    }
-    aux = aux -> next;
-  }
-  return aux;
-}
-
-// Adds a new leave into the AST
-ASTNode *add_leave(int v) {
-  ASTNode *new_node = (ASTNode *) malloc (sizeof(ASTNode));
+// Adds a variable into the symbol table
+void add_function(char *name, FunType type, VarNode *ambient_head) {
+  FunctionNode *new_node = (FunctionNode *) malloc (sizeof(FunctionNode));
   if (new_node==NULL)
     printf( "No hay memoria disponible!\n");
-  new_node->data = v;
-  new_node->es_operador = false;
-  new_node->hi = NULL;
-  new_node->hd = NULL;
-  return new_node;
-}
-
-// Adds a new leave into the AST
-ASTNode *add_node(ASTNode *hi, char op, ASTNode *hd) {
-  ASTNode *new_node = (ASTNode *) malloc (sizeof(ASTNode));
-  if (new_node==NULL)
-    printf( "No hay memoria disponible!\n");
-  new_node->data = op;
-  new_node->es_operador = true;
-  new_node->hi = hi;
-  new_node->hd = hd;
-  return new_node;
-}
-
-// Evaluates an expression
-int eval(ASTNode *root) {
-  if (root->hi == NULL && root->hd == NULL)
-    return root->data;
-  if ((char) root->data == '+')
-    return eval(root->hi) + eval(root->hd);
-  else if ((char) root->data == '*')
-    return eval(root->hi) * eval(root->hd);
-}
-
-// Prints the AST
-void printTree(ASTNode *root) {
-  if (root->hi == NULL && root->hd == NULL)
-    printf("\n%d", root->data);
-  if ((char) root->data == '+') {
-    printf("\n(");
-    printTree(root->hi);
-    printf("\n+");
-    printTree(root->hd);
-    printf("\n)");
+  new_node->name = name;
+  new_node->type = type;
+  new_node->function_ambient = ambient_head;
+  new_node->next = NULL;
+  if (fun_list_head==NULL) {
+    fun_list_head = new_node;
+    fun_list_last = new_node;
   }
-  else if ((char) root->data == '*') {
-    printf("\n(");
-    printTree(root->hi);
-    printf("\n*");
-    printTree(root->hd);
-    printf("\n)");
+  else {
+    fun_list_last->next = new_node;
+    fun_list_last = new_node;
   }
 }
 
