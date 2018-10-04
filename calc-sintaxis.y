@@ -48,13 +48,13 @@ void list_vars() {
 }
 
 // Adds a variable into the symbol table
-void add_function(char *name, FunType type, VarNode *ambient_head) {
+void add_function(char *name, ReturnType type, VarNode *enviroment_head) {
   FunctionNode *new_node = (FunctionNode *) malloc (sizeof(FunctionNode));
   if (new_node==NULL)
     printf( "No hay memoria disponible!\n");
-  new_node->name = name;
+  new_node->id = name;
   new_node->type = type;
-  new_node->function_ambient = ambient_head;
+  new_node->enviroment = enviroment_head;
   new_node->next = NULL;
   if (fun_list_head==NULL) {
     fun_list_head = new_node;
