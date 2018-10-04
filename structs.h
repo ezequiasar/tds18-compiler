@@ -1,29 +1,28 @@
 #include <stdbool.h>
 
+// return types
 typedef enum return_types {
 	boolean, 
   integer, 
   vid
 } ReturnType;
 
-typedef enum posible_types {
-	bln, 
-  intgr
-} Type;
-
+// Struct that holds variables data
 typedef struct var_struct {
   char *name;
   int value;
   bool is_boolean;
   struct var_struct *next;
-}VarNode;
+} VarNode;
 
+// Struct that holds parameter information
 typedef struct parameter_struct {
   char *id;
-  Type type;
+  bool is_boolean;
   struct parameter_struct *next;
 } Parameter;
 
+// Node of the AST
 typedef struct ast_node_struct {
   int token;
   bool is_operador;
@@ -34,6 +33,7 @@ typedef struct ast_node_struct {
   struct ast_node_struct *right_child;
 }ASTNode;
 
+// Function Node: Represents a function of the program
 typedef struct functions_struct {
   char *id;
   ReturnType type;
@@ -43,6 +43,7 @@ typedef struct functions_struct {
   struct functions_struct *next;
 }FunctionNode;
 
+// Envitoment list, it holds all the head pointers of the diferent enviroment levels.
 typedef struct enviroment_stack {
 	VarNode *variables;
 	struct enviroment_stack *next;
