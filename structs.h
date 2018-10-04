@@ -24,14 +24,6 @@ typedef struct parameter_struct {
   struct parameter_struct *next;
 } Parameter;
 
-typedef struct functions_struct {
-  char *id;
-  ReturnType type;
-  Parameter parameters;
-  VarNode *enviroment;
-  struct functions_struct *next;
-}FunctionNode;
-
 typedef struct ast_node_struct {
   int token;
   bool is_operador;
@@ -41,6 +33,15 @@ typedef struct ast_node_struct {
   struct ast_node_struct *left_child;
   struct ast_node_struct *right_child;
 }ASTNode;
+
+typedef struct functions_struct {
+  char *id;
+  ReturnType type;
+  Parameter parameters;
+  VarNode *enviroment;
+  ASTNode *body;
+  struct functions_struct *next;
+}FunctionNode;
 
 typedef struct enviroment_stack {
 	VarNode *variables;

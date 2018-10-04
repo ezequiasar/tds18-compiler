@@ -3,68 +3,8 @@
 #include <stdio.h>
 #include "structs.h"
 
-VarNode *var_list_head = (VarNode *) NULL, *var_list_last = (VarNode *) NULL;
-FunctionNode *fun_list_head = (FunctionNode *) NULL, *fun_list_last = (FunctionNode *) NULL;
-ASTNode *tree_root = (ASTNode *) NULL, *tree_last = (ASTNode *) NULL;
-
-
-// Adds a variable into the symbol table
-void add_var(char *n, int v, bool is_boolean) {
-  VarNode *new_node = (VarNode *) malloc (sizeof(VarNode));
-  if (new_node==NULL)
-    printf( "No hay memoria disponible!\n");
-  new_node->name = n;
-  new_node->value = v;
-  new_node->is_boolean = is_boolean;
-  new_node->next = NULL;
-  if (var_list_head == NULL) {
-    var_list_head = new_node;
-    var_list_last = new_node;
-  }
-  else {
-    var_list_last->next = new_node;
-    var_list_last = new_node;
-  }
-}
-
-// Prints the list of variables
-void list_vars() {
-  VarNode *aux = var_list_head;
-  int i = 0;
-  printf("\n\nLista de Variables:\n");
-  while (aux!=NULL) {
-    if (aux->is_boolean) {
-      printf( "name: %s, value: %s", aux->name, aux->value ? "true" : "false"); //Cero = false; !Cero = true
-    }
-    else {
-      printf( "name: %s, value: %d", aux->name, aux->value);
-    }
-
-    aux = aux->next;
-    i++;
-  }
-  if (i == 0)
-    printf( "\nLa lista está vacía!!\n" );
-}
-
-// Adds a variable into the symbol table
-void add_function(char *name, ReturnType type, VarNode *enviroment_head) {
-  FunctionNode *new_node = (FunctionNode *) malloc (sizeof(FunctionNode));
-  if (new_node==NULL)
-    printf( "No hay memoria disponible!\n");
-  new_node->id = name;
-  new_node->type = type;
-  new_node->enviroment = enviroment_head;
-  new_node->next = NULL;
-  if (fun_list_head==NULL) {
-    fun_list_head = new_node;
-    fun_list_last = new_node;
-  }
-  else {
-    fun_list_last->next = new_node;
-    fun_list_last = new_node;
-  }
-}
+EnviromentNode *symbol_table = (EnviromentNode *) NULL;    // stack that contains all the enviroments
+FunctionNode *fun_list_head = (FunctionNode *) NULL;
 
 %}
 
