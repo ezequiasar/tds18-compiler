@@ -6,6 +6,49 @@
 EnviromentNode *symbol_table = (EnviromentNode *) NULL;    // stack that contains all the enviroments
 FunctionNode *fun_list_head = (FunctionNode *) NULL;
 
+ASTNode * add_AST_leave(VarNode * var_data) {
+  ASTNode * new_leave = (ASTNode *) malloc(sizeof(ASTNode));
+  new_leave -> data = var_data -> value;
+  new_leave -> is_boolean = var_data -> is_boolean;
+  new_leave -> is_if = false;
+  new_leave -> is_while = false;
+  new_leave -> var_data = var_data;
+  new_leave -> left_child = NULL;
+  new_leave -> right_child = NULL
+  return new_leave;
+}
+
+ASTNode * add_AST_leave(int value, bool is_boolean) {
+  ASTNode * new_leave = (ASTNode *) malloc(sizeof(ASTNode));
+  new_leave -> data = value;
+  new_leave -> is_boolean = is_boolean;
+  new_leave -> is_if = false;
+  new_leave -> is_while = false;
+  new_leave -> var_data = NULL;
+  new_leave -> left_child = NULL;
+  new_leave -> right_child = NULL;
+}
+
+ASTNode * add_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
+  ASTNode * new_node = (ASTNode *) malloc(sizeof(ASTNode));
+  new_node -> data = op;
+  new_node -> is_boolean = false;
+  if (op == 'i')
+    new_node -> is_if = true;
+  else
+    new_node -> is_if = false;
+  if (op == 'w')
+    new_node -> is_while = true;
+  else
+    new_node -> is_while = false;
+  new_node -> var_data = NULL;
+  new_node -> left_child = left_child;
+  new_node -> right_child = right_child;
+  return new_node;
+}
+
+
+
 %}
 
 %union { int i; char *s; ASTNode *node; }
@@ -54,6 +97,8 @@ FunctionNode *fun_list_head = (FunctionNode *) NULL;
 %left _MULTIPLY_ _DIVIDE_ _MOD_
 %right NEG
 
+%type<node> expr
+
 %%
 
 prog: _PROGRAM_ _BEGIN_ prog_body _END_                                                   {printf("\nEncontre: prog");}
@@ -65,7 +110,10 @@ prog_body: vars_block methods_block main_decl
   ;
 
 vars_block: type id_list _SEMICOLON_
-          | vars_block type id_list _SEMICOLON_
+    {
+      
+    }
+    | vars_block type id_list _SEMICOLON_
   ;
 
 id_list: _ID_
@@ -130,8 +178,16 @@ params_def: type _ID_                                                           
           | params_def _COMMA_ type _ID_
   ;
 
-type: _INTEGER_                                                                                          {printf("\nEncontre: type_INTEGER");}
-    | _BOOL_                                                                                             {printf("\nEncontre: type_BOOL");}
+type: _INTEGER_
+    {
+      printf("\nEncontre: type_INTEGER");
+      $$ = 1;  
+    }
+  | _BOOL_
+    {
+      printf("\nEncontre: type_BOOL");
+      $$ = 0;
+    }
   ;
 
 expr: _ID_ 
@@ -159,62 +215,62 @@ expr: _ID_
   | expr _PLUS_ expr
     {
       printf("\nEncontre: expr + expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'+',$3);
     }
   | expr _MINUS_ expr         
     {
       printf("\nEncontre: expr - expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'-',$3);
     }
   | expr _MULTIPLY_ expr      
     {
       printf("\nEncontre: expr x expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'*',$3);
     }
   | expr _DIVIDE_ expr        
     {
       printf("\nEncontre: expr / expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'/',$3);
     }
   | expr _MOD_ expr           
     {
       printf("\nEncontre: expr MOD expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'%',$3);
     }
   | expr _LESSER_THAN_ expr   
     {
       printf("\nEncontre: expr < expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'<',$3);
     }
   | expr _GREATER_THAN_ expr  
     {
       printf("\nEncontre: expr > expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'>',$3);
     }
   | expr _EQUALS_ expr        
     {
       printf("\nEncontre: expr == expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'e',$3);
     }
   | expr _AND_ expr           
     {
       printf("\nEncontre: expr && expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'&',$3);
     }
   | expr _OR_ expr            
     {
       printf("\nEncontre: expr || expr");
-      add_AST_node($1,$2,$3);
+      add_AST_node($1,'|',$3);
     }
   | _MINUS_ expr %prec NEG
     {
       printf("\nEncontre: -expr");
-      add_AST_node($1,$2);
+      add_AST_node('-',$2);
     }
   | _NOT_ expr %prec NEG
     {
       printf("\nEncontre: !expr");
-      add_AST_node($1,$2);
+      add_AST_node('!',$2);
     }
   | _L_PARENTHESIS_ expr _R_PARENTHESIS_
     {
@@ -238,12 +294,12 @@ literal: integer_literal
 bool_literal: _TRUE_
     {
       printf("\nEncontre: un literal_bool TRUE");
-      $$ = add_AST_leave($1, true);
+      $$ = add_AST_leave(1, true);
     }
   | _FALSE_
     {
       printf("\nEncontre: un literal_bool FALSE");
-      $$ = add_AST_leave($1, true);
+      $$ = add_AST_leave(0, true);
     }
 ;
 

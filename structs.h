@@ -24,11 +24,10 @@ typedef struct parameter_struct {
 
 // Node of the AST
 typedef struct ast_node_struct {
-  int token;
-  bool is_operador;
+  int data;
   bool is_boolean;
-  bool is_if_cond;
-  bool is_while_cond;
+  bool is_if;
+  bool is_while;
   VarNode *var_data;
   struct ast_node_struct *left_child;
   struct ast_node_struct *right_child;
