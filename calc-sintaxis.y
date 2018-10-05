@@ -97,7 +97,16 @@ ASTNode * add_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
 %left _MULTIPLY_ _DIVIDE_ _MOD_
 %right NEG
 
-%type<node> expr
+
+%type<node> method_call //method_call es tipo ASTNode porque forma parte del arbol.
+%type<node> code_block //code_block es tipo ASTNode porque forma parte del arbol.
+%type<node> statement //statement es tipo ASTNode porque forma parte del arbol.
+%type<node> conditional_statement //conditional_statement es tipo ASTNode porque forma parte del arbol.
+%type<node> expr //expr es tipo ASTNode porque forma parte del arbol.
+%type<node> literal //literal es tipo ASTNode porque forma parte del arbol.
+%type<node> integer_literal //integer_literal es tipo ASTNode porque forma parte del arbol.
+%type<node> bool_literal //bool_literal es tipo ASTNode porque forma parte del arbol.
+%type<i> type //type es tipo integer para el chequeo de tipos.
 
 %%
 
@@ -152,14 +161,46 @@ statements_block: statement                                                     
                 | statements_block statement
   ;
 
-statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_                                                           {printf("\nEncontre: asignacion en statement");}
-          | method_call _SEMICOLON_                                                                      {printf("\nEncontre: llamado_a_metodo en statement");}
-          | conditional_statement                                                                        {printf("\nEncontre: conditional en statement");}
-          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block                                      {printf("\nEncontre: while block en statement");}
-          | _RETURN_ expr _SEMICOLON_                                                                    {printf("\nEncontre: return_expr_; en statement");}
-          | _RETURN_ _SEMICOLON_                                                                         {printf("\nEncontre: return_; en statement");}
-          | _SEMICOLON_                                                                                  {printf("\nEncontre: ; en statement");}
-          | code_block                                                                                   {printf("\nEncontre: codeblock en statement");}
+statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
+              {
+                printf("\nEncontre: asignacion en statement");
+                $$ = add_AST_node($1, '=', $3);
+              }
+          | method_call _SEMICOLON_ 
+              {
+                printf("\nEncontre: llamado_a_metodo en statement");
+                $$ = $1
+              }
+          | conditional_statement                                                                        
+              {
+                printf("\nEncontre: conditional en statement");
+                $$ = $1
+              }
+          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block                                      
+              {
+                printf("\nEncontre: while block en statement");
+                //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
+              }
+          | _RETURN_ expr _SEMICOLON_                                                                    
+              {
+                printf("\nEncontre: return_expr_; en statement");
+                //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
+              }
+          | _RETURN_ _SEMICOLON_                                                                         
+              {
+                printf("\nEncontre: return_; en statement");
+                //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
+              }
+          | _SEMICOLON_                                                                                  
+              {
+                printf("\nEncontre: ; en statement");
+                //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
+              }
+          | code_block                                                                                   
+              {
+                printf("\nEncontre: codeblock en statement");
+                $$ = $1
+              }
   ;
 
 conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block                       {printf("\nEncontre: if-then block\n");}
@@ -215,62 +256,62 @@ expr: _ID_
   | expr _PLUS_ expr
     {
       printf("\nEncontre: expr + expr");
-      add_AST_node($1,'+',$3);
+      $$ = add_AST_node($1,'+',$3);
     }
   | expr _MINUS_ expr         
     {
       printf("\nEncontre: expr - expr");
-      add_AST_node($1,'-',$3);
+      $$ = add_AST_node($1,'-',$3);
     }
   | expr _MULTIPLY_ expr      
     {
       printf("\nEncontre: expr x expr");
-      add_AST_node($1,'*',$3);
+      $$ = add_AST_node($1,'*',$3);
     }
   | expr _DIVIDE_ expr        
     {
       printf("\nEncontre: expr / expr");
-      add_AST_node($1,'/',$3);
+      $$ = add_AST_node($1,'/',$3);
     }
   | expr _MOD_ expr           
     {
       printf("\nEncontre: expr MOD expr");
-      add_AST_node($1,'%',$3);
+    $$ = add_AST_node($1,'%',$3);
     }
   | expr _LESSER_THAN_ expr   
     {
       printf("\nEncontre: expr < expr");
-      add_AST_node($1,'<',$3);
+      $$ = add_AST_node($1,'<',$3);
     }
   | expr _GREATER_THAN_ expr  
     {
       printf("\nEncontre: expr > expr");
-      add_AST_node($1,'>',$3);
+      $$ = add_AST_node($1,'>',$3);
     }
   | expr _EQUALS_ expr        
     {
       printf("\nEncontre: expr == expr");
-      add_AST_node($1,'e',$3);
+      $$ = add_AST_node($1,'e',$3);
     }
   | expr _AND_ expr           
     {
       printf("\nEncontre: expr && expr");
-      add_AST_node($1,'&',$3);
+      $$ = add_AST_node($1,'&',$3);
     }
   | expr _OR_ expr            
     {
       printf("\nEncontre: expr || expr");
-      add_AST_node($1,'|',$3);
+      $$ = add_AST_node($1,'|',$3);
     }
   | _MINUS_ expr %prec NEG
     {
       printf("\nEncontre: -expr");
-      add_AST_node('-',$2);
+      $$ = add_AST_node('-',$2);
     }
   | _NOT_ expr %prec NEG
     {
       printf("\nEncontre: !expr");
-      add_AST_node('!',$2);
+      $$ = add_AST_node('!',$2);
     }
   | _L_PARENTHESIS_ expr _R_PARENTHESIS_
     {
