@@ -100,6 +100,7 @@ ASTNode * add_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
 
 %type<node> method_call //method_call es tipo ASTNode porque forma parte del arbol.
 %type<node> code_block //code_block es tipo ASTNode porque forma parte del arbol.
+%type<node> statements_block //statements_block es tipo ASTNode porque forma parte del arbol.
 %type<node> statement //statement es tipo ASTNode porque forma parte del arbol.
 %type<node> conditional_statement //conditional_statement es tipo ASTNode porque forma parte del arbol.
 %type<node> expr //expr es tipo ASTNode porque forma parte del arbol.
@@ -149,7 +150,11 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block    
          | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block                           {printf("\nEncontre: declaracion de main");}
  ;
 
-code_block: _BEGIN_ code_block_body _END_                                                    {printf("\nEncontre: code_block");}
+code_block: _BEGIN_ code_block_body _END_
+              {
+                printf("\nEncontre: code_block");
+                $$ = $2;
+              }
   ;
 
 code_block_body: vars_block statements_block
@@ -157,7 +162,11 @@ code_block_body: vars_block statements_block
                | 
   ;
 
-statements_block: statement                                                                              {printf("\nEncontre: statements_block");}
+statements_block: statement
+                    {
+                      printf("\nEncontre: statements_block");
+                      $$ = $1;
+                    }
                 | statements_block statement
   ;
 
@@ -169,12 +178,12 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
           | method_call _SEMICOLON_ 
               {
                 printf("\nEncontre: llamado_a_metodo en statement");
-                $$ = $1
+                $$ = $1;
               }
           | conditional_statement                                                                        
               {
                 printf("\nEncontre: conditional en statement");
-                $$ = $1
+                $$ = $1;
               }
           | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block                                      
               {
@@ -199,7 +208,7 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
           | code_block                                                                                   
               {
                 printf("\nEncontre: codeblock en statement");
-                $$ = $1
+                $$ = $1;
               }
   ;
 
