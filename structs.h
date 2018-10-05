@@ -9,7 +9,7 @@ typedef enum return_types {
 
 // Struct that holds variables data
 typedef struct var_struct {
-  char *name;
+  char *id;
   int value;
   bool is_boolean;
   struct var_struct *next;
@@ -26,6 +26,7 @@ typedef struct parameter_struct {
 typedef struct ast_node_struct {
   int token;
   bool is_operador;
+  bool is_boolean;
   bool is_if_cond;
   bool is_while_cond;
   VarNode *var_data;

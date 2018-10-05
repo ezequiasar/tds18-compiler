@@ -134,33 +134,124 @@ type: _INTEGER_                                                                 
     | _BOOL_                                                                                             {printf("\nEncontre: type_BOOL");}
   ;
 
-expr: _ID_                                                                                               {printf("\nEncontre: id_expr");}
-    | method_call                                                                                        {printf("\nEncontre: llamado a metodo en expr");}
-    | literal                                                                                            {printf("\nEncontre: literal expr");}
-    | expr _PLUS_ expr                                                                                   {printf("\nEncontre: expr + expr");}
-    | expr _MINUS_ expr                                                                                  {printf("\nEncontre: expr - expr");}
-    | expr _MULTIPLY_ expr                                                                               {printf("\nEncontre: expr x expr");}
-    | expr _DIVIDE_ expr                                                                                 {printf("\nEncontre: expr / expr");}
-    | expr _MOD_ expr                                                                                    {printf("\nEncontre: expr MOD expr");}
-    | expr _LESSER_THAN_ expr                                                                            {printf("\nEncontre: expr < expr");}
-    | expr _GREATER_THAN_ expr                                                                           {printf("\nEncontre: expr > expr");}
-    | expr _EQUALS_ expr                                                                                 {printf("\nEncontre: expr == expr");}
-    | expr _AND_ expr                                                                                    {printf("\nEncontre: expr && expr");}
-    | expr _OR_ expr                                                                                     {printf("\nEncontre: expr || expr");}
-    | _MINUS_ expr %prec NEG                                                                           {printf("\nEncontre: -expr");}
-    | _NOT_ expr %prec NEG                                                                                    {printf("\nEncontre: !expr");}
-    | _L_PARENTHESIS_ expr _R_PARENTHESIS_                                                               {printf("\nEncontre: (expr)");}
-  ;
+expr: _ID_ 
+    {
+      printf("\nEncontre: id_expr");
+      char * var_name = $1;
+      VarNode * var_data = get_var_data(var_name);
+      if (var_data != NULL) {
+        $$ = add_AST_leave(var_data);
+      }
+      else {
+        yyerror();
+        return -1;
+      }
+    }
+  | literal 
+    {
+      $$ = $1;
+    }
+  | method_call
+    {
+      printf("\nEncontre: llamado a metodo en expr");
+      $$ = $1;
+    }
+  | expr _PLUS_ expr
+    {
+      printf("\nEncontre: expr + expr");
+      add_AST_node($1,$2,$3);
+    }
+  | expr _MINUS_ expr         
+    {
+      printf("\nEncontre: expr - expr");
+      add_AST_node($1,$2,$3);
+    }
+  | expr _MULTIPLY_ expr      
+    {
+      printf("\nEncontre: expr x expr");
+      add_AST_node($1,$2,$3);
+    }
+  | expr _DIVIDE_ expr        
+    {
+      printf("\nEncontre: expr / expr");
+      add_AST_node($1,$2,$3);
+    }
+  | expr _MOD_ expr           
+    {
+      printf("\nEncontre: expr MOD expr");
+      add_AST_node($1,$2,$3);
+    }
+  | expr _LESSER_THAN_ expr   
+    {
+      printf("\nEncontre: expr < expr");
+      add_AST_node($1,$2,$3);
+    }
+  | expr _GREATER_THAN_ expr  
+    {
+      printf("\nEncontre: expr > expr");
+      add_AST_node($1,$2,$3);
+    }
+  | expr _EQUALS_ expr        
+    {
+      printf("\nEncontre: expr == expr");
+      add_AST_node($1,$2,$3);
+    }
+  | expr _AND_ expr           
+    {
+      printf("\nEncontre: expr && expr");
+      add_AST_node($1,$2,$3);
+    }
+  | expr _OR_ expr            
+    {
+      printf("\nEncontre: expr || expr");
+      add_AST_node($1,$2,$3);
+    }
+  | _MINUS_ expr %prec NEG
+    {
+      printf("\nEncontre: -expr");
+      add_AST_node($1,$2);
+    }
+  | _NOT_ expr %prec NEG
+    {
+      printf("\nEncontre: !expr");
+      add_AST_node($1,$2);
+    }
+  | _L_PARENTHESIS_ expr _R_PARENTHESIS_
+    {
+      printf("\nEncontre: (expr)");
+      $$ = $1;
+    }
+;
 
-literal: integer_literal                                                                                 {printf("\nEncontre: literal_integer");}
-       | bool_literal                                                                                    {printf("\nEncontre: literal_bool");}
-  ;
+literal: integer_literal
+    {
+      printf("\nEncontre: literal_integer");
+      $$ = $1;
+    }
+  | bool_literal
+    {
+      printf("\nEncontre: literal_bool");
+      $$ = $1;
+    }
+;
 
-bool_literal: _TRUE_                                                                                     {printf("\nEncontre: literal_bool true");}
-            | _FALSE_                                                                                    {printf("\nEncontre: literal_bool false");}
-  ;
+bool_literal: _TRUE_
+    {
+      printf("\nEncontre: un literal_bool TRUE");
+      $$ = add_AST_leave($1, true);
+    }
+  | _FALSE_
+    {
+      printf("\nEncontre: un literal_bool FALSE");
+      $$ = add_AST_leave($1, true);
+    }
+;
 
-integer_literal: _INT_                                                                                   {printf("\nEncontre: un literal_integer");}
-  ;
+integer_literal: _INT_                                                                                   
+    {
+      printf("\nEncontre: un literal_integer");
+      $$ = add_AST_leave($1, false);
+    }
+;
 
 %%
