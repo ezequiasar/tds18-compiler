@@ -37,7 +37,7 @@ typedef struct ast_node_struct {
 typedef struct functions_struct {
   char *id;
   ReturnType type;
-  Parameter parameters;
+  Parameter *parameters;
   VarNode *enviroment;
   ASTNode *body;
   struct functions_struct *next;
