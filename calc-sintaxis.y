@@ -6,7 +6,104 @@
 EnviromentNode *symbol_table = (EnviromentNode *) NULL;    // stack that contains all the enviroments
 FunctionNode *fun_list_head = (FunctionNode *) NULL;
 
-ASTNode * add_AST_leave(VarNode * var_data) {
+void * add_var_to_table(char * varname, int value, boolean is_boolean) {
+  EnviromentNode * enviromentAuxNode = symbol_table;
+  VarNode * varAuxNode;
+  
+  VarNode * new_var = (VarNode *) malloc(sizeof(VarNode));
+  if (new_var == NULL)
+    printf( "No hay memoria disponible!\n");
+
+  //Load Var Info.
+  new_var -> id = varname;
+  new_var -> value = value;
+  new_var -> is_boolean = is_boolean;
+  new_var -> next = NULL;
+
+  //Moving enviromentAuxNode to top of stack.-
+  while (enviromentAuxNode -> next != NULL) {
+    enviromentAuxNode = enviromentAuxNode -> next;
+  }
+  if (enviromentAuxNode -> variables == NULL) {
+    enviromentAuxNode -> variables = new_var;
+  }
+  else {
+    varAuxNode = enviromentAuxNode -> variables;
+
+    //Moving to last_var position
+    while (varAuxNode -> next != NULL) {
+      varAuxNode = varAuxNode -> next;
+    }
+    varAuxNode -> next = new_var;
+  }
+}
+
+void create_new_enviroment_level() {
+  EnviromentNode * enviromentAuxNode = symbol_table;
+  //Creating new level
+  EnviromentNode * newLevel = (EnviromentNode *) malloc(sizeof(EnviromentNode));
+  //Moving to last allocated level
+  while (enviromentAuxNode -> next != NULL) {
+    enviromentAuxNode = enviromentAuxNode -> next;
+  }
+  //Appending new level
+  enviromentAuxNode -> next = newLevel;
+}
+
+VarNode * find_symbol_in_stack(char * varname) {
+  //Podemos hacer la lista doblemente encadenada y es mas eficiente la busqueda.
+
+  EnviromentNode * enviromentAuxNode = symbol_table;
+  EnviromentNode * lastLevelChecked;
+
+  //Moving to last level.
+  while (enviromentAuxNode -> next != NULL) {
+    enviromentAuxNode = enviromentAuxNode -> next;
+  }
+
+  //Saving last checked level.
+  lastLevelChecked = enviromentAuxNode;
+
+  //Find varname in current level.
+  VarNode * result = find_symbol_in_table(enviromentAuxNode -> variables, varname);
+
+  //If not found -> find in previous level.
+  while (result == NULL || lastLevelChecked == symbol_table) {
+    //reseting aux node.
+    enviromentAuxNode = symbol_table;
+    //Moving to last not checked level.
+    while (enviromentAuxNode -> next != lastLevelChecked) {
+      enviromentAuxNode = enviromentAuxNode -> next;
+    }
+    
+    //Saving last checked level.
+    lastLevelChecked = enviromentAuxNode;
+
+    //Find varname in current level.
+    result = find_symbol_in_table(enviromentAuxNode -> variables, varname);
+  }
+
+  return result;
+}
+
+VarNode * find_symbol_in_table(VarNode * head, char * varname) {
+  VarNode * varAuxNode = head;
+  VarNode * result;
+
+  while (varAuxNode != NULL) {
+    if (varAuxNode -> id = varname) {
+      result = varAuxNode;
+      break;
+    }
+    else {
+      varAuxNode = varAuxNode -> next;
+    }
+  }
+
+  return result;
+}
+
+ASTNode * create_AST_leave(VarNode * var_data) {
   ASTNode * new_leave = (ASTNode *) malloc(sizeof(ASTNode));
   new_leave -> data = var_data -> value;
   new_leave -> is_boolean = var_data -> is_boolean;
@@ -14,11 +111,11 @@ ASTNode * add_AST_leave(VarNode * var_data) {
   new_leave -> is_while = false;
   new_leave -> var_data = var_data;
   new_leave -> left_child = NULL;
-  new_leave -> right_child = NULL
+  new_leave -> right_child = NULL;
   return new_leave;
 }
 
-ASTNode * add_AST_leave(int value, bool is_boolean) {
+ASTNode * create_AST_leave(int value, bool is_boolean) {
   ASTNode * new_leave = (ASTNode *) malloc(sizeof(ASTNode));
   new_leave -> data = value;
   new_leave -> is_boolean = is_boolean;
@@ -29,7 +126,7 @@ ASTNode * add_AST_leave(int value, bool is_boolean) {
   new_leave -> right_child = NULL;
 }
 
-ASTNode * add_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
+ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
   ASTNode * new_node = (ASTNode *) malloc(sizeof(ASTNode));
   new_node -> data = op;
   new_node -> is_boolean = false;
@@ -100,6 +197,7 @@ ASTNode * add_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
 
 %type<node> method_call //method_call es tipo ASTNode porque forma parte del arbol.
 %type<node> code_block //code_block es tipo ASTNode porque forma parte del arbol.
+%type<node> code_block_body //code_block_body es tipo ASTNode porque forma parte del arbol.
 %type<node> statements_block //statements_block es tipo ASTNode porque forma parte del arbol.
 %type<node> statement //statement es tipo ASTNode porque forma parte del arbol.
 %type<node> conditional_statement //conditional_statement es tipo ASTNode porque forma parte del arbol.
@@ -158,8 +256,16 @@ code_block: _BEGIN_ code_block_body _END_
   ;
 
 code_block_body: vars_block statements_block
+                  {
+                    $$ = $2;
+                  }
                | statements_block
-               | 
+                  {
+                    $$ = $1;
+                  }
+               |  {
+                    $$ = NULL;
+                  }
   ;
 
 statements_block: statement
@@ -173,7 +279,7 @@ statements_block: statement
 statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
               {
                 printf("\nEncontre: asignacion en statement");
-                $$ = add_AST_node($1, '=', $3);
+                $$ = create_AST_node($1, '=', $3);
               }
           | method_call _SEMICOLON_ 
               {
@@ -246,7 +352,7 @@ expr: _ID_
       char * var_name = $1;
       VarNode * var_data = get_var_data(var_name);
       if (var_data != NULL) {
-        $$ = add_AST_leave(var_data);
+        $$ = create_AST_leave(var_data);
       }
       else {
         yyerror();
@@ -265,62 +371,62 @@ expr: _ID_
   | expr _PLUS_ expr
     {
       printf("\nEncontre: expr + expr");
-      $$ = add_AST_node($1,'+',$3);
+      $$ = create_AST_node($1,'+',$3);
     }
   | expr _MINUS_ expr         
     {
       printf("\nEncontre: expr - expr");
-      $$ = add_AST_node($1,'-',$3);
+      $$ = create_AST_node($1,'-',$3);
     }
   | expr _MULTIPLY_ expr      
     {
       printf("\nEncontre: expr x expr");
-      $$ = add_AST_node($1,'*',$3);
+      $$ = create_AST_node($1,'*',$3);
     }
   | expr _DIVIDE_ expr        
     {
       printf("\nEncontre: expr / expr");
-      $$ = add_AST_node($1,'/',$3);
+      $$ = create_AST_node($1,'/',$3);
     }
   | expr _MOD_ expr           
     {
       printf("\nEncontre: expr MOD expr");
-    $$ = add_AST_node($1,'%',$3);
+    $$ = create_AST_node($1,'%',$3);
     }
   | expr _LESSER_THAN_ expr   
     {
       printf("\nEncontre: expr < expr");
-      $$ = add_AST_node($1,'<',$3);
+      $$ = create_AST_node($1,'<',$3);
     }
   | expr _GREATER_THAN_ expr  
     {
       printf("\nEncontre: expr > expr");
-      $$ = add_AST_node($1,'>',$3);
+      $$ = create_AST_node($1,'>',$3);
     }
   | expr _EQUALS_ expr        
     {
       printf("\nEncontre: expr == expr");
-      $$ = add_AST_node($1,'e',$3);
+      $$ = create_AST_node($1,'e',$3);
     }
   | expr _AND_ expr           
     {
       printf("\nEncontre: expr && expr");
-      $$ = add_AST_node($1,'&',$3);
+      $$ = create_AST_node($1,'&',$3);
     }
   | expr _OR_ expr            
     {
       printf("\nEncontre: expr || expr");
-      $$ = add_AST_node($1,'|',$3);
+      $$ = create_AST_node($1,'|',$3);
     }
   | _MINUS_ expr %prec NEG
     {
       printf("\nEncontre: -expr");
-      $$ = add_AST_node('-',$2);
+      $$ = create_AST_node('-',$2);
     }
   | _NOT_ expr %prec NEG
     {
       printf("\nEncontre: !expr");
-      $$ = add_AST_node('!',$2);
+      $$ = create_AST_node('!',$2);
     }
   | _L_PARENTHESIS_ expr _R_PARENTHESIS_
     {
@@ -344,19 +450,19 @@ literal: integer_literal
 bool_literal: _TRUE_
     {
       printf("\nEncontre: un literal_bool TRUE");
-      $$ = add_AST_leave(1, true);
+      $$ = create_AST_leave(1, true);
     }
   | _FALSE_
     {
       printf("\nEncontre: un literal_bool FALSE");
-      $$ = add_AST_leave(0, true);
+      $$ = create_AST_leave(0, true);
     }
 ;
 
 integer_literal: _INT_                                                                                   
     {
       printf("\nEncontre: un literal_integer");
-      $$ = add_AST_leave($1, false);
+      $$ = create_AST_leave($1, false);
     }
 ;
 
