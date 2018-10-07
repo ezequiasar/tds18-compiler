@@ -350,7 +350,7 @@ expr: _ID_
     {
       printf("\nEncontre: id_expr");
       char * var_name = $1;
-      VarNode * var_data = get_var_data(var_name);
+      VarNode * var_data = find_symbol_in_stack(var_name);
       if (var_data != NULL) {
         $$ = create_AST_leave_from_VarNode(var_data);
       }
