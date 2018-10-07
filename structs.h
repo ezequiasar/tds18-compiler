@@ -28,6 +28,8 @@ typedef struct ast_node_struct {
   bool is_boolean;
   bool is_if;
   bool is_while;
+  bool is_arith_op;
+  bool is_boolean_op;
   VarNode *var_data;
   struct ast_node_struct *left_child;
   struct ast_node_struct *right_child;

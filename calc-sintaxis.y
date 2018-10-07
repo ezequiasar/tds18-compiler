@@ -38,6 +38,36 @@ void * add_var_to_table(char * varname, int value, bool is_boolean) {
   }
 }
 
+VarNode * partial_varnode(char * varname) {
+  VarNode * new_var = (VarNode *) malloc(sizeof(VarNode));
+  if (new_var == NULL)
+    printf( "No hay memoria disponible!\n");
+
+  //Load Var Info.
+  new_var -> id = varname;
+  new_var -> next = NULL;
+}
+
+void * add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
+  if (var_list_head == NULL) {
+    var_list_head = to_add_node;
+  }
+  else {
+    VarNode * varAuxNode = var_list_head;
+    //Moving to last node position
+    while (varAuxNode -> next != NULL) {
+      varAuxNode = varAuxNode -> next;
+    }
+
+    //Appending to_add_node
+    varAuxNode -> next = to_add_node;
+  }
+}
+
+void * add_value_to_varnode(VarNode * varnode, int value) {
+  varnode -> value = value;
+}
+
 void create_new_enviroment_level() {
   EnviromentNode * enviromentAuxNode = symbol_table;
   //Creating new level
@@ -138,17 +168,62 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
     new_node -> is_while = true;
   else
     new_node -> is_while = false;
+  if (op == '+' || op == '-' || op == '*' || op == '/' || op == '%')
+    new_node -> is_arith_op = true;
+  else
+    new_node -> is_arith_op = false;
+  if (op == '<' || op == '>' || op == 'e' || op == '&' || op == '|' || op == '!')
+    new_node -> is_boolean_op = true;
+  else
+    new_node -> is_boolean_op = false;
+
   new_node -> var_data = NULL;
   new_node -> left_child = left_child;
   new_node -> right_child = right_child;
   return new_node;
 }
 
+int eval_int_expr(ASTNode * root) {
+  if (root -> left_child == NULL && root -> right_child == NULL) 
+    return root->data;
+  if (root -> is_arith_op) {
+    if ((char) root->data == '+')
+      return eval_int_expr(root->left_child) + eval_int_expr(root->right_child);
+    else if ((char) root->data == '-')
+      return eval_int_expr(root->left_child) - eval_int_expr(root->right_child);
+    else if ((char) root->data == '*')
+      return eval_int_expr(root->left_child) * eval_int_expr(root->right_child);
+    else if ((char) root->data == '/')
+      return (int) eval_int_expr(root->left_child) / eval_int_expr(root->right_child);
+    else if ((char) root->data == '%')
+      return (int) eval_int_expr(root->left_child) % eval_int_expr(root->right_child);
+  }
+}
+
+bool eval_bool_expr(ASTNode * root) {
+  if (root -> left_child == NULL && root -> right_child == NULL) 
+    return (bool) root -> data;
+  if (root -> is_boolean_op) {
+    if ((char) root->data == '<')
+      return eval_bool_expr(root->left_child) < eval_bool_expr(root->right_child);
+    else if ((bool) root->data == '>')
+      return eval_bool_expr(root->left_child) > eval_bool_expr(root->right_child);
+    else if ((bool) root->data == 'e')
+      return eval_bool_expr(root->left_child) == eval_bool_expr(root->right_child);
+    else if ((char) root->data == '&')
+      return (bool) eval_bool_expr(root->left_child) && eval_bool_expr(root->right_child);
+    else if ((char) root->data == '|')
+      return (bool) eval_bool_expr(root->left_child) || eval_bool_expr(root->right_child);
+    else if ((char) root->data == '!')
+      return (bool) !eval_bool_expr(root->left_child);
+  }
+}
+
 
 
 %}
 
-%union { int i; char *s; ASTNode *node; }
+%union { int i; char *s; ASTNode *node; VarNode *varnode};
 
 %token<i> _PROGRAM_
 %token<i> _BEGIN_
@@ -182,7 +257,7 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
 %token<i> _WHILE_
 %token<i> _TRUE_
 %token<i> _FALSE_
-%token<i> _ID_
+%token<s> _ID_
 %token<i> _EXTERN_
 
 %start prog
@@ -195,6 +270,8 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
 %right NEG
 
 
+%type<varnode> vars_block
+%type<varnode> id_list
 %type<node> method_call //method_call es tipo ASTNode porque forma parte del arbol.
 %type<node> code_block //code_block es tipo ASTNode porque forma parte del arbol.
 %type<node> code_block_body //code_block_body es tipo ASTNode porque forma parte del arbol.
@@ -224,8 +301,13 @@ vars_block: type id_list _SEMICOLON_
     | vars_block type id_list _SEMICOLON_
   ;
 
-id_list: _ID_
-        | id_list _COMMA_ _ID_                                                                               {printf("\nEncontre: Declaracion de Variable");}
+id_list: _ID_ {
+            add_partial_varnode($$, partial_varnode($1));
+          }
+        | id_list _COMMA_ _ID_ {
+            printf("\nEncontre: Declaracion de Variable");
+            add_partial_varnode($$, partial_varnode($3));
+          }
   ;
 
 methods_block: method_decl
@@ -279,7 +361,16 @@ statements_block: statement
 statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
               {
                 printf("\nEncontre: asignacion en statement");
-                $$ = create_AST_node($1, '=', $3);
+
+                VarNode *id_varnode = find_symbol_in_stack($1);
+
+                if (id_varnode -> is_boolean)
+                  add_value_to_varnode(id_varnode, (int) eval_bool_expr($3));
+                else
+                  add_value_to_varnode(id_varnode, eval_int_expr($3));
+
+
+                $$ = create_AST_node(create_AST_leave_from_VarNode(id_varnode), '=', $3);
               }
           | method_call _SEMICOLON_ 
               {
@@ -431,7 +522,7 @@ expr: _ID_
   | _L_PARENTHESIS_ expr _R_PARENTHESIS_
     {
       printf("\nEncontre: (expr)");
-      $$ = $1;
+      $$ = $2;
     }
 ;
 
