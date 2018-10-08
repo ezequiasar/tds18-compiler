@@ -7,6 +7,8 @@ EnviromentNode *symbol_table = (EnviromentNode *) NULL;    // stack that contain
 FunctionNode *fun_list_head = (FunctionNode *) NULL;
 
 void add_var_to_table(char * varname, int value, bool is_boolean) {
+  //printf("add_var_to_table\n");
+
   EnviromentNode * enviromentAuxNode = symbol_table;
   VarNode * varAuxNode;
 
@@ -39,6 +41,8 @@ void add_var_to_table(char * varname, int value, bool is_boolean) {
 }
 
 VarNode * partial_varnode(char * varname) {
+  //printf("partial_varnode\n");
+
   VarNode * new_var = (VarNode *) malloc(sizeof(VarNode));
   if (new_var == NULL)
     printf( "No hay memoria disponible!\n");
@@ -66,6 +70,7 @@ void add_new_parameter(Parameter * params_list_head, Parameter * to_add_param) {
 }
 
 void add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
+  //printf("add_partial_varnode\n");
   if (var_list_head == NULL) {
     var_list_head = to_add_node;
   }
@@ -82,11 +87,16 @@ void add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
 }
 
 void add_value_to_varnode(VarNode * varnode, int value) {
+
+  //printf("add_value_to_varnode\n");
+
   varnode -> value = value;
   varnode -> is_defined = true;
 }
 
 void create_new_enviroment_level() {
+  //printf("create_new_enviroment_level\n");
+
   EnviromentNode * enviromentAuxNode = symbol_table;
 
   //Creating new level
@@ -94,15 +104,21 @@ void create_new_enviroment_level() {
   newLevel -> variables = NULL;
   newLevel -> next = NULL;
 
-  //Moving to last allocated level
-  while (enviromentAuxNode -> next != NULL) {
-    enviromentAuxNode = enviromentAuxNode -> next;
+  if (symbol_table == NULL)
+    symbol_table = newLevel;
+  else {
+    //Moving to last allocated level
+    while (enviromentAuxNode -> next != NULL) {
+      enviromentAuxNode = enviromentAuxNode -> next;
+    }
+    //Appending new level
+    enviromentAuxNode -> next = newLevel;
   }
-  //Appending new level
-  enviromentAuxNode -> next = newLevel;
 }
 
 void create_new_enviroment_level_from_varnode(VarNode * var_list_head) {
+  //printf("create_new_enviroment_level_from_varnode\n");
+
   create_new_enviroment_level();
   EnviromentNode * enviromentAuxNode = symbol_table;
 
@@ -114,6 +130,8 @@ void create_new_enviroment_level_from_varnode(VarNode * var_list_head) {
 }
 
 VarNode * get_last_stack_level() {
+  //printf("get_last_stack_level\n");
+
   EnviromentNode * enviromentAuxNode = symbol_table;
 
   while (enviromentAuxNode -> next != NULL)
@@ -123,6 +141,8 @@ VarNode * get_last_stack_level() {
 }
 
 FunctionNode * add_function_to_funlist(int return_type, char * function_name, Parameter *parameters_list) {
+  //printf("add_function_to_funlist\n");
+
   FunctionNode * functionAuxNode = fun_list_head;
 
   //Create new function and load its data.
@@ -155,6 +175,8 @@ FunctionNode * add_function_to_funlist(int return_type, char * function_name, Pa
 }
 
 VarNode * find_symbol_in_table(VarNode * head, char * varname) {
+  //printf("find_symbol_in_table\n");
+
   VarNode * varAuxNode = head;
   VarNode * result;
 
@@ -172,6 +194,8 @@ VarNode * find_symbol_in_table(VarNode * head, char * varname) {
 }
 
 VarNode * find_symbol_in_stack(char * varname) {
+  //printf("find_symbol_in_stack\n");
+
   //Podemos hacer la lista doblemente encadenada y es mas eficiente la busqueda.
 
   EnviromentNode * enviromentAuxNode = symbol_table;
@@ -208,6 +232,8 @@ VarNode * find_symbol_in_stack(char * varname) {
 }
 
 ASTNode * create_AST_leave_from_VarNode(VarNode * var_data) {
+  //printf("create_AST_leave_from_VarNode\n");
+
   ASTNode * new_leave = (ASTNode *) malloc(sizeof(ASTNode));
   new_leave -> data = var_data -> value;
   new_leave -> is_boolean = var_data -> is_boolean;
@@ -224,6 +250,8 @@ ASTNode * create_AST_leave_from_VarNode(VarNode * var_data) {
 }
 
 ASTNode * create_AST_leave_from_value(int value, bool is_boolean) {
+  //printf("create_AST_leave_from_value\n");
+
   ASTNode * new_leave = (ASTNode *) malloc(sizeof(ASTNode));
   new_leave -> data = value;
   new_leave -> is_boolean = is_boolean;
@@ -239,6 +267,8 @@ ASTNode * create_AST_leave_from_value(int value, bool is_boolean) {
 }
 
 ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
+  //printf("create_AST_node\n");
+
   ASTNode * new_node = (ASTNode *) malloc(sizeof(ASTNode));
   new_node -> data = op;
   new_node -> is_boolean = false;
@@ -272,6 +302,8 @@ bool eval_bool_expr(ASTNode * root);
 int eval_int_expr(ASTNode * root);
 
 int eval_int_expr(ASTNode * root) {
+  //printf("eval_int_expr\n");
+
   if (root -> left_child == NULL && root -> right_child == NULL)
     return root->data;
   if (root -> is_arith_op) {
@@ -289,6 +321,8 @@ int eval_int_expr(ASTNode * root) {
 }
 
 bool eval_bool_expr(ASTNode * root) {
+  //printf("eval_bool_expr\n");
+
   if (root -> left_child == NULL && root -> right_child == NULL)
     return (bool) root -> data;
   if (root -> is_boolean_op) {
@@ -312,6 +346,8 @@ bool eval_bool_expr(ASTNode * root) {
 }
 
 bool check_if_equals(Parameter * list1, Parameter * list2) {
+  //printf("check_if_equals\n");
+
   Parameter * paramAuxNode1 = list1;
   Parameter * paramAuxNode2 = list2;
 
@@ -339,6 +375,8 @@ bool check_if_equals(Parameter * list1, Parameter * list2) {
 }
 
 bool is_callable(char * function_name, Parameter * params) {
+  //printf("is_callable\n");
+
   FunctionNode * functionAuxNode = fun_list_head;
 
   while (functionAuxNode != NULL) {
@@ -350,6 +388,8 @@ bool is_callable(char * function_name, Parameter * params) {
 }
 
 ASTNode * ast_from_parameters_list (Parameter * params_list) {
+  //printf("ast_from_parameters_list\n");
+
   ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
   Parameter * paramAuxNode = params_list;
 
@@ -399,6 +439,8 @@ ASTNode * ast_from_parameters_list (Parameter * params_list) {
 }
 
 FunctionNode * find_function(char * function_name) {
+  //printf("find_function\n");
+
   FunctionNode * functionAuxNode = fun_list_head;
 
   while (functionAuxNode != NULL) {
@@ -410,6 +452,8 @@ FunctionNode * find_function(char * function_name) {
 }
 
 void set_type(int type, VarNode * var_list_head) {
+  //printf("set_type\n");
+
   VarNode * varAuxNode = var_list_head;
 
   while (varAuxNode != NULL) {
