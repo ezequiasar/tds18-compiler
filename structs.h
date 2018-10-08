@@ -2,8 +2,8 @@
 
 // return types
 typedef enum return_types {
-	boolean, 
-  integer, 
+	boolean,
+  integer,
   vid
 } ReturnType;
 
@@ -24,8 +24,8 @@ typedef struct parameter_struct {
   struct parameter_struct *next;
 } Parameter;
 
-typedef struct functions_struct;
-typedef struct ast_node_struct;
+struct functions_struct;
+struct ast_node_struct;
 
 // Function Node: Represents a function of the program
 typedef struct functions_struct {
@@ -56,4 +56,3 @@ typedef struct enviroment_stack {
 	VarNode *variables;
 	struct enviroment_stack *next;
 } EnviromentNode;
-

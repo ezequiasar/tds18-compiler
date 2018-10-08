@@ -1,5 +1,5 @@
 %{
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <stdio.h>
 #include "structs.h"
 
@@ -9,7 +9,7 @@ FunctionNode *fun_list_head = (FunctionNode *) NULL;
 void add_var_to_table(char * varname, int value, bool is_boolean) {
   EnviromentNode * enviromentAuxNode = symbol_table;
   VarNode * varAuxNode;
-  
+
   VarNode * new_var = (VarNode *) malloc(sizeof(VarNode));
   if (new_var == NULL)
     printf( "No hay memoria disponible!\n");
@@ -62,7 +62,7 @@ void add_new_parameter(Parameter * params_list_head, Parameter * to_add_param) {
 
     //Appending to_add_param
     parameterAuxNode -> next = to_add_param;
-  }  
+  }
 }
 
 void add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
@@ -129,7 +129,7 @@ FunctionNode * add_function_to_funlist(int return_type, char * function_name, Pa
   FunctionNode * new_function = (FunctionNode *) malloc(sizeof(FunctionNode));
 
   new_function -> id = function_name;
-  
+
   ReturnType ret_type;
   if (return_type == 0)
     ret_type = boolean;
@@ -137,7 +137,7 @@ FunctionNode * add_function_to_funlist(int return_type, char * function_name, Pa
     ret_type = integer;
   else
     ret_type = vid;
-  
+
 
   new_function -> type = ret_type;
   new_function -> parameters = parameters_list;
@@ -196,7 +196,7 @@ VarNode * find_symbol_in_stack(char * varname) {
     while (enviromentAuxNode -> next != lastLevelChecked) {
       enviromentAuxNode = enviromentAuxNode -> next;
     }
-    
+
     //Saving last checked level.
     lastLevelChecked = enviromentAuxNode;
 
@@ -285,7 +285,7 @@ int eval_int_expr(ASTNode * root) {
 }
 
 bool eval_bool_expr(ASTNode * root) {
-  if (root -> left_child == NULL && root -> right_child == NULL) 
+  if (root -> left_child == NULL && root -> right_child == NULL)
     return (bool) root -> data;
   if (root -> is_boolean_op) {
     if ((char) root->data == '<')
@@ -396,7 +396,7 @@ FunctionNode * find_function(char * function_name) {
   FunctionNode * functionAuxNode = fun_list_head;
 
   while (functionAuxNode != NULL) {
-    if (functionAuxNode -> id = function_name)
+    if (functionAuxNode -> id == function_name)
       return functionAuxNode;
     functionAuxNode = functionAuxNode -> next;
   }
@@ -405,7 +405,7 @@ FunctionNode * find_function(char * function_name) {
 
 void set_type(int type, VarNode * var_list_head) {
   VarNode * varAuxNode = var_list_head;
-  
+
   while (varAuxNode != NULL) {
     if (type == 0) {
       varAuxNode -> is_boolean = true;
@@ -422,7 +422,7 @@ void set_type(int type, VarNode * var_list_head) {
 
 %}
 
-%union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode};
+%union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
 
 %token<i> _PROGRAM_
 %token<i> _BEGIN_
@@ -815,37 +815,37 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
 
                 $$ = create_AST_node(create_AST_leave_from_VarNode(id_varnode), '=', $3);
               }
-          | method_call _SEMICOLON_ 
+          | method_call _SEMICOLON_
               {
                 printf("\nEncontre: llamado_a_metodo en statement");
               }
-          | conditional_statement                                                                        
+          | conditional_statement
               {
                 printf("\nEncontre: conditional en statement");
                 $$ = $1;
               }
-          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block                                      
+          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
               {
                 printf("\nEncontre: while block en statement");
                 //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
               }
-          | _RETURN_ expr _SEMICOLON_                                                                    
+          | _RETURN_ expr _SEMICOLON_
               {
                 printf("\nEncontre: return_expr_; en statement");
                 $$ = $2;
               }
-          | _RETURN_ _SEMICOLON_                                                                         
+          | _RETURN_ _SEMICOLON_
               {
                 printf("\nEncontre: return_; en statement");
                 $$ = NULL;
               }
-          | _SEMICOLON_                                                                                  
+          | _SEMICOLON_
               {
                 printf("\nEncontre: ; en statement");
                 //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
                 $$ = NULL;
               }
-          | code_block                                                                                   
+          | code_block
               {
                 printf("\nEncontre: codeblock en statement");
                 $$ = $1;
@@ -873,7 +873,7 @@ method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ {
               head -> is_boolean_op = false;
               head -> var_data = NULL;
               head -> function_data = find_function($1);
-              head -> left_child;
+              head -> left_child = NULL;
               head -> right_child = parameters_as_childs;
 
 
@@ -933,8 +933,8 @@ params_call: expr {
                 new_param -> value = $3 -> data;
                 new_param -> id = NULL;
               }
-              
-              add_new_parameter($$, new_param); 
+
+              add_new_parameter($$, new_param);
             }
   ;
 
@@ -962,7 +962,7 @@ params_def: type _ID_  {
 type: _INTEGER_
     {
       printf("\nEncontre: type_INTEGER");
-      $$ = 1;  
+      $$ = 1;
     }
   | _BOOL_
     {
@@ -971,7 +971,7 @@ type: _INTEGER_
     }
   ;
 
-expr: _ID_ 
+expr: _ID_
     {
       printf("\nEncontre: id_expr");
       char * var_name = $1;
@@ -984,7 +984,7 @@ expr: _ID_
         return -1;
       }
     }
-  | literal 
+  | literal
     {
       $$ = $1;
     }
@@ -998,47 +998,47 @@ expr: _ID_
       printf("\nEncontre: expr + expr");
       $$ = create_AST_node($1, '+', $3);
     }
-  | expr _MINUS_ expr         
+  | expr _MINUS_ expr
     {
       printf("\nEncontre: expr - expr");
       $$ = create_AST_node($1, '-', $3);
     }
-  | expr _MULTIPLY_ expr      
+  | expr _MULTIPLY_ expr
     {
       printf("\nEncontre: expr x expr");
       $$ = create_AST_node($1, '*', $3);
     }
-  | expr _DIVIDE_ expr        
+  | expr _DIVIDE_ expr
     {
       printf("\nEncontre: expr / expr");
       $$ = create_AST_node($1, '/', $3);
     }
-  | expr _MOD_ expr           
+  | expr _MOD_ expr
     {
       printf("\nEncontre: expr MOD expr");
     $$ = create_AST_node($1, '%', $3);
     }
-  | expr _LESSER_THAN_ expr   
+  | expr _LESSER_THAN_ expr
     {
       printf("\nEncontre: expr < expr");
       $$ = create_AST_node($1, '<', $3);
     }
-  | expr _GREATER_THAN_ expr  
+  | expr _GREATER_THAN_ expr
     {
       printf("\nEncontre: expr > expr");
       $$ = create_AST_node($1, '>', $3);
     }
-  | expr _EQUALS_ expr        
+  | expr _EQUALS_ expr
     {
       printf("\nEncontre: expr == expr");
       $$ = create_AST_node($1, 'e', $3);
     }
-  | expr _AND_ expr           
+  | expr _AND_ expr
     {
       printf("\nEncontre: expr && expr");
       $$ = create_AST_node($1, '&', $3);
     }
-  | expr _OR_ expr            
+  | expr _OR_ expr
     {
       printf("\nEncontre: expr || expr");
       $$ = create_AST_node($1, '|', $3);
@@ -1084,7 +1084,7 @@ bool_literal: _TRUE_
     }
 ;
 
-integer_literal: _INT_                                                                                   
+integer_literal: _INT_
     {
       printf("\nEncontre: un literal_integer");
       $$ = create_AST_leave_from_value($1, false);
