@@ -212,6 +212,7 @@ ASTNode * create_AST_leave_from_VarNode(VarNode * var_data) {
   new_leave -> data = var_data -> value;
   new_leave -> is_boolean = var_data -> is_boolean;
   new_leave -> is_if = false;
+  new_leave -> is_if_body = false;
   new_leave -> is_while = false;
   new_leave -> is_arith_op = false;
   new_leave -> is_boolean_op = false;
@@ -227,6 +228,7 @@ ASTNode * create_AST_leave_from_value(int value, bool is_boolean) {
   new_leave -> data = value;
   new_leave -> is_boolean = is_boolean;
   new_leave -> is_if = false;
+  new_leave -> is_if_body = false;
   new_leave -> is_while = false;
   new_leave -> is_arith_op = false;
   new_leave -> is_boolean_op = false;
@@ -244,6 +246,8 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
     new_node -> is_if = true;
   else
     new_node -> is_if = false;
+  if (op == 'e')
+    new_node -> is_if_body = true;
   if (op == 'w')
     new_node -> is_while = true;
   else
@@ -252,7 +256,7 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
     new_node -> is_arith_op = true;
   else
     new_node -> is_arith_op = false;
-  if (op == '<' || op == '>' || op == 'e' || op == '&' || op == '|' || op == '!')
+  if (op == '<' || op == '>' || op == '=' || op == '&' || op == '|' || op == '!')
     new_node -> is_boolean_op = true;
   else
     new_node -> is_boolean_op = false;
@@ -292,7 +296,7 @@ bool eval_bool_expr(ASTNode * root) {
       return eval_int_expr(root->left_child) < eval_int_expr(root->right_child);
     else if ((bool) root->data == '>')
       return eval_int_expr(root->left_child) > eval_int_expr(root->right_child);
-    else if ((bool) root->data == 'e') {
+    else if ((bool) root->data == '=') {
       if (root -> left_child -> is_boolean_op || root -> right_child -> is_boolean_op)
         return eval_bool_expr(root->left_child) == eval_bool_expr(root->right_child);
       else
@@ -357,6 +361,7 @@ ASTNode * ast_from_parameters_list (Parameter * params_list) {
       result -> data = var_data -> value;
       result -> is_boolean = var_data -> is_boolean;
       result -> is_if = false;
+      result -> is_if_body = false;
       result -> is_while = false;
       result -> is_arith_op = false;
       result -> is_boolean_op = false;
@@ -377,6 +382,7 @@ ASTNode * ast_from_parameters_list (Parameter * params_list) {
       result -> data = paramAuxNode -> value;
       result -> is_boolean = paramAuxNode -> is_boolean;
       result -> is_if = false;
+      result -> is_if_body = false;
       result -> is_while = false;
       result -> is_arith_op = false;
       result -> is_boolean_op = false;
@@ -557,6 +563,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
 
               result -> is_boolean = false;
               result -> is_if = false;
+              result -> is_if_body = false;
               result -> is_while = false;
               result -> is_arith_op = false;
               result -> is_boolean_op = false;
@@ -575,6 +582,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
 
               result -> is_boolean = false;
               result -> is_if = false;
+              result -> is_if_body = false;
               result -> is_while = false;
               result -> is_arith_op = false;
               result -> is_boolean_op = false;
@@ -593,6 +601,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
 
               result -> is_boolean = false;
               result -> is_if = false;
+              result -> is_if_body = false;
               result -> is_while = false;
               result -> is_arith_op = false;
               result -> is_boolean_op = false;
@@ -611,6 +620,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
 
               result -> is_boolean = false;
               result -> is_if = false;
+              result -> is_if_body = false;
               result -> is_while = false;
               result -> is_arith_op = false;
               result -> is_boolean_op = false;
@@ -629,6 +639,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
 
               result -> is_boolean = false;
               result -> is_if = false;
+              result -> is_if_body = false;
               result -> is_while = false;
               result -> is_arith_op = false;
               result -> is_boolean_op = false;
@@ -647,6 +658,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
 
               result -> is_boolean = false;
               result -> is_if = false;
+              result -> is_if_body = false;
               result -> is_while = false;
               result -> is_arith_op = false;
               result -> is_boolean_op = false;
@@ -665,6 +677,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
 
               result -> is_boolean = false;
               result -> is_if = false;
+              result -> is_if_body = false;
               result -> is_while = false;
               result -> is_arith_op = false;
               result -> is_boolean_op = false;
@@ -683,6 +696,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
 
               result -> is_boolean = false;
               result -> is_if = false;
+              result -> is_if_body = false;
               result -> is_while = false;
               result -> is_arith_op = false;
               result -> is_boolean_op = false;
@@ -704,6 +718,7 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
 
             result -> is_boolean = false;
             result -> is_if = false;
+            result -> is_if_body = false;
             result -> is_while = false;
             result -> is_arith_op = false;
             result -> is_boolean_op = false;
@@ -723,6 +738,7 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
 
             result -> is_boolean = false;
             result -> is_if = false;
+            result -> is_if_body = false;
             result -> is_while = false;
             result -> is_arith_op = false;
             result -> is_boolean_op = false;
@@ -742,6 +758,7 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
 
             result -> is_boolean = false;
             result -> is_if = false;
+            result -> is_if_body = false;
             result -> is_while = false;
             result -> is_arith_op = false;
             result -> is_boolean_op = false;
@@ -761,6 +778,7 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
 
             result -> is_boolean = false;
             result -> is_if = false;
+            result -> is_if_body = false;
             result -> is_while = false;
             result -> is_arith_op = false;
             result -> is_boolean_op = false;
@@ -798,7 +816,9 @@ statements_block: statement
                       printf("\nEncontre: statements_block");
                       $$ = $1;
                     }
-                | statements_block statement
+                | statements_block statement {
+                    $$ = $2;
+                  }
   ;
 
 statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
@@ -812,12 +832,14 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
                 else
                   add_value_to_varnode(id_varnode, eval_int_expr($3));
 
+                ASTNode * node_from_id = create_AST_leave_from_VarNode(id_varnode);
 
-                $$ = create_AST_node(create_AST_leave_from_VarNode(id_varnode), '=', $3);
+                $$ = create_AST_node(node_from_id, '=', $3);
               }
           | method_call _SEMICOLON_ 
               {
                 printf("\nEncontre: llamado_a_metodo en statement");
+                $$ = $1;
               }
           | conditional_statement                                                                        
               {
@@ -827,7 +849,9 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
           | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block                                      
               {
                 printf("\nEncontre: while block en statement");
-                //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
+                ASTNode * while_root = create_AST_node($3, 'w', $5);
+
+                $$ = while_root;
               }
           | _RETURN_ expr _SEMICOLON_                                                                    
               {
@@ -852,8 +876,19 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
               }
   ;
 
-conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block                       {printf("\nEncontre: if-then block\n");}
-                     | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block     {printf("\nEncontre: if-then-else block\n");}
+conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block {
+                        printf("\nEncontre: if-then block\n");
+                        ASTNode * if_root = create_AST_node($3, 'i', $6);
+
+                        $$ = if_root;
+                      }
+                     | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block {
+                        printf("\nEncontre: if-then-else block\n");
+                        ASTNode * if_body = create_AST_node($6, 'e', $8);
+                        ASTNode * if_root = create_AST_node($3, 'i', if_body);
+
+                        $$ = if_root;
+                      }
   ;
 
 method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ {
@@ -868,6 +903,7 @@ method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ {
 
               head -> is_boolean = false;
               head -> is_if = false;
+              head -> is_if_body = false;
               head -> is_while = false;
               head -> is_arith_op = false;
               head -> is_boolean_op = false;
@@ -891,6 +927,7 @@ method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ {
 
               head -> is_boolean = false;
               head -> is_if = false;
+              head -> is_if_body = false;
               head -> is_while = false;
               head -> is_arith_op = false;
               head -> is_boolean_op = false;
@@ -980,6 +1017,7 @@ expr: _ID_
         $$ = create_AST_leave_from_VarNode(var_data);
       }
       else {
+        $$ = NULL;
         yyerror("Variable no declarada o definida");
         return -1;
       }
@@ -1016,7 +1054,7 @@ expr: _ID_
   | expr _MOD_ expr           
     {
       printf("\nEncontre: expr MOD expr");
-    $$ = create_AST_node($1, '%', $3);
+      $$ = create_AST_node($1, '%', $3);
     }
   | expr _LESSER_THAN_ expr   
     {
@@ -1031,7 +1069,7 @@ expr: _ID_
   | expr _EQUALS_ expr        
     {
       printf("\nEncontre: expr == expr");
-      $$ = create_AST_node($1, 'e', $3);
+      $$ = create_AST_node($1, '=', $3);
     }
   | expr _AND_ expr           
     {

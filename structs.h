@@ -42,6 +42,7 @@ typedef struct ast_node_struct {
   int data;
   bool is_boolean;
   bool is_if;
+  bool is_if_body;
   bool is_while;
   bool is_arith_op;
   bool is_boolean_op;
