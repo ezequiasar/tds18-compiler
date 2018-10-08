@@ -45,7 +45,24 @@ VarNode * partial_varnode(char * varname) {
 
   //Load Var Info.
   new_var -> id = varname;
+  new_var -> is_defined = false;
   new_var -> next = NULL;
+}
+
+void * add_new_parameter(Parameter * params_list_head, Parameter * to_add_param) {
+  if (params_list_head == NULL) {
+    params_list_head = to_add_param;
+  }
+  else {
+    Parameter * parameterAuxNode = params_list_head;
+    //Moving to last node position
+    while (parameterAuxNode -> next != NULL) {
+      parameterAuxNode = parameterAuxNode -> next;
+    }
+
+    //Appending to_add_param
+    parameterAuxNode -> next = to_add_param;
+  }  
 }
 
 void * add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
@@ -66,6 +83,7 @@ void * add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
 
 void * add_value_to_varnode(VarNode * varnode, int value) {
   varnode -> value = value;
+  varnode -> is_defined = true;
 }
 
 void create_new_enviroment_level() {
@@ -139,7 +157,10 @@ ASTNode * create_AST_leave_from_VarNode(VarNode * var_data) {
   new_leave -> is_boolean = var_data -> is_boolean;
   new_leave -> is_if = false;
   new_leave -> is_while = false;
+  new_leave -> is_arith_op = false;
+  new_leave -> is_boolean_op = false;
   new_leave -> var_data = var_data;
+  new_leave -> function_data = NULL;
   new_leave -> left_child = NULL;
   new_leave -> right_child = NULL;
   return new_leave;
@@ -151,7 +172,10 @@ ASTNode * create_AST_leave_from_value(int value, bool is_boolean) {
   new_leave -> is_boolean = is_boolean;
   new_leave -> is_if = false;
   new_leave -> is_while = false;
+  new_leave -> is_arith_op = false;
+  new_leave -> is_boolean_op = false;
   new_leave -> var_data = NULL;
+  new_leave -> function_data = NULL;
   new_leave -> left_child = NULL;
   new_leave -> right_child = NULL;
 }
@@ -178,13 +202,17 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
     new_node -> is_boolean_op = false;
 
   new_node -> var_data = NULL;
+  new_node -> function_data = NULL;
   new_node -> left_child = left_child;
   new_node -> right_child = right_child;
   return new_node;
 }
 
+bool eval_bool_expr(ASTNode * root);
+int eval_int_expr(ASTNode * root);
+
 int eval_int_expr(ASTNode * root) {
-  if (root -> left_child == NULL && root -> right_child == NULL) 
+  if (root -> left_child == NULL && root -> right_child == NULL)
     return root->data;
   if (root -> is_arith_op) {
     if ((char) root->data == '+')
@@ -205,11 +233,15 @@ bool eval_bool_expr(ASTNode * root) {
     return (bool) root -> data;
   if (root -> is_boolean_op) {
     if ((char) root->data == '<')
-      return eval_bool_expr(root->left_child) < eval_bool_expr(root->right_child);
+      return eval_int_expr(root->left_child) < eval_int_expr(root->right_child);
     else if ((bool) root->data == '>')
-      return eval_bool_expr(root->left_child) > eval_bool_expr(root->right_child);
-    else if ((bool) root->data == 'e')
-      return eval_bool_expr(root->left_child) == eval_bool_expr(root->right_child);
+      return eval_int_expr(root->left_child) > eval_int_expr(root->right_child);
+    else if ((bool) root->data == 'e') {
+      if (root -> left_child -> is_boolean_op || root -> right_child -> is_boolean_op)
+        return eval_bool_expr(root->left_child) == eval_bool_expr(root->right_child);
+      else
+        return eval_int_expr(root->left_child) == eval_int_expr(root->right_child);
+    }
     else if ((char) root->data == '&')
       return (bool) eval_bool_expr(root->left_child) && eval_bool_expr(root->right_child);
     else if ((char) root->data == '|')
@@ -219,11 +251,107 @@ bool eval_bool_expr(ASTNode * root) {
   }
 }
 
+bool check_if_equals(Parameter * list1, Parameter * list2) {
+  Parameter * paramAuxNode1 = list1;
+  Parameter * paramAuxNode2 = list2;
+
+  while (paramAuxNode1 != NULL) {
+    if (paramAuxNode2 == NULL)
+      return false;
+
+    if (paramAuxNode1 -> is_boolean && !(paramAuxNode2 -> is_boolean))
+      return false;
+    if (paramAuxNode2 -> is_boolean && !(paramAuxNode1 -> is_boolean))
+      return false;
+
+    if (paramAuxNode1 -> value != paramAuxNode2 -> value)
+      return false;
+
+    paramAuxNode1 = paramAuxNode1 -> next;
+    paramAuxNode2 = paramAuxNode2 -> next;
+  }
+
+  if (paramAuxNode2 != NULL)
+    return false;
+
+  return true;
+
+}
+
+bool is_callable(char * function_name, Parameter * params) {
+  FunctionNode * functionAuxNode = fun_list_head;
+
+  while (functionAuxNode != NULL) {
+    if (functionAuxNode -> id == function_name) {
+      return check_if_equals(functionAuxNode -> parameters, params);
+    }
+  }
+  return false;
+}
+
+ASTNode * ast_from_parameters_list (Parameter * params_list) {
+  ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
+  Parameter * paramAuxNode = params_list;
+
+  if (paramAuxNode != NULL) {
+    if (paramAuxNode -> id != NULL) {
+
+      VarNode *var_data = find_symbol_in_stack(paramAuxNode -> id);
+
+      result -> data = var_data -> value;
+      result -> is_boolean = var_data -> is_boolean;
+      result -> is_if = false;
+      result -> is_while = false;
+      result -> is_arith_op = false;
+      result -> is_boolean_op = false;
+      result -> var_data = var_data;
+      result -> function_data = NULL;
+      result -> left_child = NULL;
+      result -> right_child = ast_from_parameters_list(params_list -> next);
+    }
+    else {
+      VarNode * var_data = (VarNode *) malloc(sizeof(VarNode));
+
+      var_data -> value = paramAuxNode -> value;
+      var_data -> is_boolean = paramAuxNode -> is_boolean;
+      var_data -> id = "temporal_var";
+      var_data -> is_defined = true;
+
+
+      result -> data = paramAuxNode -> value;
+      result -> is_boolean = paramAuxNode -> is_boolean;
+      result -> is_if = false;
+      result -> is_while = false;
+      result -> is_arith_op = false;
+      result -> is_boolean_op = false;
+      result -> var_data = NULL;
+      result -> function_data = NULL;
+      result -> left_child = NULL;
+      result -> right_child = ast_from_parameters_list(params_list -> next);
+    }
+    return result;
+  }
+  else {
+    return NULL;
+  }
+}
+
+FunctionNode * find_function(char * function_name) {
+  FunctionNode * functionAuxNode = fun_list_head;
+
+  while (functionAuxNode != NULL) {
+    if (functionAuxNode -> id = function_name)
+      return functionAuxNode;
+    functionAuxNode = functionAuxNode -> next;
+  }
+  return NULL;
+}
+
 
 
 %}
 
-%union { int i; char *s; ASTNode *node; VarNode *varnode};
+%union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode};
 
 %token<i> _PROGRAM_
 %token<i> _BEGIN_
@@ -272,6 +400,7 @@ bool eval_bool_expr(ASTNode * root) {
 
 %type<varnode> vars_block
 %type<varnode> id_list
+%type<parameternode> params_call
 %type<node> method_call //method_call es tipo ASTNode porque forma parte del arbol.
 %type<node> code_block //code_block es tipo ASTNode porque forma parte del arbol.
 %type<node> code_block_body //code_block_body es tipo ASTNode porque forma parte del arbol.
@@ -296,7 +425,7 @@ prog_body: vars_block methods_block main_decl
 
 vars_block: type id_list _SEMICOLON_
     {
-      
+      //intf($2 -> id);/
     }
     | vars_block type id_list _SEMICOLON_
   ;
@@ -375,7 +504,6 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
           | method_call _SEMICOLON_ 
               {
                 printf("\nEncontre: llamado_a_metodo en statement");
-                $$ = $1;
               }
           | conditional_statement                                                                        
               {
@@ -390,17 +518,18 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
           | _RETURN_ expr _SEMICOLON_                                                                    
               {
                 printf("\nEncontre: return_expr_; en statement");
-                //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
+                $$ = $2;
               }
           | _RETURN_ _SEMICOLON_                                                                         
               {
                 printf("\nEncontre: return_; en statement");
-                //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
+                $$ = NULL;
               }
           | _SEMICOLON_                                                                                  
               {
                 printf("\nEncontre: ; en statement");
                 //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
+                $$ = NULL;
               }
           | code_block                                                                                   
               {
@@ -413,12 +542,86 @@ conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_blo
                      | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block     {printf("\nEncontre: if-then-else block\n");}
   ;
 
-method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_                                            {printf("\nEncontre: llamado a metodo\n");}
-           | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_                                                        {printf("\nEncontre: llamado a metodo\n");}
+method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ {
+              printf("\nEncontre: llamado a metodo\n");
+              if (!is_callable($1, $3)) {
+                yyerror("Function not defined");
+                return -1;
+              }
+
+              ASTNode * parameters_as_childs = ast_from_parameters_list($3);
+              ASTNode * head = (ASTNode *) malloc(sizeof(ASTNode));
+
+              head -> is_boolean = false;
+              head -> is_if = false;
+              head -> is_while = false;
+              head -> is_arith_op = false;
+              head -> is_boolean_op = false;
+              head -> var_data = NULL;
+              head -> function_data = find_function($1);
+              head -> left_child;
+              head -> right_child = parameters_as_childs;
+
+
+              $$ = head;
+            }
+
+           | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ {
+              printf("\nEncontre: llamado a metodo\n");
+              if (!is_callable($1, NULL)) {
+                yyerror("Function not defined");
+                return -1;
+              }
+
+              ASTNode * head = (ASTNode *) malloc(sizeof(ASTNode));
+
+              head -> is_boolean = false;
+              head -> is_if = false;
+              head -> is_while = false;
+              head -> is_arith_op = false;
+              head -> is_boolean_op = false;
+              head -> var_data = NULL;
+              head -> function_data = find_function($1);
+              head -> left_child;
+              head -> right_child = NULL;
+
+              $$ = head;
+            }
   ;
 
-params_call: expr
-           | params_call _COMMA_ expr                                                                    {printf("\nEncontre: parametros de llamada");}
+params_call: expr {
+              Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
+
+              if ($1 -> var_data != NULL) {
+                new_param -> is_boolean = $1 -> var_data -> is_boolean;
+                new_param -> value = $1 -> var_data -> value;
+                new_param -> id = $1 -> var_data -> id;
+              }
+              else {
+                new_param -> is_boolean = $1 -> is_boolean;
+                new_param -> value = $1 -> data;
+                new_param -> id = NULL;
+              }
+
+              add_new_parameter($$, new_param);
+            }
+           | params_call _COMMA_ expr {
+              printf("\nEncontre: parametros de llamada");
+              Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
+
+              if ($3 -> var_data != NULL) {
+                new_param -> is_boolean = $3 -> var_data -> is_boolean;
+                new_param -> value = $3 -> var_data -> value;
+                new_param -> id = $3 -> var_data -> id;
+              }
+              else {
+                new_param -> is_boolean = $3 -> is_boolean;
+                new_param -> value = $3 -> data;
+                new_param -> id = NULL;
+              }
+              
+              add_new_parameter($$, new_param); 
+            }
   ;
 
 params_def: type _ID_                                                                                    {printf("\nEncontre: Parametros de definicion");}
@@ -442,11 +645,11 @@ expr: _ID_
       printf("\nEncontre: id_expr");
       char * var_name = $1;
       VarNode * var_data = find_symbol_in_stack(var_name);
-      if (var_data != NULL) {
+      if (var_data != NULL && var_data -> is_defined) {
         $$ = create_AST_leave_from_VarNode(var_data);
       }
       else {
-        yyerror();
+        yyerror("Variable no declarada o definida");
         return -1;
       }
     }

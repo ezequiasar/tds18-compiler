@@ -4,7 +4,7 @@ begin
 		begin
 			integer a;
 			integer b;
-			return (w == b - a);
+			return (5 == 5);
 		end
 
 	bool main()
