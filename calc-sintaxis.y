@@ -6,8 +6,9 @@
 EnviromentNode *symbol_table = (EnviromentNode *) NULL;    // stack that contains all the enviroments
 FunctionNode *fun_list_head = (FunctionNode *) NULL;
 
+//Checked for Segmentation Fault by Santi.
 void add_var_to_table(char * varname, int value, bool is_boolean) {
-  //printf("add_var_to_table\n");
+                                               printf("add_var_to_table\n");
 
   EnviromentNode * enviromentAuxNode = symbol_table;
   VarNode * varAuxNode;
@@ -40,8 +41,9 @@ void add_var_to_table(char * varname, int value, bool is_boolean) {
   }
 }
 
+//Checked for Segmentation Fault by Santi.
 VarNode * partial_varnode(char * varname) {
-  //printf("partial_varnode\n");
+                                               printf("partial_varnode\n");
 
   VarNode * new_var = (VarNode *) malloc(sizeof(VarNode));
   if (new_var == NULL)
@@ -51,8 +53,11 @@ VarNode * partial_varnode(char * varname) {
   new_var -> id = varname;
   new_var -> is_defined = false;
   new_var -> next = NULL;
+
+  return new_var;
 }
 
+//Checked for Segmentation Fault by Santi.
 void add_new_parameter(Parameter * params_list_head, Parameter * to_add_param) {
   if (params_list_head == NULL) {
     params_list_head = to_add_param;
@@ -69,8 +74,9 @@ void add_new_parameter(Parameter * params_list_head, Parameter * to_add_param) {
   }
 }
 
+//Checked for Segmentation Fault by Santi.
 void add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
-  //printf("add_partial_varnode\n");
+                                               printf("add_partial_varnode\n");
   if (var_list_head == NULL) {
     var_list_head = to_add_node;
   }
@@ -86,16 +92,22 @@ void add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
   }
 }
 
-void add_value_to_varnode(VarNode * varnode, int value) {
+//Checked for Segmentation Fault by Santi.
+void add_value_to_varnode(VarNode * varnode, int val) {
 
-  //printf("add_value_to_varnode\n");
+                                               printf("add_value_to_varnode\n");
 
-  varnode -> value = value;
-  varnode -> is_defined = true;
+  if (varnode == NULL)
+    printf("No puede cargase un valor en una variable inexistente.\n");
+  else {
+    varnode -> value = val;
+    varnode -> is_defined = true;
+  }
 }
 
+//Checked for Segmentation Fault by Santi.
 void create_new_enviroment_level() {
-  //printf("create_new_enviroment_level\n");
+                                               printf("create_new_enviroment_level\n");
 
   EnviromentNode * enviromentAuxNode = symbol_table;
 
@@ -116,8 +128,9 @@ void create_new_enviroment_level() {
   }
 }
 
+//Checked for Segmentation Fault by Santi.
 void create_new_enviroment_level_from_varnode(VarNode * var_list_head) {
-  //printf("create_new_enviroment_level_from_varnode\n");
+                                               printf("create_new_enviroment_level_from_varnode\n");
 
   create_new_enviroment_level();
   EnviromentNode * enviromentAuxNode = symbol_table;
@@ -129,19 +142,27 @@ void create_new_enviroment_level_from_varnode(VarNode * var_list_head) {
   enviromentAuxNode -> variables = var_list_head;
 }
 
+//Checked for Segmentation Fault by Santi.
 VarNode * get_last_stack_level() {
-  //printf("get_last_stack_level\n");
+                                               printf("get_last_stack_level\n");
 
-  EnviromentNode * enviromentAuxNode = symbol_table;
+  if (symbol_table == NULL) {
+    printf("No existen datos en la pila de tablas de simbolos.\n");
+    return NULL;
+  }
+  else {
+    EnviromentNode * enviromentAuxNode = symbol_table;
 
-  while (enviromentAuxNode -> next != NULL)
-    enviromentAuxNode = enviromentAuxNode -> next;
+    while (enviromentAuxNode -> next != NULL)
+      enviromentAuxNode = enviromentAuxNode -> next;
 
-  return enviromentAuxNode -> variables;
+    return enviromentAuxNode -> variables;
+  }
 }
 
+//Checked for Segmentation Fault by Santi.
 FunctionNode * add_function_to_funlist(int return_type, char * function_name, Parameter *parameters_list) {
-  //printf("add_function_to_funlist\n");
+                                               printf("add_function_to_funlist\n");
 
   FunctionNode * functionAuxNode = fun_list_head;
 
@@ -164,23 +185,31 @@ FunctionNode * add_function_to_funlist(int return_type, char * function_name, Pa
   create_new_enviroment_level();
   new_function -> enviroment = get_last_stack_level();
 
-  while (functionAuxNode -> next != NULL) {
-    functionAuxNode = functionAuxNode -> next;
-  }
+  if (fun_list_head == NULL)
+    fun_list_head = new_function;
+  else {
+    //Moving to last function position
+    while (functionAuxNode -> next != NULL) {
+      functionAuxNode = functionAuxNode -> next;
+    }
 
-  functionAuxNode -> next = new_function;
+    //Loads new function in function list
+    functionAuxNode -> next = new_function;
+  }
 
   return new_function;
 
 }
 
+//Checked for Segmentation Fault by Santi.
 VarNode * find_symbol_in_table(VarNode * head, char * varname) {
-  //printf("find_symbol_in_table\n");
+                                               printf("find_symbol_in_table\n");
 
   VarNode * varAuxNode = head;
   VarNode * result;
 
   while (varAuxNode != NULL) {
+    //Checking if current var is the sought.-
     if (varAuxNode -> id == varname) {
       result = varAuxNode;
       return result;
@@ -190,16 +219,22 @@ VarNode * find_symbol_in_table(VarNode * head, char * varname) {
     }
   }
 
-  return result;
+  return NULL;
 }
 
+//Checked for Segmentation Fault by Santi.
 VarNode * find_symbol_in_stack(char * varname) {
-  //printf("find_symbol_in_stack\n");
+                                               printf("find_symbol_in_stack\n");
 
   //Podemos hacer la lista doblemente encadenada y es mas eficiente la busqueda.
 
   EnviromentNode * enviromentAuxNode = symbol_table;
   EnviromentNode * lastLevelChecked;
+
+  if (symbol_table == NULL) {
+    printf("Symbol Table is null!\n\n\n");
+    return NULL;
+  }
 
   //Moving to last level.
   while (enviromentAuxNode -> next != NULL) {
@@ -213,7 +248,7 @@ VarNode * find_symbol_in_stack(char * varname) {
   VarNode * result = find_symbol_in_table(enviromentAuxNode -> variables, varname);
 
   //If not found -> find in previous level.
-  while (result == NULL || lastLevelChecked == symbol_table) {
+  while (result == NULL && lastLevelChecked != symbol_table) {
     //reseting aux node.
     enviromentAuxNode = symbol_table;
     //Moving to last not checked level.
@@ -231,26 +266,35 @@ VarNode * find_symbol_in_stack(char * varname) {
   return result;
 }
 
+//Checked for Segmentation Fault by Santi.
 ASTNode * create_AST_leave_from_VarNode(VarNode * var_data) {
-  //printf("create_AST_leave_from_VarNode\n");
+                                               printf("create_AST_leave_from_VarNode\n");
 
-  ASTNode * new_leave = (ASTNode *) malloc(sizeof(ASTNode));
-  new_leave -> data = var_data -> value;
-  new_leave -> is_boolean = var_data -> is_boolean;
-  new_leave -> is_if = false;
-  new_leave -> is_if_body = false;
-  new_leave -> is_while = false;
-  new_leave -> is_arith_op = false;
-  new_leave -> is_boolean_op = false;
-  new_leave -> var_data = var_data;
-  new_leave -> function_data = NULL;
-  new_leave -> left_child = NULL;
-  new_leave -> right_child = NULL;
-  return new_leave;
+  if (var_data == NULL) {
+    printf("Cannot create leave from null var.\n");
+    return NULL;
+  }
+  else {
+    ASTNode * new_leave = (ASTNode *) malloc(sizeof(ASTNode));
+    new_leave -> data = var_data -> value;
+    new_leave -> is_boolean = var_data -> is_boolean;
+    new_leave -> is_if = false;
+    new_leave -> is_if_body = false;
+    new_leave -> is_while = false;
+    new_leave -> is_arith_op = false;
+    new_leave -> is_boolean_op = false;
+    new_leave -> var_data = var_data;
+    new_leave -> function_data = NULL;
+    new_leave -> left_child = NULL;
+    new_leave -> right_child = NULL;
+  
+    return new_leave;
+  }
 }
 
+//Checked for Segmentation Fault by Santi.
 ASTNode * create_AST_leave_from_value(int value, bool is_boolean) {
-  //printf("create_AST_leave_from_value\n");
+                                               printf("create_AST_leave_from_value\n");
 
   ASTNode * new_leave = (ASTNode *) malloc(sizeof(ASTNode));
   new_leave -> data = value;
@@ -264,10 +308,13 @@ ASTNode * create_AST_leave_from_value(int value, bool is_boolean) {
   new_leave -> function_data = NULL;
   new_leave -> left_child = NULL;
   new_leave -> right_child = NULL;
+
+  return new_leave;
 }
 
+//Checked for Segmentation Fault by Santi.
 ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
-  //printf("create_AST_node\n");
+                                               printf("create_AST_node\n");
 
   ASTNode * new_node = (ASTNode *) malloc(sizeof(ASTNode));
   new_node -> data = op;
@@ -276,7 +323,7 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
     new_node -> is_if = true;
   else
     new_node -> is_if = false;
-  if (op == 'e')
+  if (op == 'b')
     new_node -> is_if_body = true;
   if (op == 'w')
     new_node -> is_while = true;
@@ -286,7 +333,7 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
     new_node -> is_arith_op = true;
   else
     new_node -> is_arith_op = false;
-  if (op == '<' || op == '>' || op == '=' || op == '&' || op == '|' || op == '!')
+  if (op == '<' || op == '>' || op == 'e' || op == '&' || op == '|' || op == '!')
     new_node -> is_boolean_op = true;
   else
     new_node -> is_boolean_op = false;
@@ -295,6 +342,7 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
   new_node -> function_data = NULL;
   new_node -> left_child = left_child;
   new_node -> right_child = right_child;
+  
   return new_node;
 }
 
@@ -302,7 +350,7 @@ bool eval_bool_expr(ASTNode * root);
 int eval_int_expr(ASTNode * root);
 
 int eval_int_expr(ASTNode * root) {
-  //printf("eval_int_expr\n");
+                                               printf("eval_int_expr\n");
 
   if (root -> left_child == NULL && root -> right_child == NULL)
     return root->data;
@@ -321,7 +369,7 @@ int eval_int_expr(ASTNode * root) {
 }
 
 bool eval_bool_expr(ASTNode * root) {
-  //printf("eval_bool_expr\n");
+                                               printf("eval_bool_expr\n");
 
   if (root -> left_child == NULL && root -> right_child == NULL)
     return (bool) root -> data;
@@ -330,7 +378,7 @@ bool eval_bool_expr(ASTNode * root) {
       return eval_int_expr(root->left_child) < eval_int_expr(root->right_child);
     else if ((bool) root->data == '>')
       return eval_int_expr(root->left_child) > eval_int_expr(root->right_child);
-    else if ((bool) root->data == '=') {
+    else if ((bool) root->data == 'e') {
       if (root -> left_child -> is_boolean_op || root -> right_child -> is_boolean_op)
         return eval_bool_expr(root->left_child) == eval_bool_expr(root->right_child);
       else
@@ -345,8 +393,9 @@ bool eval_bool_expr(ASTNode * root) {
   }
 }
 
+//Checked for Segmentation Fault by Santi.
 bool check_if_equals(Parameter * list1, Parameter * list2) {
-  //printf("check_if_equals\n");
+                                               printf("check_if_equals\n");
 
   Parameter * paramAuxNode1 = list1;
   Parameter * paramAuxNode2 = list2;
@@ -374,8 +423,9 @@ bool check_if_equals(Parameter * list1, Parameter * list2) {
 
 }
 
+//Checked for Segmentation Fault by Santi.
 bool is_callable(char * function_name, Parameter * params) {
-  //printf("is_callable\n");
+                                               printf("is_callable\n");
 
   FunctionNode * functionAuxNode = fun_list_head;
 
@@ -387,8 +437,9 @@ bool is_callable(char * function_name, Parameter * params) {
   return false;
 }
 
+//Checked for Segmentation Fault by Santi.
 ASTNode * ast_from_parameters_list (Parameter * params_list) {
-  //printf("ast_from_parameters_list\n");
+                                               printf("ast_from_parameters_list\n");
 
   ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
   Parameter * paramAuxNode = params_list;
@@ -438,8 +489,9 @@ ASTNode * ast_from_parameters_list (Parameter * params_list) {
   }
 }
 
+//Checked for Segmentation Fault by Santi.
 FunctionNode * find_function(char * function_name) {
-  //printf("find_function\n");
+                                               printf("find_function\n");
 
   FunctionNode * functionAuxNode = fun_list_head;
 
@@ -451,8 +503,9 @@ FunctionNode * find_function(char * function_name) {
   return NULL;
 }
 
+//Checked for Segmentation Fault by Santi.
 void set_type(int type, VarNode * var_list_head) {
-  //printf("set_type\n");
+                                               printf("set_type\n");
 
   VarNode * varAuxNode = var_list_head;
 
@@ -549,21 +602,25 @@ prog: _PROGRAM_ _BEGIN_ prog_body _END_ {
   ;
 
 prog_body: vars_block methods_block main_decl {
+            printf("\nEncontre: vars_block -> methods_block -> main_decl");
             $2 -> right_child = $3;
             $$ = $2;
           }
          | methods_block main_decl {
+            printf("\nEncontre: methods_block -> main_decl");
             $1 -> right_child = $2;
             $$ = $1;
 
           }
          | main_decl {
+            printf("\nEncontre: main_decl");
             $$ = $1;
           }
   ;
 
 vars_block: type id_list _SEMICOLON_
     {
+      printf("\nEncontre: type id_list ;");
       set_type($1, $2);
 
       create_new_enviroment_level_from_varnode($2);
@@ -574,6 +631,7 @@ vars_block: type id_list _SEMICOLON_
 
     }
     | vars_block type id_list _SEMICOLON_ {
+      printf("\nEncontre: type id_list;");
       set_type($2, $3);
 
       create_new_enviroment_level_from_varnode($3);
@@ -583,6 +641,7 @@ vars_block: type id_list _SEMICOLON_
   ;
 
 id_list: _ID_ {
+            printf("\nEncontre: id");
             add_partial_varnode($$, partial_varnode($1));
           }
         | id_list _COMMA_ _ID_ {
@@ -592,9 +651,11 @@ id_list: _ID_ {
   ;
 
 methods_block: method_decl {
+                printf("\nEncontre: method_decl");
                 $$ = $1;
               }
              | methods_block method_decl {
+                printf("\nEncontre: methods_block -> method_decl");
                 $$ = $2;
              }
   ;
@@ -842,25 +903,26 @@ code_block: _BEGIN_ code_block_body _END_
               }
   ;
 
-code_block_body: vars_block statements_block
-                  {
+code_block_body: vars_block statements_block {
+                    printf("\nEncontre: vars_block -> statements_block");
                     $$ = $2;
                   }
-               | statements_block
-                  {
+               | statements_block {
+                    printf("\nEncontre: statements_block");
                     $$ = $1;
                   }
                |  {
+                    printf("\nEncontre: NULL code_block_body");
                     $$ = NULL;
                   }
   ;
 
-statements_block: statement
-                    {
-                      printf("\nEncontre: statements_block");
-                      $$ = $1;
-                    }
+statements_block: statement{
+                    printf("\nEncontre: statements_block");
+                    $$ = $1;
+                  }
                 | statements_block statement {
+                    printf("\nEncontre: statements_block -> statement");
                     $$ = $2;
                   }
   ;
@@ -871,14 +933,25 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
 
                 VarNode *id_varnode = find_symbol_in_stack($1);
 
-                if (id_varnode -> is_boolean)
+                if (id_varnode == NULL) {
+                  printf("Intenta definir una variable inexistente!\n");
+                  yyerror();
+                  return -1;
+                }
+                
+                if (id_varnode -> is_boolean) {
                   add_value_to_varnode(id_varnode, (int) eval_bool_expr($3));
-                else
-                  add_value_to_varnode(id_varnode, eval_int_expr($3));
+                }
+                else {
+                  int val = eval_int_expr($3);
+                  printf("Value is %d.\n", val);
+
+                  add_value_to_varnode(id_varnode, val);
+                }
 
                 ASTNode * node_from_id = create_AST_leave_from_VarNode(id_varnode);
 
-                $$ = create_AST_node(node_from_id, '=', $3);
+                $$ = create_AST_node(node_from_id, 'e', $3);
               }
           | method_call _SEMICOLON_
               {
@@ -928,7 +1001,7 @@ conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_blo
                       }
                      | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block {
                         printf("\nEncontre: if-then-else block\n");
-                        ASTNode * if_body = create_AST_node($6, 'e', $8);
+                        ASTNode * if_body = create_AST_node($6, 'b', $8);
                         ASTNode * if_root = create_AST_node($3, 'i', if_body);
 
                         $$ = if_root;
@@ -985,6 +1058,7 @@ method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ {
   ;
 
 params_call: expr {
+              printf("\nEncontre: expr in params_call");
               Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
 
               if ($1 -> var_data != NULL) {
@@ -1068,6 +1142,7 @@ expr: _ID_
     }
   | literal
     {
+      printf("\nEncontre: literal");
       $$ = $1;
     }
   | method_call
@@ -1113,7 +1188,7 @@ expr: _ID_
   | expr _EQUALS_ expr
     {
       printf("\nEncontre: expr == expr");
-      $$ = create_AST_node($1, '=', $3);
+      $$ = create_AST_node($1, 'e', $3);
     }
   | expr _AND_ expr
     {
