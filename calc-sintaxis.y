@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "structs.h"
 
+int defined_functions_quantity = 0;
+
 EnviromentNode *symbol_table = (EnviromentNode *) NULL;    // stack that contains all the enviroments
 FunctionNode *fun_list_head = (FunctionNode *) NULL;
 
@@ -535,8 +537,58 @@ void set_type(int type, VarNode * var_list_head) {
   }
 }
 
+//Return true if a function is being defined -but not has been defined totally-.
+bool defining_function() {
+  //Counting how much functions are actually in list
+  int cont = 0;
+  FunctionNode * functionAuxNode = fun_list_head;
 
+  while (functionAuxNode != NULL) {
+    cont++;
+    functionAuxNode = functionAuxNode -> next;
+  }
 
+  //Compare if that count match the global var
+  if (cont != defined_functions_quantity)
+    return true;
+  else
+    return false;
+}
+
+void add_enviroment_to_last_function(VarNode * fun_enviroment) {
+  
+  FunctionNode * functionAuxNode = fun_list_head;
+
+  if (functionAuxNode != NULL) {
+    //Moving to last function position
+    while (functionAuxNode -> next != NULL)
+      functionAuxNode = functionAuxNode -> next;
+
+    functionAuxNode -> enviroment = fun_enviroment;
+  }
+  else {
+    yyerror();
+    return -1;
+  }
+}
+
+void add_varlist_to_last_enviroment(VarNode * var_list) {
+  EnviromentNode * enviromentAuxNode = symbol_table;
+
+  //Check if stack is not empty
+  if (enviromentAuxNode != NULL) {
+    //Move to last stack level
+    while (enviromentAuxNode -> next != NULL)
+      enviromentAuxNode = enviromentAuxNode -> next;
+
+    //Add varlist to stack
+    enviromentAuxNode -> variables = var_list;
+  }
+  else {
+    yyerror();
+    return -1;
+  }
+}
 %}
 
 %union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
@@ -609,14 +661,30 @@ void set_type(int type, VarNode * var_list_head) {
 
 %%
 
-prog: _PROGRAM_ _BEGIN_ prog_body _END_ {
+prog: _PROGRAM_ scope_open prog_body scope_close {
         printf("\nEncontre: prog");
         $$ = $3;
       }
   ;
 
+scope_open: _BEGIN_ {
+            create_new_enviroment_level();
+          }
+  ;
+
+scope_close: _END_ {
+
+              if (defining_function())
+                add_enviroment_to_last_function(get_last_stack_level());
+              close_enviroment();
+            }
+  ;
+
 prog_body: vars_block methods_block main_decl {
             printf("\nEncontre: vars_block -> methods_block -> main_decl");
+            //Adding vars to enviroment
+            add_varlist_to_last_enviroment($1);
+
             $2 -> right_child = $3;
             $$ = $2;
           }
@@ -637,8 +705,6 @@ vars_block: type id_list _SEMICOLON_
       printf("\nEncontre: type id_list ;");
       set_type($1, $2);
 
-      create_new_enviroment_level_from_varnode($2);
-
       $$ = $2;
 
 
@@ -647,8 +713,6 @@ vars_block: type id_list _SEMICOLON_
     | vars_block type id_list _SEMICOLON_ {
       printf("\nEncontre: type id_list;");
       set_type($2, $3);
-
-      create_new_enviroment_level_from_varnode($3);
 
       $$ = $3;
     }
@@ -676,6 +740,7 @@ methods_block: method_decl {
 
 method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               printf("\nEncontre: declaracion de un metodo");
+
               FunctionNode * new_function = add_function_to_funlist($1, $2, $4);
 
               ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
@@ -690,7 +755,10 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = $6;
-              close_enviroment();
+
+              //Increment quantity of fully defined functions
+              defined_functions_quantity++;
+              
               $$ = result;
             }
            | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
@@ -709,7 +777,10 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = $5;
-              close_enviroment();
+
+              //Increment quantity of fully defined functions
+              defined_functions_quantity++;
+              
               $$ = result;
             }
            | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
@@ -728,7 +799,10 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = $6;
-              close_enviroment();
+
+              //Increment quantity of fully defined functions
+              defined_functions_quantity++;
+              
               $$ = result;
             }
            | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
@@ -747,7 +821,10 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = $5;
-              close_enviroment();
+
+              //Increment quantity of fully defined functions
+              defined_functions_quantity++;
+              
               $$ = result;
             }
            | type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_ {
@@ -766,6 +843,9 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = NULL;
+
+              //Increment quantity of fully defined functions
+              defined_functions_quantity++;
 
               $$ = result;
             }
@@ -786,6 +866,9 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = NULL;
 
+              //Increment quantity of fully defined functions
+              defined_functions_quantity++;
+
               $$ = result;
             }
            | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_ {
@@ -805,6 +888,9 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = NULL;
 
+              //Increment quantity of fully defined functions
+              defined_functions_quantity++;
+
               $$ = result;
             }
            | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ _EXTERN_ {
@@ -823,6 +909,9 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = NULL;
+
+              //Increment quantity of fully defined functions
+              defined_functions_quantity++;
 
               $$ = result;
             }
@@ -845,7 +934,10 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> function_data = new_function;
             result -> left_child = NULL;
             result -> right_child = $6;
-            close_enviroment();
+
+            //Increment quantity of fully defined functions
+            defined_functions_quantity++;
+            
             $$ = result;
           }
          | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
@@ -865,7 +957,10 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> function_data = new_function;
             result -> left_child = NULL;
             result -> right_child = $5;
-            close_enviroment();
+
+            //Increment quantity of fully defined functions
+            defined_functions_quantity++;
+            
             $$ = result;
           }
          | _VOID_ _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
@@ -885,7 +980,10 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> function_data = new_function;
             result -> left_child = NULL;
             result -> right_child = $6;
-            close_enviroment();
+
+            //Increment quantity of fully defined functions
+            defined_functions_quantity++;
+            
             $$ = result;
           }
          | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
@@ -905,12 +1003,15 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> function_data = new_function;
             result -> left_child = NULL;
             result -> right_child = $5;
-            close_enviroment();
+
+            //Increment quantity of fully defined functions
+            defined_functions_quantity++;
+            
             $$ = result;
           }
  ;
 
-code_block: _BEGIN_ code_block_body _END_
+code_block: scope_open code_block_body scope_close
               {
                 printf("\nEncontre: code_block");
                 $$ = $2;
@@ -919,6 +1020,9 @@ code_block: _BEGIN_ code_block_body _END_
 
 code_block_body: vars_block statements_block {
                     printf("\nEncontre: vars_block -> statements_block");
+                    //Adding vars to enviroment
+                    add_varlist_to_last_enviroment($1);
+
                     $$ = $2;
                   }
                | statements_block {
@@ -975,14 +1079,14 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
           | conditional_statement
               {
                 printf("\nEncontre: conditional en statement");
-                close_enviroment();
+                
                 $$ = $1;
               }
           | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
               {
                 printf("\nEncontre: while block en statement");
                 ASTNode * while_root = create_AST_node($3, 'w', $5);
-                close_enviroment();
+                
                 $$ = while_root;
               }
           | _RETURN_ expr _SEMICOLON_
@@ -1004,7 +1108,7 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
           | code_block
               {
                 printf("\nEncontre: codeblock en statement");
-                close_enviroment();
+                
                 $$ = $1;
               }
   ;
