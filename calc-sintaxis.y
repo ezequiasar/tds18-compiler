@@ -92,6 +92,21 @@ void add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
   }
 }
 
+void close_enviroment() {
+  EnviromentNode * aux = symbol_table;
+  if (symbol_table != NULL) {
+    if (symbol_table -> next != NULL)) {
+      while ((aux -> next) -> next != NULL) {
+        aux = aux -> next;
+      }
+      aux -> next = NULL;
+    }
+    else {
+      symbol_table = NULL;
+    }
+  }  
+}
+
 //Checked for Segmentation Fault by Santi.
 void add_value_to_varnode(VarNode * varnode, int val) {
 
