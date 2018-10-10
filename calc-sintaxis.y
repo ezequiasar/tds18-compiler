@@ -690,7 +690,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = $6;
-
+              close_enviroment();
               $$ = result;
             }
            | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
@@ -709,7 +709,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = $5;
-
+              close_enviroment();
               $$ = result;
             }
            | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
@@ -728,7 +728,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = $6;
-
+              close_enviroment();
               $$ = result;
             }
            | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
@@ -747,7 +747,7 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> function_data = new_function;
               result -> left_child = NULL;
               result -> right_child = $5;
-
+              close_enviroment();
               $$ = result;
             }
            | type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_ {
