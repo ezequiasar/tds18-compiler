@@ -845,7 +845,7 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> function_data = new_function;
             result -> left_child = NULL;
             result -> right_child = $6;
-
+            close_enviroment();
             $$ = result;
           }
          | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
@@ -865,7 +865,7 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> function_data = new_function;
             result -> left_child = NULL;
             result -> right_child = $5;
-
+            close_enviroment();
             $$ = result;
           }
          | _VOID_ _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
@@ -885,7 +885,7 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> function_data = new_function;
             result -> left_child = NULL;
             result -> right_child = $6;
-
+            close_enviroment();
             $$ = result;
           }
          | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
@@ -905,7 +905,7 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> function_data = new_function;
             result -> left_child = NULL;
             result -> right_child = $5;
-
+            close_enviroment();
             $$ = result;
           }
  ;
@@ -975,13 +975,14 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
           | conditional_statement
               {
                 printf("\nEncontre: conditional en statement");
+                close_enviroment();
                 $$ = $1;
               }
           | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
               {
                 printf("\nEncontre: while block en statement");
                 ASTNode * while_root = create_AST_node($3, 'w', $5);
-
+                close_enviroment();
                 $$ = while_root;
               }
           | _RETURN_ expr _SEMICOLON_
@@ -1003,6 +1004,7 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
           | code_block
               {
                 printf("\nEncontre: codeblock en statement");
+                close_enviroment();
                 $$ = $1;
               }
   ;
