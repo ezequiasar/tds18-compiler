@@ -95,7 +95,7 @@ void add_partial_varnode(VarNode * var_list_head, VarNode * to_add_node) {
 void close_enviroment() {
   EnviromentNode * aux = symbol_table;
   if (symbol_table != NULL) {
-    if (symbol_table -> next != NULL)) {
+    if ((symbol_table -> next) != NULL) {
       while ((aux -> next) -> next != NULL) {
         aux = aux -> next;
       }
@@ -197,7 +197,6 @@ FunctionNode * add_function_to_funlist(int return_type, char * function_name, Pa
 
   new_function -> type = ret_type;
   new_function -> parameters = parameters_list;
-  create_new_enviroment_level();
   new_function -> enviroment = get_last_stack_level();
 
   if (fun_list_head == NULL)
