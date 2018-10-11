@@ -111,19 +111,6 @@ void open_enviroment() {
   }
 }
 
-/*
-  Opens a new enviroment level with a list of variables. It is placed on the top of the stack.
-*/
-void open_enviroment(VarNode * var_list_head) {
-  printf("open_enviroment\n");
-  if (symbol_table == NULL)
-    symbol_table = var_list_head;
-  else {
-    var_list_head -> next = symbol_table;
-    symbol_table = var_list_head;
-  }
-}
-
 //Checked for Segmentation Fault by Santi.
 FunctionNode * add_function_to_funlist(int return_type, char * function_name, Parameter *parameters_list) {
                                                printf("add_function_to_funlist\n");
@@ -443,24 +430,19 @@ void set_type(int type, VarNode * var_list_head) {
   }
 }
 
-void add_varlist_to_last_enviroment(VarNode * var_list) {
-  EnviromentNode * enviromentAuxNode = symbol_table;
-
-  //Check if stack is not empty
-  if (enviromentAuxNode != NULL) {
-    //Move to last stack level
-    while (enviromentAuxNode -> next != NULL)
-      enviromentAuxNode = enviromentAuxNode -> next;
-
-    //Add varlist to stack
-    enviromentAuxNode -> variables = var_list;
+/*
+  Adds a variable list to the current enviroment.
+*/
+void add_varlist_to_enviroment(VarNode * var_list) {
+  if (symbol_table != NULL) {
+    symbol_table -> variables = var_list;
   }
   else {
-    printf("Imposible agregar variables a un ambiente nulo.\n");
+    printf("You cant add variables to a null enviroment\n");
     yyerror();
-    return -1;
   }
 }
+
 %}
 
 %union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
@@ -533,81 +515,85 @@ void add_varlist_to_last_enviroment(VarNode * var_list) {
 
 %%
 
-prog: _PROGRAM_ scope_open prog_body scope_close {
-        printf("\nEncontre: prog");
-        $$ = $3;
-      }
-  ;
+prog: _PROGRAM_ scope_open prog_body scope_close 
+  {
+    printf("\nEncontre: prog");
+    $$ = $3;
+  }
+;
 
-scope_open: _BEGIN_ {
-            open_enviroment();
-          }
-  ;
+scope_open: _BEGIN_ 
+  {
+    open_enviroment();
+  }
+;
 
-scope_close: _END_ {
-              //Save Enviroment in temporal var
-              temporal_enviroment = symbol_table;
-              close_enviroment();
-            }
-  ;
+scope_close: _END_ 
+  {
+    //Save Enviroment in temporal var
+    temporal_enviroment = symbol_table -> variables;
+    close_enviroment();
+  }
+;
 
-prog_body: vars_block methods_block main_decl {
-            printf("\nEncontre: vars_block -> methods_block -> main_decl");
-            //Adding vars to enviroment
-            add_varlist_to_last_enviroment($1);
-
-            $2 -> right_child = $3;
-            $$ = $2;
-          }
-         | methods_block main_decl {
-            printf("\nEncontre: methods_block -> main_decl");
-            $1 -> right_child = $2;
-            $$ = $1;
-
-          }
-         | main_decl {
-            printf("\nEncontre: main_decl");
-            $$ = $1;
-          }
-  ;
+prog_body: vars_block methods_block main_decl
+    {
+      printf("\nEncontre: vars_block -> methods_block -> main_decl");
+      //Adding vars to enviroment
+      add_varlist_to_enviroment($1);
+      $2 -> right_child = $3;
+      $$ = $2;
+    }
+  | methods_block main_decl 
+    {
+      printf("\nEncontre: methods_block -> main_decl");
+      $1 -> right_child = $2;
+      $$ = $1;
+    }
+  | main_decl 
+    {
+      printf("\nEncontre: main_decl");
+      $$ = $1;
+    }
+;
 
 vars_block: type id_list _SEMICOLON_
     {
       printf("\nEncontre: type id_list ;");
       set_type($1, $2);
-
       $$ = $2;
-
-
-
     }
-    | vars_block type id_list _SEMICOLON_ {
+  | vars_block type id_list _SEMICOLON_ 
+    {
       printf("\nEncontre: type id_list;");
       set_type($2, $3);
-
       $$ = $3;
     }
-  ;
+;
 
-id_list: _ID_ {
-            printf("\nEncontre: id");
-            add_partial_varnode($$, partial_varnode($1));
-          }
-        | id_list _COMMA_ _ID_ {
-            printf("\nEncontre: Declaracion de Variable");
-            add_partial_varnode($$, partial_varnode($3));
-          }
-  ;
+id_list: _ID_ 
+    {
+      printf("\nEncontre: id");
+      add_partial_varnode($$, partial_varnode($1));
+    }
+  | id_list _COMMA_ _ID_ 
+    {
+      printf("\nEncontre: Declaracion de Variable");
+      add_partial_varnode($$, partial_varnode($3));
+    }
+;
 
-methods_block: method_decl {
-                printf("\nEncontre: method_decl");
-                $$ = $1;
-              }
-             | methods_block method_decl {
-                printf("\nEncontre: methods_block -> method_decl");
-                $$ = $2;
-             }
-  ;
+methods_block: method_decl 
+    {
+      printf("\nEncontre: method_decl");
+      $$ = $1;
+    }
+  | methods_block method_decl 
+    {
+      printf("\nEncontre: methods_block -> method_decl");
+      $$ = $2;
+    }
+;
 
 method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               printf("\nEncontre: declaracion de un metodo");
@@ -892,7 +878,7 @@ code_block: scope_open code_block_body scope_close
 code_block_body: vars_block statements_block {
                     printf("\nEncontre: vars_block -> statements_block");
                     //Adding vars to enviroment
-                    add_varlist_to_last_enviroment($1);
+                    add_varlist_to_enviroment($1);
 
                     $$ = $2;
                   }
@@ -1084,26 +1070,28 @@ params_call: expr {
             }
   ;
 
-params_def: type _ID_  {
-              printf("\nEncontre: Parametros de definicion");
-              Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
+params_def: type _ID_
+    {
+      printf("\nEncontre: Parametros de definicion");
+      Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
 
-              new_param -> id = $2;
-              new_param -> is_boolean = ($1 == 0);
-              new_param -> next = NULL;
+      new_param -> id = $2;
+      new_param -> is_boolean = ($1 == 0);
+      new_param -> next = NULL;
 
-              $$ = new_param;
-            }
-          | params_def _COMMA_ type _ID_ {
-              Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
+      $$ = new_param;
+    }
+  | params_def _COMMA_ type _ID_ 
+    {
+      Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
 
-              new_param -> id = $4;
-              new_param -> is_boolean = ($3 == 0);
-              new_param -> next = NULL;
+      new_param -> id = $4;
+      new_param -> is_boolean = ($3 == 0);
+      new_param -> next = NULL;
 
-              $$ = new_param;
-          }
-  ;
+      $$ = new_param;
+    }
+;
 
 type: _INTEGER_
     {
@@ -1115,7 +1103,7 @@ type: _INTEGER_
       printf("\nEncontre: type_BOOL");
       $$ = 0;
     }
-  ;
+;
 
 expr: _ID_
     {
