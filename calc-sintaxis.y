@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "structs.h"
 
-int defined_functions_quantity = 0;
+VarNode * temporal_enviroment;
 
 EnviromentNode *symbol_table = (EnviromentNode *) NULL;    // stack that contains all the enviroments
 FunctionNode *fun_list_head = (FunctionNode *) NULL;
@@ -199,7 +199,7 @@ FunctionNode * add_function_to_funlist(int return_type, char * function_name, Pa
 
   new_function -> type = ret_type;
   new_function -> parameters = parameters_list;
-  new_function -> enviroment = get_last_stack_level();
+  new_function -> enviroment = temporal_enviroment;
 
   if (fun_list_head == NULL)
     fun_list_head = new_function;
@@ -537,41 +537,6 @@ void set_type(int type, VarNode * var_list_head) {
   }
 }
 
-//Return true if a function is being defined -but not has been defined totally-.
-bool defining_function() {
-  //Counting how much functions are actually in list
-  int cont = 0;
-  FunctionNode * functionAuxNode = fun_list_head;
-
-  while (functionAuxNode != NULL) {
-    cont++;
-    functionAuxNode = functionAuxNode -> next;
-  }
-
-  //Compare if that count match the global var
-  if (cont != defined_functions_quantity)
-    return true;
-  else
-    return false;
-}
-
-void add_enviroment_to_last_function(VarNode * fun_enviroment) {
-  
-  FunctionNode * functionAuxNode = fun_list_head;
-
-  if (functionAuxNode != NULL) {
-    //Moving to last function position
-    while (functionAuxNode -> next != NULL)
-      functionAuxNode = functionAuxNode -> next;
-
-    functionAuxNode -> enviroment = fun_enviroment;
-  }
-  else {
-    yyerror();
-    return -1;
-  }
-}
-
 void add_varlist_to_last_enviroment(VarNode * var_list) {
   EnviromentNode * enviromentAuxNode = symbol_table;
 
@@ -585,6 +550,7 @@ void add_varlist_to_last_enviroment(VarNode * var_list) {
     enviromentAuxNode -> variables = var_list;
   }
   else {
+    printf("Imposible agregar variables a un ambiente nulo.\n");
     yyerror();
     return -1;
   }
@@ -673,9 +639,8 @@ scope_open: _BEGIN_ {
   ;
 
 scope_close: _END_ {
-
-              if (defining_function())
-                add_enviroment_to_last_function(get_last_stack_level());
+              //Save Enviroment in temporal var
+              temporal_enviroment = get_last_stack_level();
               close_enviroment();
             }
   ;
@@ -756,8 +721,8 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = $6;
 
-              //Increment quantity of fully defined functions
-              defined_functions_quantity++;
+              
+              
               
               $$ = result;
             }
@@ -778,8 +743,8 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = $5;
 
-              //Increment quantity of fully defined functions
-              defined_functions_quantity++;
+              
+              
               
               $$ = result;
             }
@@ -800,8 +765,8 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = $6;
 
-              //Increment quantity of fully defined functions
-              defined_functions_quantity++;
+              
+              
               
               $$ = result;
             }
@@ -822,8 +787,8 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = $5;
 
-              //Increment quantity of fully defined functions
-              defined_functions_quantity++;
+              
+              
               
               $$ = result;
             }
@@ -844,8 +809,8 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = NULL;
 
-              //Increment quantity of fully defined functions
-              defined_functions_quantity++;
+              
+              
 
               $$ = result;
             }
@@ -866,8 +831,8 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = NULL;
 
-              //Increment quantity of fully defined functions
-              defined_functions_quantity++;
+              
+              
 
               $$ = result;
             }
@@ -888,8 +853,8 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = NULL;
 
-              //Increment quantity of fully defined functions
-              defined_functions_quantity++;
+              
+              
 
               $$ = result;
             }
@@ -910,8 +875,8 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  {
               result -> left_child = NULL;
               result -> right_child = NULL;
 
-              //Increment quantity of fully defined functions
-              defined_functions_quantity++;
+              
+              
 
               $$ = result;
             }
@@ -935,8 +900,8 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> left_child = NULL;
             result -> right_child = $6;
 
-            //Increment quantity of fully defined functions
-            defined_functions_quantity++;
+            
+            
             
             $$ = result;
           }
@@ -958,8 +923,8 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> left_child = NULL;
             result -> right_child = $5;
 
-            //Increment quantity of fully defined functions
-            defined_functions_quantity++;
+            
+            
             
             $$ = result;
           }
@@ -981,8 +946,8 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> left_child = NULL;
             result -> right_child = $6;
 
-            //Increment quantity of fully defined functions
-            defined_functions_quantity++;
+            
+            
             
             $$ = result;
           }
@@ -1004,8 +969,8 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
             result -> left_child = NULL;
             result -> right_child = $5;
 
-            //Increment quantity of fully defined functions
-            defined_functions_quantity++;
+            
+            
             
             $$ = result;
           }
