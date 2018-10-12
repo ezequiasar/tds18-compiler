@@ -19,7 +19,7 @@ typedef struct var_struct {
 // Struct that holds parameter information
 typedef struct parameter_struct {
   char *id;
-  int value;
+  int value; // is this really needed?
   bool is_boolean;
   struct parameter_struct *next;
 } Parameter;

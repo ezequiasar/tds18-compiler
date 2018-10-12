@@ -419,6 +419,43 @@ void add_varlist_to_enviroment(VarNode * var_list) {
   }
 }
 
+ASTNode * create_function_ASTnode(ASTNode * left_child, FunctionNode * function, ASTNode * right_child) {
+  ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
+  result -> is_boolean = false;
+  result -> is_if = false;
+  result -> is_if_body = false;
+  result -> is_while = false;
+  result -> is_arith_op = false;
+  result -> is_boolean_op = false;
+  result -> var_data = NULL;
+  result -> function_data = function;
+  result -> left_child = left_child;
+  result -> right_child = right_child; 
+  return result;
+}
+
+Parameter * create_argument_parameter(ASTNode * expr_ASTNode) {
+  Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
+  if (expr_ASTNode -> var_data != NULL) {
+    new_param -> is_boolean = expr_ASTNode -> var_data -> is_boolean;
+    new_param -> value = expr_ASTNode -> var_data -> value;
+    new_param -> id = expr_ASTNode -> var_data -> id;
+  }
+  else {
+    new_param -> is_boolean = expr_ASTNode -> is_boolean;
+    new_param -> value = expr_ASTNode -> data;
+    new_param -> id = NULL;
+  }
+  return new_param;
+}
+
+Parameter * create_parameter(char * id, bool is_boolean) {
+  Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
+  new_param -> id = id;
+  new_param -> is_boolean = is_boolean;
+  new_param -> next = NULL;
+}
+
 %}
 
 %union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
@@ -574,456 +611,228 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
     {
       printf("\nEncontre: declaracion de un metodo");
       FunctionNode * new_function = add_function_to_funlist($1, $2, $4);
-      ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-      result -> is_boolean = false;
-      result -> is_if = false;
-      result -> is_if_body = false;
-      result -> is_while = false;
-      result -> is_arith_op = false;
-      result -> is_boolean_op = false;
-      result -> var_data = NULL;
-      result -> function_data = new_function;
-      result -> left_child = NULL;
-      result -> right_child = $6; 
-      $$ = result;
+      $$ = create_function_ASTnode(NULL, new_function, $6);
     }
   | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
     {
       printf("\nEncontre: declaracion de un metodo");
       FunctionNode * new_function = add_function_to_funlist($1, $2, NULL);
-      ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-      result -> is_boolean = false;
-      result -> is_if = false;
-      result -> is_if_body = false;
-      result -> is_while = false;
-      result -> is_arith_op = false;
-      result -> is_boolean_op = false;
-      result -> var_data = NULL;
-      result -> function_data = new_function;
-      result -> left_child = NULL;
-      result -> right_child = $5;
-      $$ = result;
+      $$ = create_function_ASTnode(NULL, new_function, $5);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
     {
       printf("\nEncontre: declaracion de un metodo");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, $4);
-      ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-      result -> is_boolean = false;
-      result -> is_if = false;
-      result -> is_if_body = false;
-      result -> is_while = false;
-      result -> is_arith_op = false;
-      result -> is_boolean_op = false;
-      result -> var_data = NULL;
-      result -> function_data = new_function;
-      result -> left_child = NULL;
-      result -> right_child = $6;
-      $$ = result;
+      $$ = create_function_ASTnode(NULL, new_function, $6);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block
     {
       printf("\nEncontre: declaracion de un metodo");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, NULL);
-      ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-      result -> is_boolean = false;
-      result -> is_if = false;
-      result -> is_if_body = false;
-      result -> is_while = false;
-      result -> is_arith_op = false;
-      result -> is_boolean_op = false;
-      result -> var_data = NULL;
-      result -> function_data = new_function;
-      result -> left_child = NULL;
-      result -> right_child = $5;
-      $$ = result;
+      $$ = create_function_ASTnode(NULL, new_function, $5);
     }
   | type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_
     {
       printf("\nEncontre: declaracion de un metodo");
       FunctionNode * new_function = add_function_to_funlist($1, $2, $4);
-      ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-      result -> is_boolean = false;
-      result -> is_if = false;
-      result -> is_if_body = false;
-      result -> is_while = false;
-      result -> is_arith_op = false;
-      result -> is_boolean_op = false;
-      result -> var_data = NULL;
-      result -> function_data = new_function;
-      result -> left_child = NULL;
-      result -> right_child = NULL;
-      $$ = result;
+      $$ = create_function_ASTnode(NULL, new_function, NULL);
     }
   | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block _EXTERN_
     {
       printf("\nEncontre: declaracion de un metodo");
       FunctionNode * new_function = add_function_to_funlist($1, $2, NULL);
-      ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-      result -> is_boolean = false;
-      result -> is_if = false;
-      result -> is_if_body = false;
-      result -> is_while = false;
-      result -> is_arith_op = false;
-      result -> is_boolean_op = false;
-      result -> var_data = NULL;
-      result -> function_data = new_function;
-      result -> left_child = NULL;
-      result -> right_child = NULL;
-      $$ = result;
+      $$ = create_function_ASTnode(NULL, new_function, NULL);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_
     {
       printf("\nEncontre: declaracion de un metodo");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, $4);
-      ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-      result -> is_boolean = false;
-      result -> is_if = false;
-      result -> is_if_body = false;
-      result -> is_while = false;
-      result -> is_arith_op = false;
-      result -> is_boolean_op = false;
-      result -> var_data = NULL;
-      result -> function_data = new_function;
-      result -> left_child = NULL;
-      result -> right_child = NULL;
-      $$ = result;
+      $$ = create_function_ASTnode(NULL, new_function, NULL);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ _EXTERN_
     {
       printf("\nEncontre: declaracion de un metodo");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, NULL);
-      ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-      result -> is_boolean = false;
-      result -> is_if = false;
-      result -> is_if_body = false;
-      result -> is_while = false;
-      result -> is_arith_op = false;
-      result -> is_boolean_op = false;
-      result -> var_data = NULL;
-      result -> function_data = new_function;
-      result -> left_child = NULL;
-      result -> right_child = NULL;
-      $$ = result;
+      $$ = create_function_ASTnode(NULL, new_function, NULL);
     }
 ;
 
-main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
-            printf("\nEncontre: declaracion de main");
-
-            FunctionNode * new_function = add_function_to_funlist($1, "main", $4);
-
-            ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-
-            result -> is_boolean = false;
-            result -> is_if = false;
-            result -> is_if_body = false;
-            result -> is_while = false;
-            result -> is_arith_op = false;
-            result -> is_boolean_op = false;
-            result -> var_data = NULL;
-            result -> function_data = new_function;
-            result -> left_child = NULL;
-            result -> right_child = $6;
-
-            
-            
-            
-            $$ = result;
-          }
-         | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
-            printf("\nEncontre: declaracion de main");
-
-            FunctionNode * new_function = add_function_to_funlist($1, "main", NULL);
-
-            ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-
-            result -> is_boolean = false;
-            result -> is_if = false;
-            result -> is_if_body = false;
-            result -> is_while = false;
-            result -> is_arith_op = false;
-            result -> is_boolean_op = false;
-            result -> var_data = NULL;
-            result -> function_data = new_function;
-            result -> left_child = NULL;
-            result -> right_child = $5;
-
-            
-            
-            
-            $$ = result;
-          }
-         | _VOID_ _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block {
-            printf("\nEncontre: declaracion de main");
-
-            FunctionNode * new_function = add_function_to_funlist(-1, "main", $4);
-
-            ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-
-            result -> is_boolean = false;
-            result -> is_if = false;
-            result -> is_if_body = false;
-            result -> is_while = false;
-            result -> is_arith_op = false;
-            result -> is_boolean_op = false;
-            result -> var_data = NULL;
-            result -> function_data = new_function;
-            result -> left_child = NULL;
-            result -> right_child = $6;
-
-            
-            
-            
-            $$ = result;
-          }
-         | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block {
-            printf("\nEncontre: declaracion de main");
-
-            FunctionNode * new_function = add_function_to_funlist(-1, "main", NULL);
-
-            ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
-
-            result -> is_boolean = false;
-            result -> is_if = false;
-            result -> is_if_body = false;
-            result -> is_while = false;
-            result -> is_arith_op = false;
-            result -> is_boolean_op = false;
-            result -> var_data = NULL;
-            result -> function_data = new_function;
-            result -> left_child = NULL;
-            result -> right_child = $5;
-
-            
-            
-            
-            $$ = result;
-          }
- ;
+main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block 
+    {
+      printf("\nEncontre: declaracion de main");
+      FunctionNode * new_function = add_function_to_funlist($1, "main", $4);
+      $$ = create_function_ASTnode(NULL, new_function, $6);
+    }
+  | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
+    {
+      printf("\nEncontre: declaracion de main");
+      FunctionNode * new_function = add_function_to_funlist($1, "main", NULL);
+      $$ = create_function_ASTnode(NULL, new_function, $5);
+    }
+  | _VOID_ _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block 
+    {
+      printf("\nEncontre: declaracion de main");
+      FunctionNode * new_function = add_function_to_funlist(-1, "main", $4);
+      $$ = create_function_ASTnode(NULL, new_function, $6);
+    }
+  | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
+    {
+      printf("\nEncontre: declaracion de main");
+      FunctionNode * new_function = add_function_to_funlist(-1, "main", NULL);
+      $$ = create_function_ASTnode(NULL, new_function, $5);
+    }
+;
 
 code_block: scope_open code_block_body scope_close
-              {
-                printf("\nEncontre: code_block");
-                $$ = $2;
-              }
-  ;
+    {
+      printf("\nEncontre: code_block");
+      $$ = $2;
+    }
+;
 
-code_block_body: vars_block statements_block {
-                    printf("\nEncontre: vars_block -> statements_block");
-                    //Adding vars to enviroment
-                    add_varlist_to_enviroment($1);
+code_block_body: vars_block statements_block 
+    {
+      printf("\nEncontre: vars_block -> statements_block");
+      add_varlist_to_enviroment($1);
+      $$ = $2;
+    }
+  | statements_block 
+    {
+      printf("\nEncontre: statements_block");
+      $$ = $1;
+    }
+  |  
+    {
+      printf("\nEncontre: NULL code_block_body");
+      $$ = NULL;
+    }
+;
 
-                    $$ = $2;
-                  }
-               | statements_block {
-                    printf("\nEncontre: statements_block");
-                    $$ = $1;
-                  }
-               |  {
-                    printf("\nEncontre: NULL code_block_body");
-                    $$ = NULL;
-                  }
-  ;
-
-statements_block: statement{
-                    printf("\nEncontre: statements_block");
-                    $$ = $1;
-                  }
-                | statements_block statement {
-                    printf("\nEncontre: statements_block -> statement");
-                    $$ = $2;
-                  }
-  ;
+statements_block: statement
+    {
+      printf("\nEncontre: statements_block");
+      $$ = $1;
+    }
+  | statements_block statement 
+    {
+      printf("\nEncontre: statements_block -> statement");
+      $$ = $2;
+    }
+;
 
 statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
-              {
-                printf("\nEncontre: asignacion en statement");
+    {
+      printf("\nEncontre: asignacion en statement");
+      VarNode *id_varnode = find_variable_in_enviroments($1);
+      if (id_varnode == NULL) {
+        printf("Intenta definir una variable inexistente!\n");
+        yyerror();
+        return -1;
+      }
+      if (id_varnode -> is_boolean) 
+        set_value_to_varnode(id_varnode, (int) eval_bool_expr($3));
+      else {
+        int val = eval_int_expr($3);
+        printf("Value is %d.\n", val);
+        set_value_to_varnode(id_varnode, val);
+      }
+      ASTNode * node_from_id = create_AST_leave_from_VarNode(id_varnode);
+      $$ = create_AST_node(node_from_id, 'e', $3);
+    }
+  | method_call _SEMICOLON_
+    {
+      printf("\nEncontre: llamado_a_metodo en statement");
+      $$ = $1;
+    }
+  | conditional_statement
+    {
+      printf("\nEncontre: conditional en statement");
+      $$ = $1;
+    }
+  | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
+    {
+      printf("\nEncontre: while block en statement");
+      ASTNode * while_root = create_AST_node($3, 'w', $5);
+      $$ = while_root;
+    }
+  | _RETURN_ expr _SEMICOLON_
+    {
+      printf("\nEncontre: return_expr_; en statement");
+      $$ = $2;
+    }
+  | _RETURN_ _SEMICOLON_
+    {
+      printf("\nEncontre: return_; en statement");
+      $$ = NULL;
+    }
+  | _SEMICOLON_
+    {
+      printf("\nEncontre: ; en statement");
+      //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
+      $$ = NULL;
+    }
+  | code_block
+    {
+      printf("\nEncontre: codeblock en statement");
+      $$ = $1;
+    }
+;
 
-                VarNode *id_varnode = find_variable_in_enviroments($1);
+conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
+    {
+      printf("\nEncontre: if-then block\n");
+      ASTNode * if_root = create_AST_node($3, 'i', $6);
+      $$ = if_root;
+    }
+  | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block
+    {
+      printf("\nEncontre: if-then-else block\n");
+      ASTNode * if_body = create_AST_node($6, 'b', $8);
+      ASTNode * if_root = create_AST_node($3, 'i', if_body);
+      $$ = if_root;
+    }
+;
 
-                if (id_varnode == NULL) {
-                  printf("Intenta definir una variable inexistente!\n");
-                  yyerror();
-                  return -1;
-                }
-                
-                if (id_varnode -> is_boolean) {
-                  set_value_to_varnode(id_varnode, (int) eval_bool_expr($3));
-                }
-                else {
-                  int val = eval_int_expr($3);
-                  printf("Value is %d.\n", val);
+method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ 
+    {
+      printf("\nEncontre: llamado a metodo\n");
+      if (!is_callable($1, $3)) {
+        yyerror("Function not defined");
+        return -1;
+      }
+      $$ = create_function_ASTnode(NULL, find_function($1), ast_from_parameters_list($3));
+    }
+  | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ 
+    {
+      printf("\nEncontre: llamado a metodo\n");
+      if (!is_callable($1, NULL)) {
+        yyerror("Function not defined");
+        return -1;
+      }
+      $$ = create_function_ASTnode(NULL, find_function($1), NULL);
+    }
+;
 
-                  set_value_to_varnode(id_varnode, val);
-                }
-
-                ASTNode * node_from_id = create_AST_leave_from_VarNode(id_varnode);
-
-                $$ = create_AST_node(node_from_id, 'e', $3);
-              }
-          | method_call _SEMICOLON_
-              {
-                printf("\nEncontre: llamado_a_metodo en statement");
-                $$ = $1;
-              }
-          | conditional_statement
-              {
-                printf("\nEncontre: conditional en statement");
-                
-                $$ = $1;
-              }
-          | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
-              {
-                printf("\nEncontre: while block en statement");
-                ASTNode * while_root = create_AST_node($3, 'w', $5);
-                
-                $$ = while_root;
-              }
-          | _RETURN_ expr _SEMICOLON_
-              {
-                printf("\nEncontre: return_expr_; en statement");
-                $$ = $2;
-              }
-          | _RETURN_ _SEMICOLON_
-              {
-                printf("\nEncontre: return_; en statement");
-                $$ = NULL;
-              }
-          | _SEMICOLON_
-              {
-                printf("\nEncontre: ; en statement");
-                //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
-                $$ = NULL;
-              }
-          | code_block
-              {
-                printf("\nEncontre: codeblock en statement");
-                
-                $$ = $1;
-              }
-  ;
-
-conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block {
-                        printf("\nEncontre: if-then block\n");
-                        ASTNode * if_root = create_AST_node($3, 'i', $6);
-
-                        $$ = if_root;
-                      }
-                     | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block {
-                        printf("\nEncontre: if-then-else block\n");
-                        ASTNode * if_body = create_AST_node($6, 'b', $8);
-                        ASTNode * if_root = create_AST_node($3, 'i', if_body);
-
-                        $$ = if_root;
-                      }
-  ;
-
-method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ {
-              printf("\nEncontre: llamado a metodo\n");
-              if (!is_callable($1, $3)) {
-                yyerror("Function not defined");
-                return -1;
-              }
-
-              ASTNode * parameters_as_childs = ast_from_parameters_list($3);
-              ASTNode * head = (ASTNode *) malloc(sizeof(ASTNode));
-
-              head -> is_boolean = false;
-              head -> is_if = false;
-              head -> is_if_body = false;
-              head -> is_while = false;
-              head -> is_arith_op = false;
-              head -> is_boolean_op = false;
-              head -> var_data = NULL;
-              head -> function_data = find_function($1);
-              head -> left_child = NULL;
-              head -> right_child = parameters_as_childs;
-
-
-              $$ = head;
-            }
-
-           | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ {
-              printf("\nEncontre: llamado a metodo\n");
-              if (!is_callable($1, NULL)) {
-                yyerror("Function not defined");
-                return -1;
-              }
-
-              ASTNode * head = (ASTNode *) malloc(sizeof(ASTNode));
-
-              head -> is_boolean = false;
-              head -> is_if = false;
-              head -> is_if_body = false;
-              head -> is_while = false;
-              head -> is_arith_op = false;
-              head -> is_boolean_op = false;
-              head -> var_data = NULL;
-              head -> function_data = find_function($1);
-              head -> left_child;
-              head -> right_child = NULL;
-
-              $$ = head;
-            }
-  ;
-
-params_call: expr {
-              printf("\nEncontre: expr in params_call");
-              Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
-
-              if ($1 -> var_data != NULL) {
-                new_param -> is_boolean = $1 -> var_data -> is_boolean;
-                new_param -> value = $1 -> var_data -> value;
-                new_param -> id = $1 -> var_data -> id;
-              }
-              else {
-                new_param -> is_boolean = $1 -> is_boolean;
-                new_param -> value = $1 -> data;
-                new_param -> id = NULL;
-              }
-
-              add_new_parameter($$, new_param);
-            }
-           | params_call _COMMA_ expr {
-              printf("\nEncontre: parametros de llamada");
-              Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
-
-              if ($3 -> var_data != NULL) {
-                new_param -> is_boolean = $3 -> var_data -> is_boolean;
-                new_param -> value = $3 -> var_data -> value;
-                new_param -> id = $3 -> var_data -> id;
-              }
-              else {
-                new_param -> is_boolean = $3 -> is_boolean;
-                new_param -> value = $3 -> data;
-                new_param -> id = NULL;
-              }
-
-              add_new_parameter($$, new_param);
-            }
-  ;
+params_call: expr 
+    {
+      printf("\nEncontre: expr in params_call");
+      add_new_parameter($$, create_argument_parameter($1));
+    }
+  | params_call _COMMA_ expr 
+    {
+      printf("\nEncontre: parametros de llamada");
+      add_new_parameter($$, create_argument_parameter($3));
+    }
+;
 
 params_def: type _ID_
     {
       printf("\nEncontre: Parametros de definicion");
-      Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
-
-      new_param -> id = $2;
-      new_param -> is_boolean = ($1 == 0);
-      new_param -> next = NULL;
-
-      $$ = new_param;
+      $$ = create_parameter($2, $1 == 0);
     }
   | params_def _COMMA_ type _ID_ 
     {
-      Parameter * new_param = (Parameter *) malloc(sizeof(Parameter));
-
-      new_param -> id = $4;
-      new_param -> is_boolean = ($3 == 0);
-      new_param -> next = NULL;
-
-      $$ = new_param;
+      $$ = create_parameter($4, $3 == 0);
     }
 ;
 
