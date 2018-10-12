@@ -480,6 +480,17 @@ void print_symbol_table() {
   }
 }
 
+VarNode * concat(VarNode * a, varNode * b) {
+  VarNode * aux = a;
+  if (aux == NULL)
+    return b;
+  while (aux -> next != NULL)
+    aux = aux -> next;
+  aux -> next = b;
+
+  return a;
+}
+
 %}
 
 %union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
@@ -597,13 +608,13 @@ vars_block: type id_list _SEMICOLON_
     {
       printf("\nEncontre: type id_list ;");
       set_types_to_var_list($1, $2);
-      $$ = $2;
+      $$ = concat($$, $2);
     }
   | vars_block type id_list _SEMICOLON_ 
     {
       printf("\nEncontre: type id_list;");
       set_types_to_var_list($2, $3);
-      $$ = $3;
+      $$ = concat($$, $3);
     }
 ;
 
