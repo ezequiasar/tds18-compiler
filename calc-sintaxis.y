@@ -162,7 +162,7 @@ VarNode * find_variable_in_enviroments(char * var_name) {
   }
   EnviromentNode * aux = symbol_table;
   VarNode * result;
-  while (result == NULL && aux -> next != NULL) {
+  while (result == NULL && aux != NULL) {
     result = find_variable(aux -> variables, var_name);
     aux = aux -> next;
   }
@@ -456,6 +456,30 @@ Parameter * create_parameter(char * id, bool is_boolean) {
   new_param -> next = NULL;
 }
 
+void print_symbol_table() {
+  EnviromentNode * aux = symbol_table;
+  VarNode * varAuxNode;
+  int env = 0;
+  if (aux == NULL)
+    printf("Tabla de Simbolos Vacia");
+  while (aux != NULL) {
+    printf("Nivel %d:\n", env);
+    varAuxNode = aux -> variables;
+    while(varAuxNode != NULL) {
+      if (varAuxNode -> is_boolean)
+        printf("\tboolean ");
+      else
+        printf("\tinteger ");
+      printf("%s ", varAuxNode -> id);
+      if (varAuxNode -> is_defined)
+        printf("= %d\n", varAuxNode -> value);
+      varAuxNode = varAuxNode -> next;
+    }
+    aux = aux -> next;
+    env++;
+  }
+}
+
 %}
 
 %union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
@@ -726,6 +750,7 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
       VarNode *id_varnode = find_variable_in_enviroments($1);
       if (id_varnode == NULL) {
         printf("Intenta definir una variable inexistente!\n");
+        print_symbol_table();
         yyerror();
         return -1;
       }
