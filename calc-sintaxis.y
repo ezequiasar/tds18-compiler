@@ -509,8 +509,9 @@ void print_symbol_table() {
           printf("\tinteger ");
         printf("%s ", varAuxNode -> id);
         if (varAuxNode -> is_defined)
-          printf("= %d\n", varAuxNode -> value);
+          printf("= %d", varAuxNode -> value);
         varAuxNode = varAuxNode -> next;
+        printf("\n");
       }
       aux = aux -> next;
       env++;
@@ -606,6 +607,7 @@ scope_close: _END_
     {
       //Save Enviroment in temporal var
       temporal_enviroment = symbol_table -> variables;
+      print_symbol_table();
       close_enviroment();
     }
 ;
