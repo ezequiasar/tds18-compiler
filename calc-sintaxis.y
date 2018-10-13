@@ -883,7 +883,10 @@ params_call: expr
   | params_call _COMMA_ expr 
     {
       printf("\nEncontre: parametros de llamada\n");
-      $1 -> next = create_argument_parameter($3);
+      Parameter * aux = $1;
+      while (aux -> next != NULL)
+        aux = aux -> next;
+      aux -> next = create_argument_parameter($3);
       $$ = $1;
     }
 ;
