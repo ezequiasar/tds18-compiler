@@ -160,6 +160,7 @@ VarNode * find_variable(VarNode * head, char * var_name) {
 }
 
 VarNode * varnode_from_parameter(Parameter * param_data) {
+  printf("varnode_from_parameter\n");
   VarNode * var_data = (VarNode *) malloc(sizeof(VarNode));
   var_data -> id = param_data -> id;
   var_data -> is_boolean = param_data -> is_boolean;
@@ -895,7 +896,11 @@ params_def: type _ID_
     }
   | params_def _COMMA_ type _ID_ 
     {
-      $1 -> next = create_parameter($4, $3 == 0);
+      Parameter * aux = $1;
+      while (aux -> next != NULL)
+        aux = aux -> next;
+      aux -> next = create_parameter($4, $3 == 0);
+      temporal_parameter = $1;
       $$ = $1;
     }
 ;
