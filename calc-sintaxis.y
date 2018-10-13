@@ -290,6 +290,8 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
 
 int eval_int_expr(ASTNode * root) {
   printf("eval_int_expr\n");
+  if (root == NULL)
+    return 0;
   if (root -> left_child == NULL && root -> right_child == NULL)
     return root->data;
   if (root -> is_arith_op) {
