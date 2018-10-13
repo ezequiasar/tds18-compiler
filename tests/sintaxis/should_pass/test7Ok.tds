@@ -18,6 +18,11 @@ begin
         end
     end
 
+    integer inc(integer a)
+    begin
+        return a + 1;
+    end
+
     // main function
     void main()
     begin
