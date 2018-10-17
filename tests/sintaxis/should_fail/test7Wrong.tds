@@ -1,0 +1,22 @@
+//Este test deberia fallar porque no puede haber sentencias despues de return
+program
+begin
+	bool fun(integer w)
+		begin
+			integer ab;
+			integer bc;
+
+			ab = 5;
+			bc = 10;
+			return (w == ab + bc);
+			ab = 7;
+		end
+
+	void main()
+		begin
+			integer h;
+			bool w;
+			h = 10;
+			w = true;
+		end
+end

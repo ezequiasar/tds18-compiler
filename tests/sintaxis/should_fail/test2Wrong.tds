@@ -1,0 +1,23 @@
+//Este test deberia fallar porque no se puede sumar un bool y un integer
+program
+begin
+	bool fun(integer w)
+		begin
+			integer ab;
+			integer bc;
+
+			ab = 5;
+			bc = 10;
+			return (w == ab + bc);
+		end
+
+	bool main()
+		begin
+			integer h;
+			bool w;
+			h = 10;
+			w = true;
+
+			return fun(h + w);
+		end
+end
