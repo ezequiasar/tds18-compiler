@@ -2,14 +2,18 @@ program
 begin
 	bool fun(integer w)
 		begin
-			integer a;
-			integer b;
-			return (w == b - a);
+			integer ab;
+			integer bc;
+
+			ab = 5;
+			bc = 10;
+			return (w == ab + bc);
 		end
 
 	bool main()
 		begin
 			integer h;
+			h = 10;
 			return fun(h);
 		end
 end
