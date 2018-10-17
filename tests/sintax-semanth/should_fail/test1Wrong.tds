@@ -1,4 +1,4 @@
-//Este test deberia fallar porque una func void no deberia retornar nada
+//This test should fail because a void method should not have a return statement
 program
 begin
 	bool fun(integer w)

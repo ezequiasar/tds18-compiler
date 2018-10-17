@@ -1,5 +1,4 @@
-//Este test deberia fallar porque no puede haber sentencias despues de return
-program
+//This test should fail because there is an statement after return.
 begin
 	bool fun(integer w)
 		begin

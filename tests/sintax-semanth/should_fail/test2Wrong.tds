@@ -1,4 +1,4 @@
-//Este test deberia fallar porque no se puede sumar un bool y un integer
+//This test should fail because a bool cannot be added to an integer
 program
 begin
 	bool fun(integer w)

@@ -1,4 +1,4 @@
-//Este test deberia fallar porque una func bool debe tener una sentencia return
+//This test should fail because a return statement is missing in bool function
 program
 begin
 	bool fun(integer w)

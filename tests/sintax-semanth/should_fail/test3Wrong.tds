@@ -1,4 +1,4 @@
-//Este programa deberia fallar porque una funcion integer devuelve un bool
+//This test should fail because an integer method returns a bool
 program
 begin
 	integer fun(integer w)
