@@ -1033,7 +1033,7 @@ expr: _ID_
       printf("\nEncontre: id_expr %s\n", $1);
       char * var_name = $1;
       VarNode * var_data = find_variable_in_enviroments(var_name);
-      if (var_data != NULL && var_data -> is_defined) {
+      if (var_data != NULL) {
         $$ = create_AST_leave_from_VarNode(var_data);
       }
       else {
