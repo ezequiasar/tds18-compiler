@@ -13,7 +13,9 @@ typedef enum type_of_node {
   _while,
   _arith_op,
   _boolean_op,
-  _assign_expr,
+  _assign,
+  _return,
+  _method_call,
   _none
 } TypeNode;
 
@@ -54,6 +56,7 @@ typedef struct ast_node_struct {
   TypeNode node_type;
   VarNode *var_data;
   struct functions_struct *function_data;
+  struct ast_node_struct *next_statement;
   struct ast_node_struct *left_child;
   struct ast_node_struct *right_child;
 }ASTNode;
