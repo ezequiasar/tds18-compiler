@@ -410,7 +410,7 @@ FunctionNode * find_function(char * function_name) {
   printf("find_function\n");
   FunctionNode * functionAuxNode = fun_list_head;
   while (functionAuxNode != NULL) {
-    if (functionAuxNode -> id == function_name)
+    if (strcmp(functionAuxNode -> id, function_name) == 0)
       return functionAuxNode;
     functionAuxNode = functionAuxNode -> next;
   }
@@ -567,7 +567,26 @@ char * get_string_representation(ASTNode * node) {
     case _arith_op: return &(node -> data); break;
     case _boolean_op: return &(node -> data); break;
     case _assign: return "="; break;
-    case _method_call: return "method call"; break;
+    case _method_call: 
+      if (node -> function_data != NULL) {
+        int fun_id_len = strlen(node -> function_data -> id);
+        if (fun_id_len <= 10) {
+          char str[12];
+          sprintf(str, "%s%s", node -> function_data -> id, "()");  
+          char * ret = str;
+          return ret;
+        }
+        else {
+          char str[32];
+          sprintf(str, "%s%s", node -> function_data -> id, "()");  
+          char * ret = str;
+          return ret;
+        }
+      }
+      else {
+        return "method_call";
+      }
+      break;
     case _return: return "return"; break;
     case _id:
       return node -> var_data -> id; break;
