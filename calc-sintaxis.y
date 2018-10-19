@@ -557,16 +557,17 @@ char * get_type_node_string(TypeNode tn) {
 
 char * get_string_representation(ASTNode * node) {
   //printf("entra a string represetnation \n");
+  char * aux;
   switch (node -> node_type) 
   {
-    case _if: return "if";
-    case _if_body: return "if body";
-    case _while: return "while";
-    case _arith_op: return "arith op";
-    case _boolean_op: return "boolean op";
-    case _assign: return "=";
-    case _method_call: return "method call";
-    case _return: return "return";
+    case _if: return "if"; break;
+    case _if_body: return "if body"; break;
+    case _while: return "while"; break;
+    case _arith_op: return &(node -> data); break;
+    case _boolean_op: return &(node -> data); break;
+    case _assign: return "="; break;
+    case _method_call: return "method call"; break;
+    case _return: return "return"; break;
     case _none:
       //printf("entra por none \n");
       if (node -> is_boolean) {
@@ -578,6 +579,7 @@ char * get_string_representation(ASTNode * node) {
       else {
         return "int value";
       }
+      break;
     default:
       printf("gran cagada, no es nada \n");
   }
@@ -625,6 +627,25 @@ void print_functions() {
   printf("=========== END FUNCTIONS OF THE PROGRAM  ==========\n");
   printf("\n");
   printf("\n");
+}
+
+void print_tree_formatted_by_level(ASTNode *root, int level) {
+  int i;
+  if (root != NULL) {
+    for(i = 0; i <= level; i++)
+      printf("  ");
+    printf("|-->  '%s'\n", get_string_representation(root));
+    
+    print_tree_formatted_by_level(root -> left_child, level + 1);
+    print_tree_formatted_by_level(root -> right_child, level + 1);
+    print_tree_formatted_by_level(root -> next_statement, level);
+  }
+}
+
+void print_whole_tree(ASTNode * root) {
+  printf("\n\n=====================TREE REPRESENTATION=========================\n");
+  print_tree_formatted_by_level(root, 0);
+  printf("\n===================================================================\n");
 }
 
 %}
@@ -702,6 +723,7 @@ prog: _PROGRAM_ scope_open prog_body scope_close
     { 
       printf("\nEncontre: prog\n");
       $$ = $3;
+      print_whole_tree($$);
     }
 ;
 
