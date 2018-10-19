@@ -16,7 +16,7 @@ extern int strcmp(const char *s1, const char *s2);
   Adds a new variable to the current enviroment of the symbol table.
 */
 void add_var_to_symbol_table(char * var_name, int value, bool is_boolean) {
-  printf("add_var_to_symbol_table\n");
+  //printf("add_var_to_symbol_table\n");
   VarNode * new_var = (VarNode *) malloc(sizeof(VarNode));
   if (new_var == NULL)
     printf( "no available memory!\n");
@@ -37,7 +37,7 @@ void add_var_to_symbol_table(char * var_name, int value, bool is_boolean) {
   Returns a new partial varNode with the ID taken as parameter
 */
 VarNode * partial_varnode(char * var_name) {
-  printf("partial_varnode %s\n", var_name);
+  //printf("partial_varnode %s\n", var_name);
   VarNode * new_var = (VarNode *) malloc(sizeof(VarNode));
   if (new_var == NULL)
     printf( "no available memory!\n");
@@ -53,7 +53,7 @@ VarNode * partial_varnode(char * var_name) {
   Appends a new parameter to a parameter's list.
 */
 void add_new_parameter(Parameter * params_list_head, Parameter * to_add_param) {
-  printf("add_new_parameter\n");
+  //printf("add_new_parameter\n");
   if (params_list_head == NULL)
     params_list_head = to_add_param;
   else {
@@ -90,7 +90,7 @@ VarNode * concat_varnodes(VarNode * var_list_a, VarNode * var_list_b) {
   Closes the current enviroment, leaving the next enviroment on the top of the stack.
 */
 void close_enviroment() {
-  printf("close_enviroment\n");
+  //printf("close_enviroment\n");
   symbol_table = symbol_table -> next;
 }
 
@@ -98,7 +98,7 @@ void close_enviroment() {
   Sets a value to a varNode
 */
 void set_value_to_varnode(VarNode * var_node, int value) {
-  printf("add_value_to_var_node\n");
+  //printf("add_value_to_var_node\n");
   if (var_node == NULL)
     printf("Cant add value to a non-existent variable.\n");
   else {
@@ -111,7 +111,7 @@ void set_value_to_varnode(VarNode * var_node, int value) {
   Opens a new enviroment level. It is placed on the top of the stack.
 */
 void open_enviroment() {
-  printf("open_enviroment\n");
+  //printf("open_enviroment\n");
   EnviromentNode * new_level = (EnviromentNode *) malloc(sizeof(EnviromentNode));
   new_level -> variables = NULL;
   new_level -> next = symbol_table;
@@ -122,7 +122,7 @@ void open_enviroment() {
   Takes an int as parameter and returns the represented ReturnType.
 */
 ReturnType get_return_type(int type_int_value) {
-  printf("get_return_type\n");
+  //printf("get_return_type\n");
   switch (type_int_value) {
     case 0:
       return boolean;
@@ -148,7 +148,7 @@ char * get_return_type_string(ReturnType value) {
   Creates a new function Node and adds it to the function's list.
 */
 FunctionNode * add_function_to_funlist(int return_type, char * function_name, Parameter *parameters_list, ASTNode * body_head) {
-  printf("add_function_to_funlist\n");
+  //printf("add_function_to_funlist\n");
   FunctionNode * new_function = (FunctionNode *) malloc(sizeof(FunctionNode));
   new_function -> id = function_name;
   new_function -> type = get_return_type(return_type);
@@ -164,7 +164,7 @@ FunctionNode * add_function_to_funlist(int return_type, char * function_name, Pa
   Searches for a variable on a list of variables
 */
 VarNode * find_variable(VarNode * head, char * var_name) {
-  printf("find_variable: %s\n", var_name);
+  //printf("find_variable: %s\n", var_name);
   VarNode * varAuxNode = head;
   while (varAuxNode != NULL) {
     if (strcmp(varAuxNode -> id, var_name) == 0) { 
@@ -176,7 +176,7 @@ VarNode * find_variable(VarNode * head, char * var_name) {
 }
 
 VarNode * varnode_from_parameter(Parameter * param_data) {
-  printf("varnode_from_parameter\n");
+  //printf("varnode_from_parameter\n");
   VarNode * var_data = (VarNode *) malloc(sizeof(VarNode));
   var_data -> id = param_data -> id;
   var_data -> is_boolean = param_data -> is_boolean;
@@ -228,7 +228,7 @@ TypeNode get_node_type(int op) {
   Searches for a variable on all the enviroments.
 */
 VarNode * find_variable_in_enviroments(char * var_name) {
-  printf("find_variable_in_enviroments\n");
+  //printf("find_variable_in_enviroments\n");
   VarNode * result = NULL;
   if (temporal_parameter != NULL) {
     Parameter * param_result = find_parameter(temporal_parameter, var_name);
@@ -251,7 +251,7 @@ VarNode * find_variable_in_enviroments(char * var_name) {
   Returns a new ASTNode
 */
 ASTNode *create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
-  printf("create_AST_node\n");
+  //printf("create_AST_node\n");
   ASTNode * new_node = (ASTNode *) malloc(sizeof(ASTNode));
   new_node -> data = op;
   new_node -> is_boolean = false;
@@ -267,7 +267,7 @@ ASTNode *create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
   Returns a new leave created from a varNode
 */
 ASTNode * create_AST_leave_from_VarNode(VarNode * var_data) {
-  printf("create_AST_leave_from_VarNode\n");
+  //printf("create_AST_leave_from_VarNode\n");
   if (var_data == NULL) {
     printf("Cannot create leave from null var.\n");
     return NULL;
@@ -286,7 +286,7 @@ ASTNode * create_AST_leave_from_VarNode(VarNode * var_data) {
   Returns a new leave created from a value.
 */
 ASTNode * create_AST_leave_from_value(int value, bool is_boolean) {
-  printf("create_AST_leave_from_value\n");
+  //printf("create_AST_leave_from_value\n");
   ASTNode * new_leave = (ASTNode *) create_AST_node(NULL,'n',NULL);
   new_leave -> data = value;
   new_leave -> is_boolean = is_boolean;
@@ -297,7 +297,7 @@ ASTNode * create_AST_leave_from_value(int value, bool is_boolean) {
 //int eval_int_expr(ASTNode * root);
 
 int eval_int_expr(ASTNode * root) {
-  printf("eval_int_expr\n");
+  //printf("eval_int_expr\n");
   if (root == NULL)
     return 0;
   if (root -> left_child == NULL && root -> right_child == NULL)
@@ -317,7 +317,7 @@ int eval_int_expr(ASTNode * root) {
 }
 
 bool eval_bool_expr(ASTNode * root) {
-  printf("eval_bool_expr\n");
+  //printf("eval_bool_expr\n");
   if (root -> left_child == NULL && root -> right_child == NULL)
     return (bool) root -> data;
   if (root -> node_type == _boolean_op) {
@@ -342,7 +342,7 @@ bool eval_bool_expr(ASTNode * root) {
 
 //Checked for Segmentation Fault by Santi.
 bool check_if_equals(Parameter * list1, Parameter * list2) {
-  printf("check_if_equals\n");
+  //printf("check_if_equals\n");
   Parameter * paramAuxNode1 = list1;
   Parameter * paramAuxNode2 = list2;
   while (paramAuxNode1 != NULL) {
@@ -362,7 +362,7 @@ bool check_if_equals(Parameter * list1, Parameter * list2) {
 
 //Checked for Segmentation Fault by Santi.
 bool is_callable(char * function_name, Parameter * params) {
-  printf("is_callable\n");
+  //printf("is_callable\n");
   FunctionNode * functionAuxNode = fun_list_head;
   while (functionAuxNode != NULL) {
     if (strcmp(functionAuxNode -> id, function_name) == 0) {
@@ -375,7 +375,7 @@ bool is_callable(char * function_name, Parameter * params) {
 
 //Checked for Segmentation Fault by Santi.
 ASTNode * ast_from_parameters_list (Parameter * params_list) {
-  printf("ast_from_parameters_list\n");
+  //printf("ast_from_parameters_list\n");
   ASTNode * result = create_AST_node(NULL,'n',NULL);
   Parameter * paramAuxNode = params_list;
   if (paramAuxNode != NULL) {
@@ -407,7 +407,7 @@ ASTNode * ast_from_parameters_list (Parameter * params_list) {
   Finds a function by id in the function list and its returned (if its not found returns null).
 */
 FunctionNode * find_function(char * function_name) {
-  printf("find_function\n");
+  //printf("find_function\n");
   FunctionNode * functionAuxNode = fun_list_head;
   while (functionAuxNode != NULL) {
     if (strcmp(functionAuxNode -> id, function_name) == 0)
@@ -421,7 +421,7 @@ FunctionNode * find_function(char * function_name) {
   Sets a type to all variables of the list.
 */
 void set_types_to_var_list(int type, VarNode * var_list_head) {
-  printf("set_types_to_var_list; type == %d\n", type);
+  //printf("set_types_to_var_list; type == %d\n", type);
   VarNode * varAuxNode = var_list_head;
   while (varAuxNode != NULL) {
     if (type == 0) {
@@ -517,9 +517,9 @@ void print_formal_parameters(Parameter * head) {
     Parameter * aux = head;
     while (aux != NULL) {
       if (aux -> is_boolean) 
-        printf(" bool %s,", aux -> id);
+        printf((aux -> next == NULL)?"bool %s":" bool %s, ", aux -> id);
       else
-        printf(" integer %s,", aux -> id);
+        printf((aux -> next == NULL)?"integer %s":" integer %s, ", aux -> id);
       aux = aux -> next;
     }
   }
@@ -754,7 +754,7 @@ void print_functions() {
 
 prog: _PROGRAM_ scope_open prog_body scope_close 
     { 
-      printf("\nEncontre: prog\n");
+      //printf("\nEncontre: prog\n");
       $$ = $3;
       //print_whole_tree($$);
       print_functions();
@@ -779,34 +779,34 @@ scope_close: _END_
 
 prog_body: vars_block methods_block main_decl
     { 
-      printf("\nEncontre: vars_block -> methods_block -> main_decl\n");
+      //printf("\nEncontre: vars_block -> methods_block -> main_decl\n");
       //Adding vars to enviroment
       $2 -> right_child = $3;
       $$ = $2;
     }
   | methods_block main_decl 
     { 
-      printf("\nEncontre: methods_block -> main_decl\n");
+      //printf("\nEncontre: methods_block -> main_decl\n");
       $1 -> right_child = $2;
       $$ = $1;
     }
   | main_decl 
     { 
-      printf("\nEncontre: main_decl\n");
+      //printf("\nEncontre: main_decl\n");
       $$ = $1;
     }
 ;
 
 vars_block: type id_list _SEMICOLON_
     {
-      printf("\nEncontre: %d id_list\n", $1);
+      //printf("\nEncontre: %d id_list\n", $1);
       set_types_to_var_list($1, $2);
       $$ = $2;
       add_varlist_to_enviroment($$);
     }
   | vars_block type id_list _SEMICOLON_ 
     {
-      printf("\nEncontre: %d id_list\n", $2);
+      //printf("\nEncontre: %d id_list\n", $2);
       set_types_to_var_list($2, $3);
       $$ = $3;
       add_varlist_to_enviroment($$);
@@ -815,74 +815,74 @@ vars_block: type id_list _SEMICOLON_
 
 id_list: _ID_ 
     { 
-      printf("\nEncontre: id\n");
+      //printf("\nEncontre: id\n");
       $$ = partial_varnode($1);
     }
   | id_list _COMMA_ _ID_ 
     {
-      printf("\nEncontre: Declaracion de Variable\n");
+      //printf("\nEncontre: Declaracion de Variable\n");
       $$ = concat_varnodes($$, partial_varnode($3));
     }
 ;
 
 methods_block: method_decl 
     {
-      printf("\nEncontre: method_decl\n");
+      //printf("\nEncontre: method_decl\n");
       $$ = $1;
     }
   | methods_block method_decl 
     {
-      printf("\nEncontre: methods_block -> method_decl\n");
+      //printf("\nEncontre: methods_block -> method_decl\n");
       $$ = $2;
     }
 ;
 
 method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  
     {
-      printf("\nEncontre: declaracion de un metodo\n");
+      //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, $4, $6);
       $$ = create_function_ASTnode(NULL, new_function, $6);
 
     }
   | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
     {
-      printf("\nEncontre: declaracion de un metodo\n");
+      //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, NULL, $5);
       $$ = create_function_ASTnode(NULL, new_function, $5);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
     {
-      printf("\nEncontre: declaracion de un metodo\n");
+      //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, $4, $6);
       $$ = create_function_ASTnode(NULL, new_function, $6);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block
     {
-      printf("\nEncontre: declaracion de un metodo\n");
+      //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, NULL, $5);
       $$ = create_function_ASTnode(NULL, new_function, $5);
     }
   | type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_
     {
-      printf("\nEncontre: declaracion de un metodo\n");
+      //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, $4, NULL);
       $$ = create_function_ASTnode(NULL, new_function, NULL);
     }
   | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block _EXTERN_
     {
-      printf("\nEncontre: declaracion de un metodo\n");
+      //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, NULL, NULL);
       $$ = create_function_ASTnode(NULL, new_function, NULL);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_
     {
-      printf("\nEncontre: declaracion de un metodo\n");
+      //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, $4, NULL);
       $$ = create_function_ASTnode(NULL, new_function, NULL);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ _EXTERN_
     {
-      printf("\nEncontre: declaracion de un metodo\n");
+      //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, NULL, NULL);
       $$ = create_function_ASTnode(NULL, new_function, NULL);
     }
@@ -890,25 +890,25 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
 
 main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block 
     {
-      printf("\nEncontre: declaracion de main\n");
+      //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist($1, "main", $4, $6);
       $$ = create_function_ASTnode(NULL, new_function, $6);
     }
   | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
     {
-      printf("\nEncontre: declaracion de main\n");
+      //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist($1, "main", NULL, $5);
       $$ = create_function_ASTnode(NULL, new_function, $5);
     }
   | _VOID_ _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block 
     {
-      printf("\nEncontre: declaracion de main\n");
+      //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist(-1, "main", $4, $6);
       $$ = create_function_ASTnode(NULL, new_function, $6);
     }
   | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
     {
-      printf("\nEncontre: declaracion de main\n");
+      //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist(-1, "main", NULL, $5);
       $$ = create_function_ASTnode(NULL, new_function, $5);
     }
@@ -916,46 +916,46 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
 
 code_block: scope_open code_block_body scope_close
     {
-      printf("\nEncontre: code_block\n");
+      //printf("\nEncontre: code_block\n");
       $$ = $2;
     }
 ;
 
 code_block_body: vars_block statements_block 
     {
-      printf("\nEncontre: vars_block -> statements_block\n");
+      //printf("\nEncontre: vars_block -> statements_block\n");
       $$ = $2;
     }
   | statements_block 
     {
-      printf("\nEncontre: statements_block\n");
+      //printf("\nEncontre: statements_block\n");
       $$ = $1;
     }
   |  
     {
-      printf("\nEncontre: NULL code_block_body\n");
+      //printf("\nEncontre: NULL code_block_body\n");
       $$ = NULL;
     }
 ;
 
 statements_block: statement
     {
-      printf("\nEncontre: statements_block\n");
+      //printf("\nEncontre: statements_block\n");
       $$ = $1;
     }
   | statements_block statement 
     {
-      printf("\nEncontre: statements_block -> statement\n");
+      //printf("\nEncontre: statements_block -> statement\n");
       $$ = add_statement_to_list($$, $2);
     }
 ;
 
 statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
     {
-      printf("\nEncontre: asignacion en statement \n");
+      //printf("\nEncontre: asignacion en statement \n");
       VarNode *id_varnode = find_variable_in_enviroments($1);
       if (id_varnode == NULL) {
-        printf("Intenta definir una variable inexistente!\n");
+        //printf("Intenta definir una variable inexistente!\n");
         print_symbol_table();
         yyerror();
         return -1;
@@ -965,52 +965,52 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
     }
   | method_call _SEMICOLON_
     {
-      printf("\nEncontre: llamado_a_metodo en statement\n");
+      //printf("\nEncontre: llamado_a_metodo en statement\n");
       $$ = $1;
     }
   | conditional_statement
     {
-      printf("\nEncontre: conditional en statement\n");
+      //printf("\nEncontre: conditional en statement\n");
       $$ = $1;
     }
   | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
     {
-      printf("\nEncontre: while block en statement\n");
+      //printf("\nEncontre: while block en statement\n");
       ASTNode * while_root = create_AST_node($3, 'w', $5);
       $$ = while_root;
     }
   | _RETURN_ expr _SEMICOLON_
     {
-      printf("\nEncontre: return_expr_; en statement\n");
+      //printf("\nEncontre: return_expr_; en statement\n");
       $$ = create_AST_node(NULL, 'r', $2);
     }
   | _RETURN_ _SEMICOLON_
     {
-      printf("\nEncontre: return_; en statement\n");
+      //printf("\nEncontre: return_; en statement\n");
       $$ = create_AST_node(NULL, 'r', NULL);
     }
   | _SEMICOLON_
     {
-      printf("\nEncontre: ; en statement\n");
+      //printf("\nEncontre: ; en statement\n");
       //Lo dejo a criterio de mis compañeros porque es obvio (?) jajajaj
       $$ = NULL;
     }
   | code_block
     {
-      printf("\nEncontre: codeblock en statement\n");
+      //printf("\nEncontre: codeblock en statement\n");
       $$ = $1;
     }
 ;
 
 conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
     {
-      printf("\nEncontre: if-then block\n");
+      //printf("\nEncontre: if-then block\n");
       ASTNode * if_root = create_AST_node($3, 'i', $6);
       $$ = if_root;
     }
   | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block
     {
-      printf("\nEncontre: if-then-else block\n");
+      //printf("\nEncontre: if-then-else block\n");
       ASTNode * if_body = create_AST_node($6, 'b', $8);
       ASTNode * if_root = create_AST_node($3, 'i', if_body);
       $$ = if_root;
@@ -1019,9 +1019,9 @@ conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_blo
 
 method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ 
     {
-      printf("\nEncontre: llamado a metodo\n");
+      //printf("\nEncontre: llamado a metodo\n");
       if (!is_callable($1, $3)) {
-        printf("Function not defined\n");
+        //printf("Function not defined\n");
         yyerror();
         return -1;
       }
@@ -1029,9 +1029,9 @@ method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_
     }
   | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ 
     {
-      printf("\nEncontre: llamado a metodo\n");
+      //printf("\nEncontre: llamado a metodo\n");
       if (!is_callable($1, NULL)) {
-        printf("Function not defined\n");
+        //printf("Function not defined\n");
         yyerror();
         return -1;
       }
@@ -1041,12 +1041,12 @@ method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_
 
 params_call: expr 
     {
-      printf("\nEncontre: expr in params_call\n");
+      //printf("\nEncontre: expr in params_call\n");
       $$ = create_argument_parameter($1);
     }
   | params_call _COMMA_ expr 
     {
-      printf("\nEncontre: parametros de llamada\n");
+      //printf("\nEncontre: parametros de llamada\n");
       Parameter * aux = $1;
       while (aux -> next != NULL)
         aux = aux -> next;
@@ -1057,7 +1057,7 @@ params_call: expr
 
 params_def: type _ID_
     {
-      printf("\nEncontre: Parametros de definicion\n");
+      //printf("\nEncontre: Parametros de definicion\n");
       temporal_parameter = create_parameter($2, $1 == 0);
       $$ = temporal_parameter;
     }
@@ -1074,19 +1074,19 @@ params_def: type _ID_
 
 type: _INTEGER_
     {
-      printf("\nEncontre: type_INTEGER\n");
+      //printf("\nEncontre: type_INTEGER\n");
       $$ = 1;
     }
   | _BOOL_
     {
-      printf("\nEncontre: type_BOOL\n");
+      //printf("\nEncontre: type_BOOL\n");
       $$ = 0;
     }
 ;
 
 expr: _ID_
     {
-      printf("\nEncontre: id_expr %s\n", $1);
+      //printf("\nEncontre: id_expr %s\n", $1);
       char * var_name = $1;
       VarNode * var_data = find_variable_in_enviroments(var_name);
       if (var_data != NULL) {
@@ -1094,7 +1094,7 @@ expr: _ID_
       }
       else {
         $$ = NULL;
-        printf("Variable no declarada o definida\n");
+        //printf("Variable no declarada o definida\n");
         print_symbol_table();
         yyerror();
         return -1;
@@ -1102,108 +1102,108 @@ expr: _ID_
     }
   | literal
     {
-      printf("\nEncontre: literal\n");
+      //printf("\nEncontre: literal\n");
       $$ = $1;
     }
   | method_call
     {
-      printf("\nEncontre: llamado a metodo en expr\n");
+      //printf("\nEncontre: llamado a metodo en expr\n");
       $$ = $1;
     }
   | expr _PLUS_ expr
     {
-      printf("\nEncontre: expr + expr\n");
+      //printf("\nEncontre: expr + expr\n");
       $$ = create_AST_node($1, '+', $3);
     }
   | expr _MINUS_ expr
     {
-      printf("\nEncontre: expr - expr\n");
+      //printf("\nEncontre: expr - expr\n");
       $$ = create_AST_node($1, '-', $3);
     }
   | expr _MULTIPLY_ expr
     {
-      printf("\nEncontre: expr x expr\n");
+      //printf("\nEncontre: expr x expr\n");
       $$ = create_AST_node($1, '*', $3);
     }
   | expr _DIVIDE_ expr
     {
-      printf("\nEncontre: expr / expr\n");
+      //printf("\nEncontre: expr / expr\n");
       $$ = create_AST_node($1, '/', $3);
     }
   | expr _MOD_ expr
     {
-      printf("\nEncontre: expr MOD expr\n");
+      //printf("\nEncontre: expr MOD expr\n");
       $$ = create_AST_node($1, '%', $3);
     }
   | expr _LESSER_THAN_ expr
     {
-      printf("\nEncontre: expr < expr\n");
+      //printf("\nEncontre: expr < expr\n");
       $$ = create_AST_node($1, '<', $3);
     }
   | expr _GREATER_THAN_ expr
     {
-      printf("\nEncontre: expr > expr\n");
+      //printf("\nEncontre: expr > expr\n");
       $$ = create_AST_node($1, '>', $3);
     }
   | expr _EQUALS_ expr
     {
-      printf("\nEncontre: expr == expr\n");
+      //printf("\nEncontre: expr == expr\n");
       $$ = create_AST_node($1, 'e', $3);
     }
   | expr _AND_ expr
     {
-      printf("\nEncontre: expr && expr\n");
+      //printf("\nEncontre: expr && expr\n");
       $$ = create_AST_node($1, '&', $3);
     }
   | expr _OR_ expr
     {
-      printf("\nEncontre: expr || expr\n");
+      //printf("\nEncontre: expr || expr\n");
       $$ = create_AST_node($1, '|', $3);
     }
   | _MINUS_ expr %prec NEG
     {
-      printf("\nEncontre: -expr\n");
+      //printf("\nEncontre: -expr\n");
       $$ = create_AST_node(NULL, '-', $2);
     }
   | _NOT_ expr %prec NEG
     {
-      printf("\nEncontre: !expr\n");
+      //printf("\nEncontre: !expr\n");
       $$ = create_AST_node(NULL, '!', $2);
     }
   | _L_PARENTHESIS_ expr _R_PARENTHESIS_
     {
-      printf("\nEncontre: (expr)\n");
+      //printf("\nEncontre: (expr)\n");
       $$ = $2;
     }
 ;
 
 literal: integer_literal
     {
-      printf("\nEncontre: literal_integer\n");
+      //printf("\nEncontre: literal_integer\n");
       $$ = $1;
     }
   | bool_literal
     {
-      printf("\nEncontre: literal_bool\n");
+      //printf("\nEncontre: literal_bool\n");
       $$ = $1;
     }
 ;
 
 bool_literal: _TRUE_
     {
-      printf("\nEncontre: un literal_bool TRUE\n");
+      //printf("\nEncontre: un literal_bool TRUE\n");
       $$ = create_AST_leave_from_value(1, true);
     }
   | _FALSE_
     {
-      printf("\nEncontre: un literal_bool FALSE\n");
+      //printf("\nEncontre: un literal_bool FALSE\n");
       $$ = create_AST_leave_from_value(0, true);
     }
 ;
 
 integer_literal: _INT_
     {
-      printf("\nEncontre: un literal_integer\n");
+      //printf("\nEncontre: un literal_integer\n");
       $$ = create_AST_leave_from_value($1, false);
     }
 ;
