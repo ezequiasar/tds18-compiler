@@ -275,6 +275,7 @@ ASTNode * create_AST_leave_from_VarNode(VarNode * var_data) {
   else {
     ASTNode * new_leave = (ASTNode *) create_AST_node(NULL,'n',NULL);
     new_leave -> data = var_data -> value;
+    new_leave -> node_type = _id;
     new_leave -> is_boolean = var_data -> is_boolean;
     new_leave -> var_data = var_data;
     return new_leave;
@@ -450,7 +451,7 @@ ASTNode * create_function_ASTnode(ASTNode * left_child, FunctionNode * function,
   ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
   result -> data = 'm';
   result -> is_boolean = false;
-  result -> node_type = _none;
+  result -> node_type = _method_call;
   result -> var_data = NULL;
   result -> function_data = function;
   result -> left_child = left_child;
@@ -557,16 +558,19 @@ char * get_type_node_string(TypeNode tn) {
 
 char * get_string_representation(ASTNode * node) {
   //printf("entra a string represetnation \n");
+  char * aux;
   switch (node -> node_type) 
   {
-    case _if: return "if";
-    case _if_body: return "if body";
-    case _while: return "while";
-    case _arith_op: return "arith op";
-    case _boolean_op: return "boolean op";
-    case _assign: return "=";
-    case _method_call: return "method call";
-    case _return: return "return";
+    case _if: return "if"; break;
+    case _if_body: return "if body"; break;
+    case _while: return "while"; break;
+    case _arith_op: return &(node -> data); break;
+    case _boolean_op: return &(node -> data); break;
+    case _assign: return "="; break;
+    case _method_call: return "method call"; break;
+    case _return: return "return"; break;
+    case _id:
+      return node -> var_data -> id; break;
     case _none:
       //printf("entra por none \n");
       if (node -> is_boolean) {
@@ -576,44 +580,70 @@ char * get_string_representation(ASTNode * node) {
           return "true";
       }
       else {
-        return "int value";
+        //printf("el int es: %d",node -> data);
+        int i = node -> data;
+        char str[8];
+        
+        sprintf(str, "%d", i);
+        char * ret = str;
+        return ret;
       }
+      break;
     default:
       printf("gran cagada, no es nada \n");
   }
 }
 
-void print_function_AST(ASTNode * head) {
+void print_function_AST(ASTNode * head, int level) {
+  if (head != NULL) {
+    for(int i = 0; i < level; i++)
+      printf("  ");
+  }
   ASTNode * aux = head;
   while (aux != NULL) {
     printf("%s \n", get_string_representation(aux));
-    //printf("sale de strign representation \n");
-    printf("   ");
-    print_function_AST(aux -> left_child);
-    print_function_AST(aux -> right_child);
+    print_function_AST(aux -> left_child, level + 1);
+    print_function_AST(aux -> right_child, level + 1);
     aux = aux -> next_statement;
   }
 }
 
+void print_tree_formatted_by_level(ASTNode *root, int level) {
+  int i;
+  if (root != NULL) {
+    for(i = 0; i <= level; i++)
+      printf("     ");
+    printf("|> '%s'\n", get_string_representation(root));
+    
+    print_tree_formatted_by_level(root -> left_child, level + 1);
+    print_tree_formatted_by_level(root -> right_child, level + 1);
+    print_tree_formatted_by_level(root -> next_statement, level);
+  }
+}
+
+void print_whole_tree(ASTNode * root) {
+  print_tree_formatted_by_level(root, 0);
+}
 
 void print_function_node(FunctionNode * function) {
-  printf("==== FUNCTION ==== \n");
+  printf("\n");
+  printf("========== FUNCTION ========== \n");
   printf("\n");
   printf("%s %s",get_return_type_string(function -> type),function -> id);
   print_formal_parameters(function -> parameters);
   printf("TREE: \n");
   if (function -> body != NULL)
-    print_function_AST(function -> body);
+    //print_function_AST(function -> body,0);
+     print_whole_tree(function -> body);
   else
     printf("funcion con null body");
-  printf("\n");
+  //printf("==================================================== \n");
 }
 
 void print_functions() {
   printf("\n");
   printf("\n");
-  printf("=========== FUNCTIONS OF THE PROGRAM  ==========\n");
-  printf("\n");
+  printf("================ FUNCTIONS OF THE PROGRAM  ===============\n");
   printf("\n");
   FunctionNode * aux = fun_list_head;
   while (aux != NULL) {
@@ -702,6 +732,8 @@ prog: _PROGRAM_ scope_open prog_body scope_close
     { 
       printf("\nEncontre: prog\n");
       $$ = $3;
+      //print_whole_tree($$);
+      print_functions();
     }
 ;
 
@@ -716,7 +748,7 @@ scope_close: _END_
       //Save Enviroment in temporal var
       temporal_enviroment = symbol_table -> variables;
       print_symbol_table();
-      print_functions();
+      //print_functions();
       close_enviroment();
     }
 ;
@@ -1033,7 +1065,7 @@ expr: _ID_
       printf("\nEncontre: id_expr %s\n", $1);
       char * var_name = $1;
       VarNode * var_data = find_variable_in_enviroments(var_name);
-      if (var_data != NULL && var_data -> is_defined) {
+      if (var_data != NULL) {
         $$ = create_AST_leave_from_VarNode(var_data);
       }
       else {

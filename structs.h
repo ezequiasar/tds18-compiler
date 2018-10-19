@@ -16,6 +16,7 @@ typedef enum type_of_node {
   _assign,
   _return,
   _method_call,
+  _id,
   _none
 } TypeNode;
 
