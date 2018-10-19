@@ -581,12 +581,17 @@ char * get_string_representation(ASTNode * node) {
       }
       else {
         //printf("el int es: %d",node -> data);
-        int i = node -> data;
-        char str[8];
+        if (node -> var_data == NULL) {
+          int i = node -> data;
+          char str[8];
         
-        sprintf(str, "%d", i);
-        char * ret = str;
-        return ret;
+          sprintf(str, "%d", i);
+          char * ret = str;
+          return ret;
+        }
+        else {
+          return node -> var_data -> id;
+        }
       }
       break;
     default:
