@@ -343,27 +343,27 @@ bool eval_bool_expr(ASTNode * root) {
   }
 }
 
-//Checked for Segmentation Fault by Santi.
+/*
+  Checks if two list of parameters are equals.
+*/
 bool check_if_equals(Parameter * list1, Parameter * list2) {
   //printf("check_if_equals\n");
-  Parameter * paramAuxNode1 = list1;
-  Parameter * paramAuxNode2 = list2;
-  while (paramAuxNode1 != NULL) {
-    if (paramAuxNode2 == NULL)
+  Parameter * list1_aux = list1;
+  Parameter * list2_aux = list2;
+  while (list1_aux != NULL) {
+    if (list2_aux == NULL || list1_aux -> is_boolean != list2_aux -> is_boolean)
       return false;
-    if (paramAuxNode1 -> is_boolean && !(paramAuxNode2 -> is_boolean)) 
-      return false;
-    if (paramAuxNode2 -> is_boolean && !(paramAuxNode1 -> is_boolean)) 
-      return false;
-    paramAuxNode1 = paramAuxNode1 -> next;
-    paramAuxNode2 = paramAuxNode2 -> next;
+    list1_aux = list1_aux -> next;
+    list2_aux = list2_aux -> next;
   }
-  if (paramAuxNode2 != NULL)
+  if (list2_aux != NULL)
     return false;
   return true;
 }
 
-//Checked for Segmentation Fault by Santi.
+/*
+  Checks if a function can be called. That is: it must exist and the parameters should be the same.
+*/
 bool is_callable(char * function_name, Parameter * params) {
   //printf("is_callable\n");
   FunctionNode * functionAuxNode = fun_list_head;
@@ -542,8 +542,6 @@ ASTNode * add_statement_to_list(ASTNode * statement_list, ASTNode * new_statemen
   return new_statement;
 }
 
-
-
 char * get_type_node_string(TypeNode tn) {
   switch (tn) 
   {
@@ -555,7 +553,7 @@ char * get_type_node_string(TypeNode tn) {
     case _assign: return "assign";
     case _method_call: return "method call";
     case _return: return "return";
-    case _literal: return "none";
+    case _literal: return "literal";
   }
 }
 
@@ -967,28 +965,6 @@ conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_blo
     }
 ;
 
-method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ 
-    {
-      //printf("\nEncontre: llamado a metodo\n");
-      if (!is_callable($1, $3)) {
-        //printf("Function not defined\n");
-        yyerror();
-        return -1;
-      }
-      $$ = create_function_ASTnode(NULL, find_function($1), ast_from_parameters_list($3));
-    }
-  | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ 
-    {
-      //printf("\nEncontre: llamado a metodo\n");
-      if (!is_callable($1, NULL)) {
-        //printf("Function not defined\n");
-        yyerror();
-        return -1;
-      }
-      $$ = create_function_ASTnode(NULL, find_function($1), NULL);
-    }
-;
-
 params_call: expr 
     {
       //printf("\nEncontre: expr in params_call\n");
@@ -1124,6 +1100,28 @@ expr: _ID_
     {
       //printf("\nEncontre: (expr)\n");
       $$ = $2;
+    }
+;
+
+method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ 
+    {
+      //printf("\nEncontre: llamado a metodo\n");
+      if (!is_callable($1, $3)) {
+        //printf("Function not defined\n");
+        yyerror();
+        return -1;
+      }
+      $$ = create_function_ASTnode(NULL, find_function($1), ast_from_parameters_list($3));
+    }
+  | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ 
+    {
+      //printf("\nEncontre: llamado a metodo\n");
+      if (!is_callable($1, NULL)) {
+        //printf("Function not defined\n");
+        yyerror();
+        return -1;
+      }
+      $$ = create_function_ASTnode(NULL, find_function($1), NULL);
     }
 ;
 
