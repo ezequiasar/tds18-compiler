@@ -7,6 +7,19 @@ typedef enum return_types {
   vid
 } ReturnType;
 
+typedef enum type_of_node {
+	_if,
+  _if_body,
+  _while,
+  _arith_op,
+  _boolean_op,
+  _assign,
+  _return,
+  _method_call,
+  _id,
+  _literal
+} TypeNode;
+
 // Struct that holds variables data
 typedef struct var_struct {
   char *id;
@@ -41,13 +54,10 @@ typedef struct functions_struct {
 typedef struct ast_node_struct {
   int data;
   bool is_boolean;
-  bool is_if;
-  bool is_if_body;
-  bool is_while;
-  bool is_arith_op;
-  bool is_boolean_op;
+  TypeNode node_type;
   VarNode *var_data;
   struct functions_struct *function_data;
+  struct ast_node_struct *next_statement;
   struct ast_node_struct *left_child;
   struct ast_node_struct *right_child;
 }ASTNode;

@@ -38,10 +38,10 @@ echo "-----Test de Sintaxis------"
 echo "  ----------------------   "
 echo "       Deben Pasar         "
 
-for i in $(ls tests/sintaxis/should_pass -C1)
+for i in $(ls tests/sintax-semanth/should_pass -C1)
 do
 echo -e "${RED}Archivo Actual: " $i "${NC}"
-./parser.out ./tests/sintaxis/should_pass/$i
+./parser.out ./tests/sintax-semanth/should_pass/$i
 echo ""
 read -n 1 key
 done
@@ -52,11 +52,12 @@ echo "-----Test de Sintaxis------"
 echo "  ----------------------   "
 echo "       Deben Fallar        "
 
-for i in $(ls tests/sintaxis/should_fail -C1)
+for i in $(ls tests/sintax-semanth/should_fail -C1)
 do
 echo -e "${RED}Archivo Actual: " $i "${NC}"
-./parser.out ./tests/sintaxis/should_fail/$i
+./parser.out ./tests/sintax-semanth/should_fail/$i
 echo ""
+read -n 1 key
 done
 echo "---------------------------"
 echo "---------------------------"
