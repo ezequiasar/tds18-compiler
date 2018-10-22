@@ -1,0 +1,18 @@
+program
+begin
+    integer x1,y1;
+    bool a1,b1,c1;
+    integer main()
+        begin
+            integer x,y;
+            bool a,b,c;
+            a = true;
+            b = c; //Should fail because C has no value, but not fail
+            b = false;
+            x = (b == true); //Shouldn't fail, but fails because (b == true) is recognized as a Integer expression
+            x = 10 + y; //Should fail because Y has no value, but not fail
+            y = 10 - 5;
+            x1 = false; //Should fail and it fails
+            return 1;
+        end
+end
