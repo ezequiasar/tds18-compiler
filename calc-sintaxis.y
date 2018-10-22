@@ -739,7 +739,6 @@ prog: _PROGRAM_ scope_open prog_body scope_close
     { 
       //printf("\nEncontre: prog\n");
       $$ = $3;
-      //print_whole_tree($$);
       print_functions();
     }
 ;
@@ -762,14 +761,11 @@ scope_close: _END_
 prog_body: vars_block methods_block main_decl
     { 
       //printf("\nEncontre: vars_block -> methods_block -> main_decl\n");
-      //Adding vars to enviroment
-      //$2 -> right_child = $3;
       $$ = $2;
     }
   | methods_block main_decl 
     { 
       //printf("\nEncontre: methods_block -> main_decl\n");
-      //$1 -> right_child = $2;
       $$ = $1;
     }
   | main_decl 
@@ -796,57 +792,48 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, $4, $6);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, $6);
-
     }
   | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
     {
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, NULL, $5);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, $5);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, $4, $6);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, $6);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, NULL, $5);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, $5);
     }
   | type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_
     {
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, $4, NULL);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, NULL);
     }
   | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block _EXTERN_
     {
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, NULL, NULL);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, NULL);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_
     {
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, $4, NULL);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, NULL);
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ _EXTERN_
     {
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist(-1, $2, NULL, NULL);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, NULL);
     }
 ;
 
@@ -855,28 +842,24 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
       //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist($1, "main", $4, $6);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, $6);
     }
   | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
     {
       //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist($1, "main", NULL, $5);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, $5);
     }
   | _VOID_ _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block 
     {
       //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist(-1, "main", $4, $6);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, $6);
     }
   | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
     {
       //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist(-1, "main", NULL, $5);
       $$ = NULL;
-      //$$ = create_function_ASTnode(NULL, new_function, $5);
     }
 ;
 
