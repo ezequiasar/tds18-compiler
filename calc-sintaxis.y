@@ -226,6 +226,17 @@ TypeNode get_node_type(int op) {
     return _literal;
 }
 
+/*
+  Takes an operator and returns true if the operation results in a boolean value, false cc.
+*/
+bool is_boolean_operation(int op) {
+  if (op == '+' || op == '-' || op == '*' || op == '/' || op == '%')
+    return false;
+  else if (op == '<' || op == '>' || op == 'e' || op == '&' || op == '|' || op == '!')
+    return true;
+  return false;
+}
+
 
 /*
   Searches for a variable on all the enviroments.
@@ -251,13 +262,48 @@ VarNode * find_variable_in_enviroments(char * var_name) {
 }
 
 /*
+  Returns true if "expr" is an integer expression, false cc.
+*/
+bool is_integer_expression(ASTNode * expr) {
+  return !expr -> is_boolean;
+}
+
+/*
+  Returns true if "expr" is an boolean expression, false cc.
+*/
+bool is_boolean_expression(ASTNode * expr) {
+  return expr -> is_boolean;
+}
+
+/*
+  Returns true if both expressions are integer expressions, false cc.
+*/
+bool are_integer_expressions(ASTNode * expr1, ASTNode * expr2) {
+  return is_integer_expression(expr1) && is_integer_expression(expr2);
+}
+
+/*
+  Returns true if both expressions are boolean expressions, false cc.
+*/
+bool are_boolean_expressions(ASTNode * expr1, ASTNode * expr2) {
+  return is_boolean_expression(expr1) && is_boolean_expression(expr2);
+}
+
+/*
+  Returns true if both expressions had the same type, false cc.
+*/
+bool are_same_type_expressions(ASTNode * expr1, ASTNode * expr2) {
+  return are_boolean_expressions(expr1,expr2) || are_integer_expressions(expr1,expr2);
+}
+
+/*
   Returns a new ASTNode
 */
 ASTNode *create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
   //printf("create_AST_node\n");
   ASTNode * new_node = (ASTNode *) malloc(sizeof(ASTNode));
   new_node -> data = op;
-  new_node -> is_boolean = false;
+  new_node -> is_boolean = is_boolean_operation(op);
   new_node -> node_type = get_node_type(op);
   new_node -> var_data = NULL;
   new_node -> function_data = NULL;
@@ -453,7 +499,7 @@ void add_varlist_to_enviroment(VarNode * var_list) {
 ASTNode * create_function_ASTnode(ASTNode * left_child, FunctionNode * function, ASTNode * right_child) {
   ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
   result -> data = 'm';
-  result -> is_boolean = false;
+  result -> is_boolean = function -> type == boolean;
   result -> node_type = _method_call;
   result -> var_data = NULL;
   result -> function_data = function;
@@ -661,41 +707,6 @@ void print_functions() {
   printf("=========== END FUNCTIONS OF THE PROGRAM  ==========\n");
   printf("\n");
   printf("\n");
-}
-
-/*
-  Returns true if "expr" is an integer expression, false cc.
-*/
-bool is_integer_expression(ASTNode * expr) {
-  return !expr -> is_boolean;
-}
-
-/*
-  Returns true if "expr" is an boolean expression, false cc.
-*/
-bool is_boolean_expression(ASTNode * expr) {
-  return expr -> is_boolean;
-}
-
-/*
-  Returns true if both expressions are integer expressions, false cc.
-*/
-bool are_integer_expressions(ASTNode * expr1, ASTNode * expr2) {
-  return is_integer_expression(expr1) && is_integer_expression(expr2);
-}
-
-/*
-  Returns true if both expressions are boolean expressions, false cc.
-*/
-bool are_boolean_expressions(ASTNode * expr1, ASTNode * expr2) {
-  return is_boolean_expression(expr1) && is_boolean_expression(expr2);
-}
-
-/*
-  Returns true if both expressions had the same type, false cc.
-*/
-bool are_same_type_expressions(ASTNode * expr1, ASTNode * expr2) {
-  return are_boolean_expressions(expr1,expr2) || are_integer_expressions(expr1,expr2);
 }
 
 %}
@@ -942,31 +953,21 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
     {
       VarNode *id_varnode = find_variable_in_enviroments($1);
       if (id_varnode == NULL) {
-        yyerror("Definition Error: Cannot give value to an inexistent var");
+        yyerror("Definition Error: Cannot give value to an inexistent variable");
         return -1;
       }
       ASTNode * node_from_id = create_AST_leave_from_VarNode(id_varnode);
-      if(node_from_id -> is_boolean && is_boolean_expression($3) && (node_from_id -> var_data != NULL)){
+      if (are_same_type_expressions(node_from_id, $3))
           $$ = create_AST_node(node_from_id, '=', $3);
-      }
-      else{
-          if(!(node_from_id -> is_boolean) && is_integer_expression($3) && (node_from_id -> var_data != NULL)){
-              $$ = create_AST_node(node_from_id, '=', $3);
-          }
-          else{
-              if(is_boolean_expression($3)){
-                  yyerror("Type Error: Cannot assign a Boolean value on Integer var");
-                  return -1;
-              }
-              if(is_integer_expression($3)){
-                  yyerror("Type Error: Cannot assign an Integer value on Boolean var");
-                  return -1;
-              }
-              if(node_from_id -> var_data == NULL){
-                  yyerror("Type Error: Cannot assign an empty value to a var");
-                  return -1;
-              }
-          }
+      else {
+        if(is_boolean_expression($3)){
+            yyerror("Type Error: Cannot assign a Bool value on Integer variable");
+            return -1;
+        }
+        if(is_integer_expression($3)){
+            yyerror("Type Error: Cannot assign an Integer value on Bool variable");
+            return -1;
+        }
       }
     }
   | method_call _SEMICOLON_
