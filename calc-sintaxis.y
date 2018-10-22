@@ -663,6 +663,41 @@ void print_functions() {
   printf("\n");
 }
 
+/*
+  Returns true if "expr" is an integer expression, false cc.
+*/
+bool is_integer_expression(ASTNode * expr) {
+  return !expr -> is_boolean; 
+}
+
+/*
+  Returns true if "expr" is an boolean expression, false cc.
+*/
+bool is_boolean_expression(ASTNode * expr) {
+  return expr -> is_boolean; 
+}
+
+/*
+  Returns true if both expressions are integer expressions, false cc.
+*/
+bool are_integer_expressions(ASTNode * expr1, ASTNode * expr2) {
+  return is_integer_expression(expr1) && is_integer_expression(expr2); 
+}
+
+/*
+  Returns true if both expressions are boolean expressions, false cc.
+*/
+bool are_boolean_expressions(ASTNode * expr1, ASTNode * expr2) {
+  return is_boolean_expression(expr1) && is_boolean_expression(expr2); 
+}
+
+/*
+  Returns true if both expressions had the same type, false cc.
+*/
+bool are_same_type_expressions(ASTNode * expr1, ASTNode * expr2) {
+  return are_boolean_expressions(expr1,expr2) || are_integer_expressions(expr1,expr2); 
+}
+
 %}
 
 %union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
@@ -760,6 +795,11 @@ scope_close: _END_
 prog_body: vars_block methods_block main_decl
     { 
       //printf("\nEncontre: vars_block -> methods_block -> main_decl\n");
+      $$ = $2;
+    }
+  | vars_block main_decl 
+    { 
+      //printf("\nEncontre: methods_block -> main_decl\n");
       $$ = $2;
     }
   | methods_block main_decl 
@@ -1039,52 +1079,102 @@ expr: _ID_
   | expr _PLUS_ expr
     {
       //printf("\nEncontre: expr + expr\n");
-      $$ = create_AST_node($1, '+', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '+', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _MINUS_ expr
     {
       //printf("\nEncontre: expr - expr\n");
-      $$ = create_AST_node($1, '-', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '-', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _MULTIPLY_ expr
     {
       //printf("\nEncontre: expr x expr\n");
-      $$ = create_AST_node($1, '*', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '*', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _DIVIDE_ expr
     {
       //printf("\nEncontre: expr / expr\n");
-      $$ = create_AST_node($1, '/', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '/', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _MOD_ expr
     {
       //printf("\nEncontre: expr MOD expr\n");
-      $$ = create_AST_node($1, '%', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '%', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _LESSER_THAN_ expr
     {
       //printf("\nEncontre: expr < expr\n");
-      $$ = create_AST_node($1, '<', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '<', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _GREATER_THAN_ expr
     {
       //printf("\nEncontre: expr > expr\n");
-      $$ = create_AST_node($1, '>', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '>', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _EQUALS_ expr
     {
       //printf("\nEncontre: expr == expr\n");
-      $$ = create_AST_node($1, 'e', $3);
+      if (are_same_type_expressions($1,$3))
+        $$ = create_AST_node($1, 'e', $3);
+      else {
+        yyerror("Type error: Different types cant be compared");
+        return -1;
+      }
     }
   | expr _AND_ expr
     {
       //printf("\nEncontre: expr && expr\n");
-      $$ = create_AST_node($1, '&', $3);
+      if (are_boolean_expressions($1,$3))
+        $$ = create_AST_node($1, '&', $3);
+      else {
+        yyerror("Type error: boolean expressions expected but integer expression found");
+        return -1;
+      }
     }
   | expr _OR_ expr
     {
       //printf("\nEncontre: expr || expr\n");
-      $$ = create_AST_node($1, '|', $3);
+      if (are_boolean_expressions($1,$3))
+        $$ = create_AST_node($1, '|', $3);
+      else {
+        yyerror("Type error: boolean expressions expected but integer expression found");
+        return -1;
+      }
     }
   | _MINUS_ expr %prec NEG
     {
