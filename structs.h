@@ -17,7 +17,7 @@ typedef enum type_of_node {
   _return,
   _method_call,
   _id,
-  _none
+  _literal
 } TypeNode;
 
 // Struct that holds variables data

@@ -8,6 +8,7 @@ VarNode * temporal_enviroment;                          // Holds the last closed
 Parameter * temporal_parameter;                         // Holds the formal parameters of the current function
 EnviromentNode *symbol_table = (EnviromentNode *) NULL; // Stack that contains all the open enviroment levels
 FunctionNode *fun_list_head = (FunctionNode *) NULL;    // List of all the functions of the program
+int amount_open_enviroments = 0;
 
 extern void yyerror();
 extern int strcmp(const char *s1, const char *s2);
@@ -92,6 +93,7 @@ VarNode * concat_varnodes(VarNode * var_list_a, VarNode * var_list_b) {
 void close_enviroment() {
   //printf("close_enviroment\n");
   symbol_table = symbol_table -> next;
+  amount_open_enviroments--;
 }
 
 /*
@@ -116,6 +118,7 @@ void open_enviroment() {
   new_level -> variables = NULL;
   new_level -> next = symbol_table;
   symbol_table = new_level;
+  amount_open_enviroments++;
 }
 
 /*
@@ -220,7 +223,7 @@ TypeNode get_node_type(int op) {
   else if (op == '<' || op == '>' || op == 'e' || op == '&' || op == '|' || op == '!')
     return _boolean_op;
   else
-    return _none;
+    return _literal;
 }
 
 
@@ -485,7 +488,7 @@ Parameter * create_parameter(char * id, bool is_boolean) {
 void print_symbol_table() {
   printf(" ============= TABLA DE SIMBOLOS ============\n");
   EnviromentNode * aux = symbol_table;
-  int env = 0;
+  int env = amount_open_enviroments;
   if (symbol_table == NULL)
     printf("Tabla de Simbolos Vacia\n");
   else {
@@ -505,7 +508,7 @@ void print_symbol_table() {
         printf("\n");
       }
       aux = aux -> next;
-      env++;
+      env--;
     }
   }
   printf("===========================================\n");
@@ -552,7 +555,7 @@ char * get_type_node_string(TypeNode tn) {
     case _assign: return "assign";
     case _method_call: return "method call";
     case _return: return "return";
-    case _none: return "none";
+    case _literal: return "none";
   }
 }
 
@@ -589,8 +592,8 @@ char * get_string_representation(ASTNode * node) {
     case _return: return "return"; break;
     case _id:
       return node -> var_data -> id; break;
-    case _none:
-      //printf("entra por none \n");
+    case _literal:
+      //printf("entra por literal  \n");
       if (node -> is_boolean) {
         if (node -> data == 0)
           return "false";
@@ -598,11 +601,9 @@ char * get_string_representation(ASTNode * node) {
           return "true";
       }
       else {
-        //printf("el int es: %d",node -> data);
         if (node -> var_data == NULL) {
           int i = node -> data;
           char str[8];
-        
           sprintf(str, "%d", i);
           char * ret = str;
           return ret;
@@ -905,7 +906,7 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
       VarNode *id_varnode = find_variable_in_enviroments($1);
       if (id_varnode == NULL) {
         //printf("Intenta definir una variable inexistente!\n");
-        print_symbol_table();
+        //print_symbol_table();
         yyerror();
         return -1;
       }
@@ -1044,7 +1045,7 @@ expr: _ID_
       else {
         $$ = NULL;
         //printf("Variable no declarada o definida\n");
-        print_symbol_table();
+        //print_symbol_table();
         yyerror();
         return -1;
       }
