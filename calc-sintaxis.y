@@ -983,8 +983,12 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
   | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: while block en statement\n");
-      ASTNode * while_root = create_AST_node($3, 'w', $5);
-      $$ = while_root;
+      if (is_boolean_expression($3))
+        $$ = create_AST_node($3, 'w', $5);
+      else {
+        yyerror("Type error: Integer expression found in While condition. It must be a Boolean expression");
+        return -1;
+      }
     }
   | _RETURN_ expr _SEMICOLON_
     {
@@ -1012,15 +1016,25 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
 conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
     {
       //printf("\nEncontre: if-then block\n");
-      ASTNode * if_root = create_AST_node($3, 'i', $6);
-      $$ = if_root;
+      if (is_boolean_expression($3))
+        $$ = create_AST_node($3, 'i', $6);
+      else {
+        yyerror("Type error: Integer expression found in If condition. It must be a Boolean expression");
+        return -1;
+      }
     }
   | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block
     {
       //printf("\nEncontre: if-then-else block\n");
-      ASTNode * if_body = create_AST_node($6, 'b', $8);
-      ASTNode * if_root = create_AST_node($3, 'i', if_body);
-      $$ = if_root;
+      ASTNode * if_body;
+      if (is_boolean_expression($3)) {
+        if_body = create_AST_node($6, 'b', $8);
+        $$ = create_AST_node($3, 'i', if_body);
+      }
+      else {
+        yyerror("Type error: Integer expression found in If condition. It must be a Boolean expression");
+        return -1;
+      }
     }
 ;
 
