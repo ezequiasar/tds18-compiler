@@ -139,7 +139,7 @@ ReturnType get_return_type(int type_int_value) {
 
 
 char * get_return_type_string(ReturnType value) {
-  switch (value) 
+  switch (value)
   {
     case boolean: return "bool";
     case integer: return "integer";
@@ -170,7 +170,7 @@ VarNode * find_variable(VarNode * head, char * var_name) {
   //printf("find_variable: %s\n", var_name);
   VarNode * varAuxNode = head;
   while (varAuxNode != NULL) {
-    if (strcmp(varAuxNode -> id, var_name) == 0) { 
+    if (strcmp(varAuxNode -> id, var_name) == 0) {
       return varAuxNode;
     }
     varAuxNode = varAuxNode -> next;
@@ -203,7 +203,7 @@ Parameter * find_parameter(Parameter * fp, char * param_name) {
 }
 
 /*
-  
+
 */
 TypeNode get_node_type(int op) {
   if (op == 'i')
@@ -224,6 +224,17 @@ TypeNode get_node_type(int op) {
     return _boolean_op;
   else
     return _literal;
+}
+
+/*
+  Takes an operator and returns true if the operation results in a boolean value, false cc.
+*/
+bool is_boolean_operation(int op) {
+  if (op == '+' || op == '-' || op == '*' || op == '/' || op == '%')
+    return false;
+  else if (op == '<' || op == '>' || op == 'e' || op == '&' || op == '|' || op == '!')
+    return true;
+  return false;
 }
 
 
@@ -251,13 +262,48 @@ VarNode * find_variable_in_enviroments(char * var_name) {
 }
 
 /*
+  Returns true if "expr" is an integer expression, false cc.
+*/
+bool is_integer_expression(ASTNode * expr) {
+  return !expr -> is_boolean;
+}
+
+/*
+  Returns true if "expr" is an boolean expression, false cc.
+*/
+bool is_boolean_expression(ASTNode * expr) {
+  return expr -> is_boolean;
+}
+
+/*
+  Returns true if both expressions are integer expressions, false cc.
+*/
+bool are_integer_expressions(ASTNode * expr1, ASTNode * expr2) {
+  return is_integer_expression(expr1) && is_integer_expression(expr2);
+}
+
+/*
+  Returns true if both expressions are boolean expressions, false cc.
+*/
+bool are_boolean_expressions(ASTNode * expr1, ASTNode * expr2) {
+  return is_boolean_expression(expr1) && is_boolean_expression(expr2);
+}
+
+/*
+  Returns true if both expressions had the same type, false cc.
+*/
+bool are_same_type_expressions(ASTNode * expr1, ASTNode * expr2) {
+  return are_boolean_expressions(expr1,expr2) || are_integer_expressions(expr1,expr2);
+}
+
+/*
   Returns a new ASTNode
 */
 ASTNode *create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
   //printf("create_AST_node\n");
   ASTNode * new_node = (ASTNode *) malloc(sizeof(ASTNode));
   new_node -> data = op;
-  new_node -> is_boolean = false;
+  new_node -> is_boolean = is_boolean_operation(op);
   new_node -> node_type = get_node_type(op);
   new_node -> var_data = NULL;
   new_node -> function_data = NULL;
@@ -441,7 +487,7 @@ void set_types_to_var_list(int type, VarNode * var_list_head) {
   Adds a variable list to the current enviroment.
 */
 void add_varlist_to_enviroment(VarNode * var_list) {
-  if (symbol_table != NULL) 
+  if (symbol_table != NULL)
     symbol_table -> variables = concat_varnodes(symbol_table -> variables, var_list);
   else {
     printf("You cant add variables to a null enviroment\n");
@@ -453,12 +499,12 @@ void add_varlist_to_enviroment(VarNode * var_list) {
 ASTNode * create_function_ASTnode(ASTNode * left_child, FunctionNode * function, ASTNode * right_child) {
   ASTNode * result = (ASTNode *) malloc(sizeof(ASTNode));
   result -> data = 'm';
-  result -> is_boolean = false;
+  result -> is_boolean = function -> type == boolean;
   result -> node_type = _method_call;
   result -> var_data = NULL;
   result -> function_data = function;
   result -> left_child = left_child;
-  result -> right_child = right_child; 
+  result -> right_child = right_child;
   return result;
 }
 
@@ -519,7 +565,7 @@ void print_formal_parameters(Parameter * head) {
   if (head != NULL) {
     Parameter * aux = head;
     while (aux != NULL) {
-      if (aux -> is_boolean) 
+      if (aux -> is_boolean)
         printf((aux -> next == NULL)?"bool %s":" bool %s, ", aux -> id);
       else
         printf((aux -> next == NULL)?"integer %s":" integer %s, ", aux -> id);
@@ -543,7 +589,7 @@ ASTNode * add_statement_to_list(ASTNode * statement_list, ASTNode * new_statemen
 }
 
 char * get_type_node_string(TypeNode tn) {
-  switch (tn) 
+  switch (tn)
   {
     case _if: return "if";
     case _if_body: return "if body";
@@ -559,7 +605,7 @@ char * get_type_node_string(TypeNode tn) {
 
 char * get_string_representation(ASTNode * node) {
   char * aux;
-  switch (node -> node_type) 
+  switch (node -> node_type)
   {
     case _if: return "if"; break;
     case _if_body: return "if body"; break;
@@ -567,18 +613,18 @@ char * get_string_representation(ASTNode * node) {
     case _arith_op: return &(node -> data); break;
     case _boolean_op: return &(node -> data); break;
     case _assign: return "="; break;
-    case _method_call: 
+    case _method_call:
       if (node -> function_data != NULL) {
         int fun_id_len = strlen(node -> function_data -> id);
         if (fun_id_len <= 10) {
           char str[12];
-          sprintf(str, "%s%s", node -> function_data -> id, "()");  
+          sprintf(str, "%s%s", node -> function_data -> id, "()");
           char * ret = str;
           return ret;
         }
         else {
           char str[32];
-          sprintf(str, "%s%s", node -> function_data -> id, "()");  
+          sprintf(str, "%s%s", node -> function_data -> id, "()");
           char * ret = str;
           return ret;
         }
@@ -622,7 +668,7 @@ void print_tree_formatted_by_level(ASTNode *root, int level) {
     for(i = 0; i <= level; i++)
       printf("     ");
     printf("|> '%s'\n", get_string_representation(root));
-    
+
     print_tree_formatted_by_level(root -> left_child, level + 1);
     print_tree_formatted_by_level(root -> right_child, level + 1);
     print_tree_formatted_by_level(root -> next_statement, level);
@@ -734,21 +780,21 @@ void print_functions() {
 
 %%
 
-prog: _PROGRAM_ scope_open prog_body scope_close 
-    { 
+prog: _PROGRAM_ scope_open prog_body scope_close
+    {
       //printf("\nEncontre: prog\n");
       $$ = $3;
       print_functions();
     }
 ;
 
-scope_open: _BEGIN_ 
+scope_open: _BEGIN_
     {
       open_enviroment();
     }
 ;
 
-scope_close: _END_ 
+scope_close: _END_
     {
       //Save Enviroment in temporal var
       temporal_enviroment = symbol_table -> variables;
@@ -758,41 +804,46 @@ scope_close: _END_
 ;
 
 prog_body: vars_block methods_block main_decl
-    { 
+    {
       //printf("\nEncontre: vars_block -> methods_block -> main_decl\n");
       $$ = $2;
     }
-  | methods_block main_decl 
-    { 
+  | vars_block main_decl
+    {
+      //printf("\nEncontre: methods_block -> main_decl\n");
+      $$ = $2;
+    }
+  | methods_block main_decl
+    {
       //printf("\nEncontre: methods_block -> main_decl\n");
       $$ = $1;
     }
-  | main_decl 
-    { 
+  | main_decl
+    {
       //printf("\nEncontre: main_decl\n");
       $$ = $1;
     }
 ;
 
-methods_block: method_decl 
+methods_block: method_decl
     {
       //printf("\nEncontre: method_decl\n");
       $$ = $1;
     }
-  | methods_block method_decl 
+  | methods_block method_decl
     {
       //printf("\nEncontre: methods_block -> method_decl\n");
       $$ = $2;
     }
 ;
 
-method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block  
+method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, $4, $6);
       $$ = NULL;
     }
-  | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
+  | type _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de un metodo\n");
       FunctionNode * new_function = add_function_to_funlist($1, $2, NULL, $5);
@@ -836,25 +887,25 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
     }
 ;
 
-main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block 
+main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist($1, "main", $4, $6);
       $$ = NULL;
     }
-  | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
+  | type _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist($1, "main", NULL, $5);
       $$ = NULL;
     }
-  | _VOID_ _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block 
+  | _VOID_ _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist(-1, "main", $4, $6);
       $$ = NULL;
     }
-  | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block 
+  | _VOID_ _MAIN_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de main\n");
       FunctionNode * new_function = add_function_to_funlist(-1, "main", NULL, $5);
@@ -869,17 +920,17 @@ code_block: scope_open code_block_body scope_close
     }
 ;
 
-code_block_body: vars_block statements_block 
+code_block_body: vars_block statements_block
     {
       //printf("\nEncontre: vars_block -> statements_block\n");
       $$ = $2;
     }
-  | statements_block 
+  | statements_block
     {
       //printf("\nEncontre: statements_block\n");
       $$ = $1;
     }
-  |  
+  |
     {
       //printf("\nEncontre: NULL code_block_body\n");
       $$ = NULL;
@@ -891,7 +942,7 @@ statements_block: statement
       //printf("\nEncontre: statements_block\n");
       $$ = $1;
     }
-  | statements_block statement 
+  | statements_block statement
     {
       //printf("\nEncontre: statements_block -> statement\n");
       $$ = add_statement_to_list($$, $2);
@@ -900,16 +951,24 @@ statements_block: statement
 
 statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
     {
-      //printf("\nEncontre: asignacion en statement \n");
       VarNode *id_varnode = find_variable_in_enviroments($1);
       if (id_varnode == NULL) {
-        //printf("Intenta definir una variable inexistente!\n");
-        //print_symbol_table();
-        yyerror();
+        yyerror("Definition Error: Cannot give value to an inexistent variable");
         return -1;
       }
       ASTNode * node_from_id = create_AST_leave_from_VarNode(id_varnode);
-      $$ = create_AST_node(node_from_id, '=', $3);
+      if (are_same_type_expressions(node_from_id, $3))
+          $$ = create_AST_node(node_from_id, '=', $3);
+      else {
+        if(is_boolean_expression($3)){
+            yyerror("Type Error: Cannot assign a Bool value on Integer variable");
+            return -1;
+        }
+        if(is_integer_expression($3)){
+            yyerror("Type Error: Cannot assign an Integer value on Bool variable");
+            return -1;
+        }
+      }
     }
   | method_call _SEMICOLON_
     {
@@ -924,8 +983,12 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
   | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: while block en statement\n");
-      ASTNode * while_root = create_AST_node($3, 'w', $5);
-      $$ = while_root;
+      if (is_boolean_expression($3))
+        $$ = create_AST_node($3, 'w', $5);
+      else {
+        yyerror("Type error: Integer expression found in While condition. It must be a Boolean expression");
+        return -1;
+      }
     }
   | _RETURN_ expr _SEMICOLON_
     {
@@ -953,24 +1016,34 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
 conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
     {
       //printf("\nEncontre: if-then block\n");
-      ASTNode * if_root = create_AST_node($3, 'i', $6);
-      $$ = if_root;
+      if (is_boolean_expression($3))
+        $$ = create_AST_node($3, 'i', $6);
+      else {
+        yyerror("Type error: Integer expression found in If condition. It must be a Boolean expression");
+        return -1;
+      }
     }
   | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block
     {
       //printf("\nEncontre: if-then-else block\n");
-      ASTNode * if_body = create_AST_node($6, 'b', $8);
-      ASTNode * if_root = create_AST_node($3, 'i', if_body);
-      $$ = if_root;
+      ASTNode * if_body;
+      if (is_boolean_expression($3)) {
+        if_body = create_AST_node($6, 'b', $8);
+        $$ = create_AST_node($3, 'i', if_body);
+      }
+      else {
+        yyerror("Type error: Integer expression found in If condition. It must be a Boolean expression");
+        return -1;
+      }
     }
 ;
 
-params_call: expr 
+params_call: expr
     {
       //printf("\nEncontre: expr in params_call\n");
       $$ = create_argument_parameter($1);
     }
-  | params_call _COMMA_ expr 
+  | params_call _COMMA_ expr
     {
       //printf("\nEncontre: parametros de llamada\n");
       Parameter * aux = $1;
@@ -987,7 +1060,7 @@ params_def: type _ID_
       temporal_parameter = create_parameter($2, $1 == 0);
       $$ = temporal_parameter;
     }
-  | params_def _COMMA_ type _ID_ 
+  | params_def _COMMA_ type _ID_
     {
       Parameter * aux = $1;
       while (aux -> next != NULL)
@@ -1039,62 +1112,120 @@ expr: _ID_
   | expr _PLUS_ expr
     {
       //printf("\nEncontre: expr + expr\n");
-      $$ = create_AST_node($1, '+', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '+', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _MINUS_ expr
     {
       //printf("\nEncontre: expr - expr\n");
-      $$ = create_AST_node($1, '-', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '-', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _MULTIPLY_ expr
     {
       //printf("\nEncontre: expr x expr\n");
-      $$ = create_AST_node($1, '*', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '*', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _DIVIDE_ expr
     {
       //printf("\nEncontre: expr / expr\n");
-      $$ = create_AST_node($1, '/', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '/', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _MOD_ expr
     {
       //printf("\nEncontre: expr MOD expr\n");
-      $$ = create_AST_node($1, '%', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '%', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _LESSER_THAN_ expr
     {
       //printf("\nEncontre: expr < expr\n");
-      $$ = create_AST_node($1, '<', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '<', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _GREATER_THAN_ expr
     {
       //printf("\nEncontre: expr > expr\n");
-      $$ = create_AST_node($1, '>', $3);
+      if (are_integer_expressions($1,$3))
+        $$ = create_AST_node($1, '>', $3);
+      else {
+        yyerror("Type error: integer expressions expected but boolean expression found");
+        return -1;
+      }
     }
   | expr _EQUALS_ expr
     {
       //printf("\nEncontre: expr == expr\n");
-      $$ = create_AST_node($1, 'e', $3);
+      if (are_same_type_expressions($1,$3))
+        $$ = create_AST_node($1, 'e', $3);
+      else {
+        yyerror("Type error: Different types cant be compared");
+        return -1;
+      }
     }
   | expr _AND_ expr
     {
       //printf("\nEncontre: expr && expr\n");
-      $$ = create_AST_node($1, '&', $3);
+      if (are_boolean_expressions($1,$3))
+        $$ = create_AST_node($1, '&', $3);
+      else {
+        yyerror("Type error: boolean expressions expected but integer expression found");
+        return -1;
+      }
     }
   | expr _OR_ expr
     {
       //printf("\nEncontre: expr || expr\n");
-      $$ = create_AST_node($1, '|', $3);
+      if (are_boolean_expressions($1,$3))
+        $$ = create_AST_node($1, '|', $3);
+      else {
+        yyerror("Type error: boolean expressions expected but integer expression found");
+        return -1;
+      }
     }
   | _MINUS_ expr %prec NEG
     {
-      //printf("\nEncontre: -expr\n");
-      $$ = create_AST_node(NULL, '-', $2);
+      if(is_integer_expression($2))
+        $$ = create_AST_node(NULL, '-', $2);
+      else{
+          yyerror("Type error: integer expression expected but boolean expression found");
+          return -1;
+      }
     }
   | _NOT_ expr %prec NEG
     {
-      //printf("\nEncontre: !expr\n");
-      $$ = create_AST_node(NULL, '!', $2);
+      if(is_boolean_expression($2))
+          $$ = create_AST_node(NULL, '!', $2);
+      else{
+          yyerror("Type error: cannot applicants boolean operator to a non boolean expression");
+          return -1;
+      }
     }
   | _L_PARENTHESIS_ expr _R_PARENTHESIS_
     {
@@ -1103,7 +1234,7 @@ expr: _ID_
     }
 ;
 
-method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_ 
+method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_
     {
       //printf("\nEncontre: llamado a metodo\n");
       if (!is_callable($1, $3)) {
@@ -1113,7 +1244,7 @@ method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_
       }
       $$ = create_function_ASTnode(NULL, find_function($1), ast_from_parameters_list($3));
     }
-  | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ 
+  | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_
     {
       //printf("\nEncontre: llamado a metodo\n");
       if (!is_callable($1, NULL)) {
@@ -1163,7 +1294,7 @@ vars_block: type id_list _SEMICOLON_
       $$ = $2;
       add_varlist_to_enviroment($$);
     }
-  | vars_block type id_list _SEMICOLON_ 
+  | vars_block type id_list _SEMICOLON_
     {
       //printf("\nEncontre: %d id_list\n", $2);
       set_types_to_var_list($2, $3);
@@ -1172,12 +1303,12 @@ vars_block: type id_list _SEMICOLON_
     }
 ;
 
-id_list: _ID_ 
-    { 
+id_list: _ID_
+    {
       //printf("\nEncontre: id\n");
       $$ = partial_varnode($1);
     }
-  | id_list _COMMA_ _ID_ 
+  | id_list _COMMA_ _ID_
     {
       //printf("\nEncontre: Declaracion de Variable\n");
       $$ = concat_varnodes($$, partial_varnode($3));
