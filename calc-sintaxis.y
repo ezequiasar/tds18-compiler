@@ -1197,13 +1197,21 @@ expr: _ID_
     }
   | _MINUS_ expr %prec NEG
     {
-      //printf("\nEncontre: -expr\n");
-      $$ = create_AST_node(NULL, '-', $2);
+      if(is_integer_expression($2))
+        $$ = create_AST_node(NULL, '-', $2);
+      else{
+          yyerror("Type error: integer expression expected but boolean expression found");
+          return -1;
+      }
     }
   | _NOT_ expr %prec NEG
     {
-      //printf("\nEncontre: !expr\n");
-      $$ = create_AST_node(NULL, '!', $2);
+      if(is_boolean_expression($2))
+          $$ = create_AST_node(NULL, '!', $2);
+      else{
+          yyerror("Type error: cannot applicants boolean operator to a non boolean expression");
+          return -1;
+      }
     }
   | _L_PARENTHESIS_ expr _R_PARENTHESIS_
     {
