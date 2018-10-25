@@ -17,7 +17,6 @@ void yyerror();
 int yylex();
 int get_line_number();
 int get_column_number();
-int yylineno;
 
 /*
   Creates and returns a new VarNode.
@@ -279,7 +278,7 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
   if (node_type == _if ||node_type == _while || node_type == _if_body)
     new_node -> line_num = last_line_number;
   else
-    new_node -> line_num = yylineno;
+    new_node -> line_num = get_line_number();
   new_node -> node_type = node_type;
   new_node -> col_num = get_column_number();
   new_node -> var_data = NULL;
