@@ -16,37 +16,33 @@ void yyerror();
 int yylex();
 
 /*
-  Adds a new variable to the current enviroment of the symbol table.
+  Creates and returns a new VarNode.
 */
-void add_var_to_symbol_table(char * var_name, int value, bool is_boolean) {
-  VarNode * new_var = (VarNode *) malloc(sizeof(VarNode));
-  if (new_var == NULL)
-    printf( "no available memory!\n");
-  new_var -> id = var_name;
-  new_var -> value = value;
-  new_var -> is_boolean = is_boolean;
-  new_var -> next = NULL;
-  if (symbol_table -> variables == NULL) {
-    symbol_table -> variables = new_var;
-  }
-  else {
-    new_var -> next = symbol_table -> variables;
-    symbol_table -> variables = new_var;
-  }
+VarNode * create_VarNode(char * id, int value, bool is_boolean) {
+  VarNode * new_node = malloc(sizeof(VarNode));
+  new_node -> id = id;
+  new_node -> value = value;
+  new_node -> is_boolean = is_boolean;
+  new_node -> next = NULL;
+  return new_node;
 }
 
 /*
-  Returns a new partial varNode with the ID taken as parameter
+  Adds a new variable to the current enviroment of the symbol table.
 */
-VarNode * partial_varnode(char * var_name) {
-  VarNode * new_var = (VarNode *) malloc(sizeof(VarNode));
-  if (new_var == NULL)
-    printf( "no available memory!\n");
-  new_var -> id = var_name;
-  new_var -> is_boolean = false;
-  new_var -> value = -1;
-  new_var -> next = NULL;
-  return new_var;
+void add_var_to_symbol_table(char * var_id, int value, bool is_boolean) {
+  VarNode * new_var = create_VarNode(var_id, value, is_boolean);
+  if (symbol_table -> variables != NULL) {
+    new_var -> next = symbol_table -> variables;
+  }
+  symbol_table -> variables = new_var;
+}
+
+/*
+  Returns a new varNode with the ID taken as parameter.
+*/
+VarNode * partial_varnode(char * var_id) {
+  return create_VarNode(var_id, 0, false);
 }
 
 /*
@@ -57,11 +53,8 @@ void add_new_parameter(Parameter * params_list_head, Parameter * to_add_param) {
     params_list_head = to_add_param;
   else {
     Parameter * parameterAuxNode = params_list_head;
-    //Moving to last node position
-    while (parameterAuxNode -> next != NULL) {
+    while (parameterAuxNode -> next != NULL)
       parameterAuxNode = parameterAuxNode -> next;
-    }
-    //Appending to_add_param
     parameterAuxNode -> next = to_add_param;
   }
 }
@@ -69,20 +62,16 @@ void add_new_parameter(Parameter * params_list_head, Parameter * to_add_param) {
 /*
   Appends a varNode to a list of VarNodes.
 */
-VarNode * concat_varnodes(VarNode * var_list_a, VarNode * var_list_b) {
-  if (var_list_a == NULL) {
-    return var_list_b;
-  }
-  else {
-    VarNode * varAuxNode = var_list_a;
-    //Moving to last node position
+VarNode * concat_varnodes(VarNode * list1, VarNode * list2) {
+  if (list1 != NULL) {
+    VarNode * varAuxNode = list1;
     while (varAuxNode -> next != NULL) {
       varAuxNode = varAuxNode -> next;
     }
-    //Appending to_add_node
-    varAuxNode -> next = var_list_b;
-    return var_list_a;
+    varAuxNode -> next = list2;
+    return list1;
   }
+  return list2;
 }
 
 /*
@@ -99,9 +88,8 @@ void close_enviroment() {
 void set_value_to_varnode(VarNode * var_node, int value) {
   if (var_node == NULL)
     printf("Cant add value to a non-existent variable.\n");
-  else {
+  else
     var_node -> value = value;
-  }
 }
 
 /*
@@ -174,22 +162,14 @@ VarNode * find_variable(VarNode * head, char * var_name) {
   Creates a VarNode from a parameter.
 */
 VarNode * varnode_from_parameter(Parameter * param_data) {
-  VarNode * var_data = (VarNode *) malloc(sizeof(VarNode));
-  var_data -> id = param_data -> id;
-  var_data -> is_boolean = param_data -> is_boolean;
-  var_data -> value = param_data -> value;
-  return var_data;
+  return create_VarNode(param_data -> id, param_data -> value, param_data -> is_boolean);
 }
 
 /*
   Searches for a parameter on a list of parameters by id. if the parameter is found its returned, if not returns null
 */
-Parameter * find_parameter(Parameter * fp, char * param_name) {
-  if (fp == NULL)
-    return NULL;
-  Parameter * aux = fp;
-  if (aux == NULL)
-    return NULL;
+Parameter * find_parameter(Parameter * param_list, char * param_name) {
+  Parameter * aux = param_list;
   while (aux != NULL) {
     if (strcmp(aux -> id, param_name) == 0)
       return aux;
@@ -233,21 +213,14 @@ bool is_boolean_operation(int op) {
   return false;
 }
 
-
 /*
   Searches for a variable on all the enviroments.
 */
 VarNode * find_variable_in_enviroments(char * var_name) {
   VarNode * result = NULL;
-  if (temporal_parameter != NULL) {
-    Parameter * param_result = find_parameter(temporal_parameter, var_name);
-    if (param_result != NULL)
-      return varnode_from_parameter(param_result);
-  }
-  if (symbol_table == NULL) {
-    printf("Symbol Table is null!\n\n\n");
-    return NULL;
-  }
+  Parameter * param_result = find_parameter(temporal_parameter, var_name);
+  if (param_result != NULL)
+    return varnode_from_parameter(param_result);
   EnviromentNode * aux = symbol_table;
   while (result == NULL && aux != NULL) {
     result = find_variable(aux -> variables, var_name);
@@ -294,7 +267,7 @@ bool are_same_type_expressions(ASTNode * expr1, ASTNode * expr2) {
 /*
   Returns a new ASTNode
 */
-ASTNode *create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
+ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) {
   ASTNode * new_node = (ASTNode *) malloc(sizeof(ASTNode));
   new_node -> data = op;
   new_node -> is_boolean = is_boolean_operation(op);
@@ -334,53 +307,10 @@ ASTNode * create_AST_leave_from_value(int value, bool is_boolean) {
   return new_leave;
 }
 
-
-int eval_int_expr(ASTNode * root) {
-  if (root == NULL)
-    return 0;
-  if (root -> left_child == NULL && root -> right_child == NULL)
-    return root->data;
-  if (root -> node_type == _arith_op) {
-    if ((char) root->data == '+')
-      return eval_int_expr(root->left_child) + eval_int_expr(root->right_child);
-    else if ((char) root->data == '-')
-      return eval_int_expr(root->left_child) - eval_int_expr(root->right_child);
-    else if ((char) root->data == '*')
-      return eval_int_expr(root->left_child) * eval_int_expr(root->right_child);
-    else if ((char) root->data == '/')
-      return (int) eval_int_expr(root->left_child) / eval_int_expr(root->right_child);
-    else if ((char) root->data == '%')
-      return (int) eval_int_expr(root->left_child) % eval_int_expr(root->right_child);
-  }
-}
-
-bool eval_bool_expr(ASTNode * root) {
-  if (root -> left_child == NULL && root -> right_child == NULL)
-    return (bool) root -> data;
-  if (root -> node_type == _boolean_op) {
-    if ((char) root->data == '<')
-      return eval_int_expr(root->left_child) < eval_int_expr(root->right_child);
-    else if ((bool) root->data == '>')
-      return eval_int_expr(root->left_child) > eval_int_expr(root->right_child);
-    else if ((bool) root->data == 'e') {
-      if (root -> left_child -> node_type == _boolean_op || root -> right_child -> node_type == _boolean_op)
-        return eval_bool_expr(root->left_child) == eval_bool_expr(root->right_child);
-      else
-        return eval_int_expr(root->left_child) == eval_int_expr(root->right_child);
-    }
-    else if ((char) root->data == '&')
-      return (bool) eval_bool_expr(root->left_child) && eval_bool_expr(root->right_child);
-    else if ((char) root->data == '|')
-      return (bool) eval_bool_expr(root->left_child) || eval_bool_expr(root->right_child);
-    else if ((char) root->data == '!')
-      return (bool) !eval_bool_expr(root->left_child);
-  }
-}
-
 /*
   Checks if two list of parameters are equals.
 */
-bool check_if_equals(Parameter * list1, Parameter * list2) {
+bool are_parameters_equals(Parameter * list1, Parameter * list2) {
   Parameter * list1_aux = list1;
   Parameter * list2_aux = list2;
   while (list1_aux != NULL) {
@@ -404,9 +334,8 @@ bool check_if_equals(Parameter * list1, Parameter * list2) {
 bool is_callable(char * function_name, Parameter * params) {
   FunctionNode * functionAuxNode = fun_list_head;
   while (functionAuxNode != NULL) {
-    if (strcmp(functionAuxNode -> id, function_name) == 0) {
-      return check_if_equals(functionAuxNode -> parameters, params);
-    }
+    if (strcmp(functionAuxNode -> id, function_name) == 0)
+      return are_parameters_equals(functionAuxNode -> parameters, params);
     functionAuxNode = functionAuxNode -> next;
   }
   error_message = "Error: Undefined function";
@@ -436,9 +365,8 @@ ASTNode * ast_from_parameters_list (Parameter * params_list) {
     }
     return result;
   }
-  else {
+  else
     return NULL;
-  }
 }
 
 /*
@@ -460,12 +388,10 @@ FunctionNode * find_function(char * function_name) {
 void set_types_to_var_list(int type, VarNode * var_list_head) {
   VarNode * varAuxNode = var_list_head;
   while (varAuxNode != NULL) {
-    if (type == 0) {
+    if (type == 0)
       varAuxNode -> is_boolean = true;
-    }
-    else {
+    else
       varAuxNode -> is_boolean = false;
-    }
     varAuxNode = varAuxNode -> next;
   }
 }
@@ -579,9 +505,8 @@ void print_formal_parameters(Parameter * head) {
 ASTNode * add_statement_to_list(ASTNode * statement_list, ASTNode * new_statement) {
   if (statement_list != NULL) {
     ASTNode * aux = statement_list;
-    while (aux -> next_statement != NULL) {
+    while (aux -> next_statement != NULL)
       aux = aux -> next_statement;
-    }
     aux -> next_statement = new_statement;
     return statement_list;
   }
@@ -744,9 +669,8 @@ ReturnType get_expression_type(ASTNode * expr) {
 bool has_return(ASTNode * body) {
   ASTNode * root = body;
   if (root != NULL) {
-    if (is_return_node(root)) {
+    if (is_return_node(root))
       return true;
-    }
     return has_return(root -> next_statement) || has_return(root -> right_child) || has_return(root -> left_child);
   }
   return false;
@@ -795,9 +719,8 @@ bool check_functions_return_types() {
       error_message = "Missing return statement";
       return false;
     }
-    else {
+    else
       no_errors_found = check_return_types(aux -> body, aux -> type);
-    }
     aux = aux -> next;
   }
   return no_errors_found;
