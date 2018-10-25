@@ -6,6 +6,15 @@
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
+
+void setyylloc() {
+	setyylloc();
+}
+
+void reset_yylloc_column() {
+	yylloc.first_column = 1;
+	yylloc.last_column = 1;
+}
 %}
 
 %option noyywrap
@@ -23,228 +32,157 @@ COMPLEX [{|\n]
 %%
 
 program {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	
 	return _PROGRAM_;
 }
 begin {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _BEGIN_;
 }
 end {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _END_;
 }
 void {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _VOID_;
 }
 if {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _IF_;
 }
 else {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _ELSE_;
 }
 then {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _THEN_;
 }
 integer {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _INTEGER_;
 }
 return {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _RETURN_;
 }
 main {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _MAIN_;
 }
 bool {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _BOOL_;
 }
 print {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _PRINT_;
 }
 true {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _TRUE_;
 }
 false {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _FALSE_;
 }
 while {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _WHILE_;
 }
 = {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _ASSIGNMENT_;
 }
 ; {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _SEMICOLON_;
 }
 , {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _COMMA_;
 }
 \( {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _L_PARENTHESIS_;
 }
 \) {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _R_PARENTHESIS_;
 }
 \+ {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _PLUS_;
 }
 - {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _MINUS_;
 }
 \* {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _MULTIPLY_;
 }
 \/ {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _DIVIDE_;
 }
 % {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _MOD_;
 }
 > {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _GREATER_THAN_;
 }
 \< {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _LESSER_THAN_;
 }
 == {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _EQUALS_;
 }
 && {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _AND_;
 }
 \|\| {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _OR_;
 }
 ! {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _NOT_;
 }
 extern {
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	return _EXTERN_;
 }
 
 {digit}+ { 
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	yylval.i = atoi(yytext);
 	return _INT_;
 }
 
 {id} { 
-	yylloc.first_line = yylineno;
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 	yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
 	strcpy(yylval.s,yytext);
 	return _ID_;
 }
 
 (\n)+ {
-	yylloc.first_column = 1;
-	yylloc.last_column = 1;
+	reset_yylloc_column();
 }
 
 [ \t] {
-	yylloc.first_column = yylloc.last_column;
-	yylloc.last_column += yyleng;
+	setyylloc();
 }
 
 "//".*\n  {
-	yylloc.first_column = 1;
-	yylloc.last_column = 1;
+	reset_yylloc_column();
 }
 
 {START}({SIMPLE}|{COMPLEX})*{END}
