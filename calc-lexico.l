@@ -150,6 +150,10 @@ void yyerror(char *s) {
 	fprintf(stderr, "line %d: %s\n", yylineno, s);
 }
 
+void yyerror2(char *s, int line_number) {
+	fprintf(stderr, "line %d: %s\n", line_number, s);
+}
+
 int main(int argc,char *argv[]) {
 	++argv,--argc;
 	if (argc > 0)
