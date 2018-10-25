@@ -1,0 +1,36 @@
+program
+begin
+    
+    integer functionY()
+        begin
+            return 2 < 3;
+        end
+
+    integer functionZ()
+        begin
+            integer j,k;
+            j = 0;
+        end
+
+    bool functionX()
+        begin
+            integer asd;
+            asd = 10;
+            return asd;
+        end
+
+    void main()
+        begin
+            integer x,y;
+            x = 10 + 2;
+            y = x - 5;
+            functionX();
+            if (y < x) then begin
+                x = x-10;
+            end
+            else begin
+                y = y-10;
+            end
+            return y+x;
+        end
+end

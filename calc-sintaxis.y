@@ -10,6 +10,8 @@ EnviromentNode *symbol_table = (EnviromentNode *) NULL; // Stack that contains a
 FunctionNode *fun_list_head = (FunctionNode *) NULL;    // List of all the functions of the program
 int amount_open_enviroments = 0;
 
+char * error_message;
+
 extern void yyerror();
 extern int strcmp(const char *s1, const char *s2);
 
@@ -125,7 +127,6 @@ void open_enviroment() {
   Takes an int as parameter and returns the represented ReturnType.
 */
 ReturnType get_return_type(int type_int_value) {
-  //printf("get_return_type\n");
   switch (type_int_value) {
     case 0:
       return boolean;
@@ -135,8 +136,6 @@ ReturnType get_return_type(int type_int_value) {
       return vid;
   }
 }
-
-
 
 char * get_return_type_string(ReturnType value) {
   switch (value)
@@ -709,6 +708,74 @@ void print_functions() {
   printf("\n");
 }
 
+bool is_return_node(ASTNode * node) {
+  return node -> node_type == _return;
+}
+
+ReturnType get_expression_type(ASTNode * expr) {
+  if (expr -> is_boolean)
+    return boolean;
+  else
+    return integer;
+}
+
+
+bool has_return(ASTNode * body) {
+  ASTNode * root = body;
+  if (root != NULL) {
+    if (is_return_node(root)) {
+      return true;
+    }
+    return has_return(root -> next_statement) || has_return(root -> right_child) || has_return(root -> left_child);
+  }
+  return false;
+}
+
+bool check_return_types(ASTNode * body, ReturnType type) {
+  ASTNode * root = body;
+  bool no_errors_found = true;
+  if (root != NULL) {
+    // base case
+    if (is_return_node(root)) {
+      if (get_expression_type(root -> right_child) != type) {
+        switch (type) {
+          case boolean:
+            error_message = "Type Error: Boolean expression expected but Integer expression found";
+            return false;
+          case integer:
+            error_message = "Type Error: Integer expression expected but Boolean expression found";
+            return false;
+        }
+      }
+    }
+    // inductive case
+    no_errors_found = check_return_types(root -> next_statement, type) && check_return_types(root -> right_child, type) && check_return_types(root -> left_child, type);
+  }
+  return no_errors_found;
+}
+
+bool check_functions_return_types() {
+  FunctionNode * aux = fun_list_head;
+  bool no_errors_found = true;
+  while (aux != NULL && no_errors_found) {
+    if (aux -> type == vid) {
+      if (has_return(aux -> body)) {
+        error_message = "Type Error: Cannot return an expression in a void function";
+        return false;
+      }
+    }
+    else if (!has_return(aux -> body)) {
+      error_message = "Missing return statement";
+      return false;
+    }
+    else {
+      no_errors_found = check_return_types(aux -> body, aux -> type);
+    }
+    aux = aux -> next;
+  }
+  return no_errors_found;
+}
+
 %}
 
 %union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
@@ -783,8 +850,12 @@ void print_functions() {
 prog: _PROGRAM_ scope_open prog_body scope_close
     {
       //printf("\nEncontre: prog\n");
-      $$ = $3;
       print_functions();
+      if (!check_functions_return_types()) {
+        yyerror(error_message);
+        return -1;
+      }
+      $$ = $3;
     }
 ;
 
@@ -852,13 +923,13 @@ method_decl: type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
   | _VOID_ _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de un metodo\n");
-      FunctionNode * new_function = add_function_to_funlist(-1, $2, $4, $6);
+      FunctionNode * new_function = add_function_to_funlist(2, $2, $4, $6);
       $$ = NULL;
     }
   | _VOID_ _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_ code_block
     {
       //printf("\nEncontre: declaracion de un metodo\n");
-      FunctionNode * new_function = add_function_to_funlist(-1, $2, NULL, $5);
+      FunctionNode * new_function = add_function_to_funlist(2, $2, NULL, $5);
       $$ = NULL;
     }
   | type _ID_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ _EXTERN_
