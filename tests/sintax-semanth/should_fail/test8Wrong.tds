@@ -1,3 +1,4 @@
+//This test should fail because boolean is not a valid word
 program
 begin
 	boolean fun(integer w)

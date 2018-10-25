@@ -1,3 +1,4 @@
+//This test should fail because program block is not closed
 program
 begin
 	integer fun()

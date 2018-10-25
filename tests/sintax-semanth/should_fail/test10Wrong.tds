@@ -1,3 +1,4 @@
+//This test should fail because the main method is missing
 program
 begin
 	bool fun(integer w)

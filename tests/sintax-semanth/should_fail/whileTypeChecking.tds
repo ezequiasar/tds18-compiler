@@ -1,0 +1,12 @@
+program
+begin
+    integer x,y;
+    void main()
+        begin
+            x = 1;
+            y = 20;
+            while (x + y) begin
+                x = x + 1;
+            end
+        end
+end

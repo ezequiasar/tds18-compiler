@@ -1,0 +1,17 @@
+program
+begin
+    bool asd,sadad;
+    integer x;
+    integer main()
+        begin
+            integer x,y;
+            bool isX,isY;
+            isX = true;
+            isY = false;
+            x = 10 + y;
+            y = x - 5;
+            isX = isY == false;
+            isY = isX < isX;
+            return 1;
+        end
+end

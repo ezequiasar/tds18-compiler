@@ -1,3 +1,4 @@
+//This test should fail because a semicolon is missing.
 program
 begin
 	bool fun(integer w)

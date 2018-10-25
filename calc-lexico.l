@@ -119,39 +119,35 @@ extern {
 	return _EXTERN_;
 }
 
-{digit}+      { 
-	            yylval.i = atoi(yytext);
-	            return _INT_;
-              }
+{digit}+ { 
+	yylval.i = atoi(yytext);
+	return _INT_;
+}
 
-{id}          { 
-	            	yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
-	            strcpy(yylval.s,yytext);
-	            return _ID_;
-              }
+{id} { 
+	yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
+	strcpy(yylval.s,yytext);
+	return _ID_;
+}
 
-(\n)+                         {}
+(\n)+
 
-[ \t]                         {}
+[ \t]
 
-"//".*\n                      {}
-{START}({SIMPLE}|{COMPLEX})*{END} {}
+"//".*\n 
 
-.                             { 
-								printf(ANSI_COLOR_RED "error!\n" ANSI_COLOR_RESET, yylineno);
-								printf("\t" ANSI_COLOR_RED "'%s'" ANSI_COLOR_RESET " is not a valid / recognized input\n", yytext);
-                                yyterminate();
-                              }
+{START}({SIMPLE}|{COMPLEX})*{END}
+
+. { 
+	printf(ANSI_COLOR_RED "error!\n" ANSI_COLOR_RESET, yylineno);
+	printf("\t" ANSI_COLOR_RED "'%s'" ANSI_COLOR_RESET " is not a valid / recognized input\n", yytext);
+	yyterminate();
+}
 
 %%
 
-void yyerror(char *errtype) {
-	if (errtype == "sintax") {
-		printf("%s%d\n", "\t-> Sintax Error in Line: ", yylineno);
-	}
-	else {
-		printf("%s%d\n", "\t-> error line: ", yylineno);
-	}
+void yyerror(char *s) {
+	fprintf(stderr, "line %d: %s\n", yylineno, s);
 }
 
 int main(int argc,char *argv[]) {

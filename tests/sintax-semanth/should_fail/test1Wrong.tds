@@ -1,0 +1,23 @@
+//This test should fail because a void method should not have a return statement
+program
+begin
+	bool fun(integer w)
+		begin
+			integer ab;
+			integer bc;
+
+			ab = 5;
+			bc = 10;
+			return (w == ab + bc);
+		end
+
+	void main()
+		begin
+			integer h;
+			bool w;
+			h = 10;
+			w = true;
+
+			return fun(h + w);
+		end
+end
