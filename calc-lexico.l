@@ -205,6 +205,14 @@ void yyerror2(char *s, int line_number) {
 	fprintf(stderr, "line %d: %s\n", line_number, s);
 }
 
+int get_line_number() {
+	return yylloc.first_line;
+}
+
+int get_column_number() {
+	return yylloc.first_column;
+}
+
 int main(int argc,char *argv[]) {
 	++argv,--argc;
 	if (argc > 0)
