@@ -11,6 +11,7 @@ FunctionNode *fun_list_head = (FunctionNode *) NULL;    // List of all the funct
 
 int amount_open_enviroments = 0;                        // Quantity of currently open enviroments
 char * error_message;                                   // Stores an error message to disply
+int last_line_number = 0;
 
 void yyerror();
 int yylex();
@@ -274,8 +275,12 @@ ASTNode * create_AST_node(ASTNode * left_child, char op, ASTNode * right_child) 
   ASTNode * new_node = (ASTNode *) malloc(sizeof(ASTNode));
   new_node -> data = op;
   new_node -> is_boolean = is_boolean_operation(op);
-  new_node -> node_type = get_node_type(op);
-  new_node -> line_num = yylineno;
+  TypeNode node_type = get_node_type(op);
+  if (node_type == _if ||node_type == _while || node_type == _if_body)
+    new_node -> line_num = last_line_number;
+  else
+    new_node -> line_num = yylineno;
+  new_node -> node_type = node_type;
   new_node -> col_num = get_column_number();
   new_node -> var_data = NULL;
   new_node -> function_data = NULL;
@@ -417,6 +422,8 @@ ASTNode * create_function_ASTnode(ASTNode * left_child, FunctionNode * function,
   result -> data = 'm';
   result -> is_boolean = function -> type == _boolean;
   result -> node_type = _method_call;
+  result -> line_num = get_line_number();
+  result -> col_num = get_column_number();
   result -> var_data = NULL;
   result -> function_data = function;
   result -> left_child = left_child;
@@ -599,9 +606,10 @@ char * get_string_representation(ASTNode * node) {
 */
 void print_tree_formatted_by_level(ASTNode *root, int level) {
   if (root != NULL) {
+    printf("line: %d  ", root -> line_num);
     for(int i = 0; i <= level; i++)
       printf("     ");
-    printf("|> '%s' %d \n", get_string_representation(root), get_line_number());
+    printf(" |> '%s' \n", get_string_representation(root));
     print_tree_formatted_by_level(root -> left_child, level + 1);
     print_tree_formatted_by_level(root -> right_child, level + 1);
     print_tree_formatted_by_level(root -> next_statement, level);
@@ -795,6 +803,7 @@ bool check_functions_return_types() {
 %type<node> literal
 %type<node> integer_literal
 %type<node> bool_literal
+%type<i> if
 %type<i> type
 
 %locations
@@ -948,7 +957,7 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
     {
       $$ = $1;
     }
-  | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
+  | while _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
     {
       if (is_boolean_expression($3))
         $$ = create_AST_node($3, 'w', $5);
@@ -975,7 +984,7 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
     }
 ;
 
-conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
+conditional_statement: if _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
     {
       if (is_boolean_expression($3))
         $$ = create_AST_node($3, 'i', $6);
@@ -984,12 +993,11 @@ conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_blo
         return -1;
       }
     }
-  | _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block
+  | if _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block _ELSE_ code_block
     {
       ASTNode * if_body;
       if (is_boolean_expression($3)) {
         if_body = create_AST_node($6, 'b', $8);
-        
         $$ = create_AST_node($3, 'i', if_body);
       }
       else {
@@ -997,6 +1005,18 @@ conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_blo
         return -1;
       }
     }
+;
+
+if: _IF_
+  {
+    last_line_number = get_line_number();
+  }
+;
+
+while: _WHILE_
+  {
+    last_line_number = get_line_number();
+  }
 ;
 
 params_call: expr
