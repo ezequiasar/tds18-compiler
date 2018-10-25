@@ -719,31 +719,37 @@ ReturnType get_expression_type(ASTNode * expr) {
     return integer;
 }
 
+
+bool has_return(ASTNode * body) {
+  ASTNode * root = body;
+  if (root != NULL) {
+    if (is_return_node(root)) {
+      return true;
+    }
+    return has_return(root -> next_statement) || has_return(root -> right_child) || has_return(root -> left_child);
+  }
+  return false;
+}
+
 bool check_return_types(ASTNode * body, ReturnType type) {
   ASTNode * root = body;
   bool no_errors_found = true;
   if (root != NULL) {
     // base case
     if (is_return_node(root)) {
-      if (type != vid) {
-        if (get_expression_type(root -> right_child) != type) {
-          switch (type) {
-            case boolean:
-              error_message = "Type Error: Boolean expression expected but Integer expression found";
-              return false;
-            case integer:
-              error_message = "Type Error: Integer expression expected but Boolean expression found";
-              return false;
-          }
+      if (get_expression_type(root -> right_child) != type) {
+        switch (type) {
+          case boolean:
+            error_message = "Type Error: Boolean expression expected but Integer expression found";
+            return false;
+          case integer:
+            error_message = "Type Error: Integer expression expected but Boolean expression found";
+            return false;
         }
       }
-      else {
-        error_message = "Type Error: Cannot return an expression in a void function";
-        return false;
-      }
     }
-    // inductive cases
-    no_errors_found = check_return_types(root -> next_statement, type);
+    // inductive case
+    no_errors_found = check_return_types(root -> next_statement, type) && check_return_types(root -> right_child, type) && check_return_types(root -> left_child, type);
   }
   return no_errors_found;
 }
@@ -752,7 +758,19 @@ bool check_functions_return_types() {
   FunctionNode * aux = fun_list_head;
   bool no_errors_found = true;
   while (aux != NULL && no_errors_found) {
-    no_errors_found = check_return_types(aux -> body, aux -> type);
+    if (aux -> type == vid) {
+      if (has_return(aux -> body)) {
+        error_message = "Type Error: Cannot return an expression in a void function";
+        return false;
+      }
+    }
+    else if (!has_return(aux -> body)) {
+      error_message = "Missing return statement";
+      return false;
+    }
+    else {
+      no_errors_found = check_return_types(aux -> body, aux -> type);
+    }
     aux = aux -> next;
   }
   return no_errors_found;

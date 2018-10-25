@@ -6,6 +6,12 @@ begin
             return 2 < 3;
         end
 
+    integer functionZ()
+        begin
+            integer j,k;
+            j = 0;
+        end
+
     bool functionX()
         begin
             integer asd;
