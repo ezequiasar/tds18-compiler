@@ -55,6 +55,8 @@ typedef struct ast_node_struct {
   int data;
   bool is_boolean;
   TypeNode node_type;
+  int line_num;
+  int col_num;
   VarNode *var_data;
   struct functions_struct *function_data;
   struct ast_node_struct *next_statement;

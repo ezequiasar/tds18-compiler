@@ -869,6 +869,8 @@ bool check_functions_return_types() {
 %type<node> bool_literal
 %type<i> type
 
+%locations
+
 %%
 
 prog: _PROGRAM_ scope_open prog_body scope_close
@@ -961,16 +963,22 @@ main_decl: type _MAIN_ _L_PARENTHESIS_ params_def _R_PARENTHESIS_ code_block
 code_block: scope_open code_block_body scope_close
     {
       $$ = $2;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
 ;
 
 code_block_body: vars_block statements_block
     {
       $$ = $2;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | statements_block
     {
       $$ = $1;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   |
     {
@@ -981,10 +989,14 @@ code_block_body: vars_block statements_block
 statements_block: statement
     {
       $$ = $1;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | statements_block statement
     {
       $$ = add_statement_to_list($$, $2);
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
 ;
 
@@ -996,14 +1008,17 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
         return -1;
       }
       ASTNode * node_from_id = create_AST_leave_from_VarNode(id_varnode);
-      if (are_same_type_expressions(node_from_id, $3))
+      if (are_same_type_expressions(node_from_id, $3)) {
         $$ = create_AST_node(node_from_id, '=', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
-        if(is_boolean_expression($3)){
+        if(is_boolean_expression($3)) {
           yyerror("Type Error: Cannot assign a Bool value on Integer variable");
           return -1;
         }
-        if(is_integer_expression($3)){
+        if(is_integer_expression($3)) {
           yyerror("Type Error: Cannot assign an Integer value on Bool variable");
           return -1;
         }
@@ -1012,15 +1027,22 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
   | method_call _SEMICOLON_
     {
       $$ = $1;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | conditional_statement
     {
       $$ = $1;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | _WHILE_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ code_block
     {
-      if (is_boolean_expression($3))
+      if (is_boolean_expression($3)) {
         $$ = create_AST_node($3, 'w', $5);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: Integer expression found in While condition. It must be a Boolean expression");
         return -1;
@@ -1029,10 +1051,14 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
   | _RETURN_ expr _SEMICOLON_
     {
       $$ = create_AST_node(NULL, 'r', $2);
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | _RETURN_ _SEMICOLON_
     {
       $$ = create_AST_node(NULL, 'r', NULL);
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | _SEMICOLON_
     {
@@ -1041,13 +1067,18 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
   | code_block
     {
       $$ = $1;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
 ;
 
 conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
     {
-      if (is_boolean_expression($3))
+      if (is_boolean_expression($3)) {
         $$ = create_AST_node($3, 'i', $6);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: Integer expression found in If condition. It must be a Boolean expression");
         return -1;
@@ -1058,7 +1089,12 @@ conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_blo
       ASTNode * if_body;
       if (is_boolean_expression($3)) {
         if_body = create_AST_node($6, 'b', $8);
+        if_body -> line_num = yylloc.first_line;
+        if_body -> col_num = yylloc.first_column;
+        
         $$ = create_AST_node($3, 'i', if_body);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
       }
       else {
         yyerror("Type error: Integer expression found in If condition. It must be a Boolean expression");
@@ -1113,6 +1149,8 @@ expr: _ID_
       VarNode * var_data = find_variable_in_enviroments(var_name);
       if (var_data != NULL) {
         $$ = create_AST_leave_from_VarNode(var_data);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
       }
       else {
         $$ = NULL;
@@ -1123,15 +1161,22 @@ expr: _ID_
   | literal
     {
       $$ = $1;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | method_call
     {
       $$ = $1;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | expr _PLUS_ expr
     {
-      if (are_integer_expressions($1,$3))
+      if (are_integer_expressions($1,$3)) {
         $$ = create_AST_node($1, '+', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: integer expressions expected but boolean expression found");
         return -1;
@@ -1139,8 +1184,11 @@ expr: _ID_
     }
   | expr _MINUS_ expr
     {
-      if (are_integer_expressions($1,$3))
+      if (are_integer_expressions($1,$3)) {
         $$ = create_AST_node($1, '-', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: integer expressions expected but boolean expression found");
         return -1;
@@ -1148,8 +1196,11 @@ expr: _ID_
     }
   | expr _MULTIPLY_ expr
     {
-      if (are_integer_expressions($1,$3))
+      if (are_integer_expressions($1,$3)) {
         $$ = create_AST_node($1, '*', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: integer expressions expected but boolean expression found");
         return -1;
@@ -1157,8 +1208,11 @@ expr: _ID_
     }
   | expr _DIVIDE_ expr
     {
-      if (are_integer_expressions($1,$3))
+      if (are_integer_expressions($1,$3)) {
         $$ = create_AST_node($1, '/', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: integer expressions expected but boolean expression found");
         return -1;
@@ -1166,8 +1220,11 @@ expr: _ID_
     }
   | expr _MOD_ expr
     {
-      if (are_integer_expressions($1,$3))
+      if (are_integer_expressions($1,$3)) {
         $$ = create_AST_node($1, '%', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: integer expressions expected but boolean expression found");
         return -1;
@@ -1175,8 +1232,11 @@ expr: _ID_
     }
   | expr _LESSER_THAN_ expr
     {
-      if (are_integer_expressions($1,$3))
+      if (are_integer_expressions($1,$3)) {
         $$ = create_AST_node($1, '<', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: integer expressions expected but boolean expression found");
         return -1;
@@ -1184,8 +1244,11 @@ expr: _ID_
     }
   | expr _GREATER_THAN_ expr
     {
-      if (are_integer_expressions($1,$3))
+      if (are_integer_expressions($1,$3)) {
         $$ = create_AST_node($1, '>', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: integer expressions expected but boolean expression found");
         return -1;
@@ -1193,8 +1256,11 @@ expr: _ID_
     }
   | expr _EQUALS_ expr
     {
-      if (are_same_type_expressions($1,$3))
+      if (are_same_type_expressions($1,$3)) {
         $$ = create_AST_node($1, 'e', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: Different types cant be compared");
         return -1;
@@ -1202,8 +1268,11 @@ expr: _ID_
     }
   | expr _AND_ expr
     {
-      if (are_boolean_expressions($1,$3))
+      if (are_boolean_expressions($1,$3)) {
         $$ = create_AST_node($1, '&', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: boolean expressions expected but integer expression found");
         return -1;
@@ -1211,8 +1280,11 @@ expr: _ID_
     }
   | expr _OR_ expr
     {
-      if (are_boolean_expressions($1,$3))
+      if (are_boolean_expressions($1,$3)) {
         $$ = create_AST_node($1, '|', $3);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else {
         yyerror("Type error: boolean expressions expected but integer expression found");
         return -1;
@@ -1220,8 +1292,11 @@ expr: _ID_
     }
   | _MINUS_ expr %prec NEG
     {
-      if(is_integer_expression($2))
+      if(is_integer_expression($2)) {
         $$ = create_AST_node(NULL, '-', $2);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else{
         yyerror("Type error: integer expression expected but boolean expression found");
         return -1;
@@ -1229,8 +1304,11 @@ expr: _ID_
     }
   | _NOT_ expr %prec NEG
     {
-      if(is_boolean_expression($2))
+      if(is_boolean_expression($2)) {
         $$ = create_AST_node(NULL, '!', $2);
+        $$ -> line_num = yylloc.first_line;
+        $$ -> col_num = yylloc.first_column;
+      }
       else{
         yyerror("Type error: cannot applicants boolean operator to a non boolean expression");
         return -1;
@@ -1239,6 +1317,8 @@ expr: _ID_
   | _L_PARENTHESIS_ expr _R_PARENTHESIS_
     {
       $$ = $2;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
 ;
 
@@ -1249,6 +1329,8 @@ method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_
         return -1;
       }
       $$ = create_function_ASTnode(NULL, find_function($1), ast_from_parameters_list($3));
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | _ID_ _L_PARENTHESIS_ _R_PARENTHESIS_
     {
@@ -1257,32 +1339,44 @@ method_call: _ID_ _L_PARENTHESIS_ params_call _R_PARENTHESIS_
         return -1;
       }
       $$ = create_function_ASTnode(NULL, find_function($1), NULL);
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
 ;
 
 literal: integer_literal
     {
       $$ = $1;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | bool_literal
     {
       $$ = $1;
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
 ;
 
 bool_literal: _TRUE_
     {
       $$ = create_AST_leave_from_value(1, true);
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
   | _FALSE_
     {
       $$ = create_AST_leave_from_value(0, true);
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
 ;
 
 integer_literal: _INT_
     {
       $$ = create_AST_leave_from_value($1, false);
+      $$ -> line_num = yylloc.first_line;
+      $$ -> col_num = yylloc.first_column;
     }
 ;
 
