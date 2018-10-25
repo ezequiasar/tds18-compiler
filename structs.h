@@ -1,12 +1,13 @@
 #include <stdbool.h>
 
-// return types
+// return types of functions
 typedef enum return_types {
-	boolean,
-  integer,
-  vid
+	_boolean,
+  _integer,
+  _void
 } ReturnType;
 
+// possible types of ASTNodes
 typedef enum type_of_node {
 	_if,
   _if_body,
@@ -25,7 +26,6 @@ typedef struct var_struct {
   char *id;
   int value;
   bool is_boolean;
-  bool is_defined;
   struct var_struct *next;
 } VarNode;
 
@@ -48,7 +48,7 @@ typedef struct functions_struct {
   VarNode *enviroment;
   struct ast_node_struct *body;
   struct functions_struct *next;
-}FunctionNode;
+} FunctionNode;
 
 // Node of the AST
 typedef struct ast_node_struct {
@@ -60,7 +60,7 @@ typedef struct ast_node_struct {
   struct ast_node_struct *next_statement;
   struct ast_node_struct *left_child;
   struct ast_node_struct *right_child;
-}ASTNode;
+} ASTNode;
 
 // Envitoment list, it holds all the head pointers of the diferent enviroment levels.
 typedef struct enviroment_stack {
