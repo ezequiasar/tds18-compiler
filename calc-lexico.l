@@ -8,7 +8,9 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 void setyylloc() {
-	setyylloc();
+	yylloc.first_line = yylineno;
+	yylloc.first_column = yylloc.last_column;
+	yylloc.last_column += yyleng;
 }
 
 void reset_yylloc_column() {
