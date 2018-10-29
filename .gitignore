@@ -3,3 +3,4 @@
 *.h
 *.output
 !structs.h
+!intermediate_code.c
