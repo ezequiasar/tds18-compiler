@@ -15,21 +15,68 @@
 #define MOD '%'
 /////////////////////////////////////////
 #define ASSIGN '='
-#define EQUALS '=' + '='
+#define EQUALS 'e'
 /////////////////////////////////////////
 #define GRATER_THAN '>'
 #define LESSER_THAN '<'
 /////////////////////////////////////////
-#define AND '&' + '&'
-#define OR '|' + '|'
+#define AND '&'
+#define OR '|'
 
-CodeNode * head, *last;
+InstructionNode * head, *last;
+
+void add_instruction(InstructionNode * node) {
+  if (head != NULL && last != NULL) {
+    last -> next = node;
+    node -> back = last;
+    last = node;
+  }
+  else {
+    head = node;
+    last = node;
+  }
+}
 
 /*
 	Recorre el cuerpo de una funcion y crea las instrucciones en codigo intermedio
-**/
-void generate_intermediate_code(ASTNode * root) {
+*/
+InstructionNode * generate_intermediate_code(ASTNode * root) {
+	if (root != NULL) {
+    add_instruction(create_instruction_from_ASTNode(root));
+    InstructionNode * root_ins = last;
+    InstructionNode * left_ins = generate_intermediate_code(root -> left_child);
+    InstructionNode * right_ins = generate_intermediate_code(root -> right_child);
+    if (left_ins != NULL)
+      root_ins -> op1 = left_ins -> result;
+    if (right_ins != NULL)
+      root_ins -> op2 = right_ins -> result;
+    return last;
+  }
+  return NULL;
+}
 
+/*
+	Recorre el cuerpo de una funcion y crea las instrucciones en codigo intermedio
+*/
+InstructionNode * create_instruction_from_ASTNode(ASTNode * root) {
+  InstructionNode * new_node = malloc(sizeof(InstructionNode));
+  // in every case we need to set the new_node -> operation field.
+  switch (root -> node_type) {
+    case _if:
+    case _if_body:
+    case _while:
+    case _arith_op:
+    case _boolean_op:
+    case _assign:
+    case _method_call:
+    case _return:
+    case _id:
+    case _literal:
+  }
+  new_node -> result = create_temporal("aca va el nombre del temporal");
+  new_node -> back = NULL;
+  new_node -> next = NULL;
+  return new_node;
 }
 
 void generate_fun_name_code(char * id) {
@@ -49,7 +96,6 @@ CodeNode * generate_fun_code(FunctionNode * root) {
 	generate_fun_name_code(root -> id);
 	generate_intermediate_code(root -> body);
 	generate_fun_name_end(root -> id);
-
 	return NULL;
 }
 

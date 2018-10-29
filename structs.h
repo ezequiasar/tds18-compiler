@@ -71,11 +71,11 @@ typedef struct enviroment_stack {
 } EnviromentNode;
 
 // Node of the intermidiate code list;
-typedef struct node_code {
+typedef struct instruction_node {
   int operation;
   VarNode op1;
   VarNode op2;
   VarNode result;
-  struct node_code * next;
-  struct node_code * back;
-} CodeNode;
+  struct instruction_node * next;
+  struct instruction_node * back;
+} InstructionNode;

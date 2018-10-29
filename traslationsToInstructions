@@ -41,7 +41,7 @@ Translation:
     ...
     ENDLABEL
 ===============================================================================
-operations (bool and integers)
+EXPRESSIONS (bool and integers)
 
 Example: 
     n1 op n2;
