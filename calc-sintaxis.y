@@ -985,8 +985,10 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
 
 conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
     {
-      if (is_boolean_expression($3))
-        $$ = create_AST_node($3, 'i', $6);
+      if (is_boolean_expression($3)) {
+        if_body = create_AST_node($6, 'b', NULL);
+        $$ = create_AST_node($3, 'i', if_body);
+      }
       else {
         yyerror("Type error: Integer expression found in If condition. It must be a Boolean expression");
         return -1;
