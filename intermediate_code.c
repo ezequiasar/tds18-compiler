@@ -46,6 +46,13 @@ void add_instruction(InstructionNode * node) {
   }
 }
 
+VarNode * create_temporal(char * id) {
+  VarNode * new_node = malloc(sizeof(VarNode));
+  new_node -> id = id;
+  new_node -> next = NULL;
+  return new_node;
+}
+
 /*
 	Recorre el cuerpo de una funcion y crea las instrucciones en codigo intermedio
 */
@@ -110,7 +117,7 @@ InstructionNode * generate_intermediate_code(ASTNode * root) {
 	Recorre el cuerpo de una funcion y crea las instrucciones en codigo intermedio
 */
 InstructionNode * create_instruction_from_ASTNode(ASTNode * root) {
-  InstructionNode * new_node = malloc((InstructionNode *) sizeof(InstructionNode));
+  InstructionNode * new_node = malloc(sizeof(InstructionNode));
   // in every case we need to set the new_node -> operation field.
   switch (root -> node_type) {
     case _if:
@@ -168,7 +175,7 @@ InstructionNode * create_instruction_from_ASTNode(ASTNode * root) {
 }
 
 InstructionNode * generate_fun_name_code(char * id) {
-  InstructionNode * init_fun_ins = malloc((InstructionNode *) sizeof(InstructionNode));
+  InstructionNode * init_fun_ins = malloc(sizeof(InstructionNode));
   VarNode * fun_temp_varnode = create_temporal(id);
   init_fun_ins -> operation = BEGIN_FUN;
   init_fun_ins -> op1 = fun_temp_varnode;
@@ -181,7 +188,7 @@ InstructionNode * generate_fun_name_code(char * id) {
 }
 
 InstructionNode * generate_fun_name_end(VarNode * fun_temp_varnode) {
-  InstructionNode * end_fun_ins = malloc((InstructionNode *) sizeof(InstructionNode));
+  InstructionNode * end_fun_ins = malloc(sizeof(InstructionNode));
   init_fun_ins -> operation = END_FUN;
   init_fun_ins -> op1 = fun_temp_varnode;
   init_fun_ins -> op2 = NULL;
@@ -196,14 +203,17 @@ InstructionNode * generate_fun_name_end(VarNode * fun_temp_varnode) {
 		2) Crea codigo intermedio del cuerpo de la funcion
 		3) Cierra el bloque de funcion END_FUN_<ID>
 **/
-CodeNode * generate_fun_code(FunctionNode * root) {
-	InstructionNode * init_fun_ins = generate_fun_name_code(root -> id);
-  InstructionNode * end_fun_ins = generate_fun_name_end(init_fun_ins -> op1);
-  add_instruction(init_fun_ins);
-	generate_intermediate_code(root -> body);
-  add_instruction(end_fun_ins);
-	
-	return NULL;
+InstructionNode * generate_fun_code(FunctionNode * root) {
+  FunctionNode * current_fun = root;
+  while (current_fun != NULL) {
+    InstructionNode * init_fun_ins = generate_fun_name_code(current_fun -> id);
+    InstructionNode * end_fun_ins = generate_fun_name_end(init_fun_ins -> op1);
+    add_instruction(init_fun_ins);
+    generate_intermediate_code(current_fun -> body);
+    add_instruction(end_fun_ins);
+    current_fun = current_fun -> next;
+  }
+	return head;
 }
 
 int main(int argc, char const *argv[])
