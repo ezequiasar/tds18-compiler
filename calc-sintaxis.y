@@ -365,6 +365,7 @@ ASTNode * ast_from_parameters_list (Parameter * params_list) {
       var_data -> id = "temporal_var";
       result -> data = paramAuxNode -> value;
       result -> is_boolean = paramAuxNode -> is_boolean;
+      result -> var_data = var_data;
       result -> right_child = ast_from_parameters_list(params_list -> next);
     }
     return result;
