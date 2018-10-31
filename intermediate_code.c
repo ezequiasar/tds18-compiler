@@ -217,6 +217,26 @@ InstructionNode * generate_fun_code(FunctionNode * root) {
 	return head;
 }
 
+void print_instruction(InstructionNode * i) {
+  if (i -> op1 != NULL)
+    printf("op1: %s\n", i -> op1);
+  if (i -> op2 != NULL)
+    printf("op2: %s\n", i -> op2);
+  if (i -> result != NULL)
+    printf("result: %s\n", i -> result);
+}
+
+void print_instructions() {
+  InstructionNode * aux = head;
+  int i = 0;
+  while (aux != NULL) {
+    printf("Instruction %d\n", i);
+    print_instruction(aux);
+    printf("----------------\n\n");
+    aux = aux -> next;
+  }
+}
+
 int main(int argc, char const *argv[])
 {
 	/* code */
