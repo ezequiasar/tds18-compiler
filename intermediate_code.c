@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include <structs.h>
+#include <stdlib.h>
+#include "structs.h"
 
 #define BEGIN_FUN 'b' + 'f'
 #define END_FUN 'e' + 'f'
@@ -49,6 +50,67 @@ void add_instruction(InstructionNode * node) {
 VarNode * create_temporal(char * id) {
   VarNode * new_node = malloc(sizeof(VarNode));
   new_node -> id = id;
+  new_node -> next = NULL;
+  return new_node;
+}
+
+/*
+  Recorre el cuerpo de una funcion y crea las instrucciones en codigo intermedio
+*/
+InstructionNode * create_instruction_from_ASTNode(ASTNode * root) {
+  InstructionNode * new_node = malloc(sizeof(InstructionNode));
+  // in every case we need to set the new_node -> operation field.
+  switch (root -> node_type) {
+    case _if:
+      new_node -> operation = IF;
+      break;
+    case _if_body:
+      new_node -> operation = IF_BODY;
+      break;
+    case _while:
+      new_node -> operation = WHILE;
+      break;
+    case _arith_op:
+      if (root -> data == '+')
+        new_node -> operation = PLUS;
+      else if (root -> data == '-')
+        new_node -> operation = MINUS;
+      else if (root -> data == '*')
+        new_node -> operation = PROD;
+      else if (root -> data == '/')
+        new_node -> operation = DIV;
+      else //root -> data == '%'
+        new_node -> operation = MOD;
+      break;
+    case _boolean_op:
+      if (root -> data == '>')
+        new_node -> operation = GRATER_THAN;
+      else if (root -> data == '<')
+        new_node -> operation = LESSER_THAN;
+      else if (root -> data == 'e')
+        new_node -> operation = EQUALS;
+      else if (root -> data == '&')
+        new_node -> operation = AND;
+      else if (root -> data == '|')
+        new_node -> operation = OR;
+      else //root -> data == '!'
+        new_node -> operation = NOT;
+      break;
+    case _assign:
+      new_node -> operation = ASSIGN;
+      break;
+    case _method_call:
+      new_node -> operation = METH_CALL;
+      break;
+    case _return:
+      new_node -> operation = RETURN;
+      break;
+    default:
+      new_node -> operation = -1;
+      break;
+  }
+  new_node -> result = create_temporal("aca va el nombre del temporal");
+  new_node -> back = NULL;
   new_node -> next = NULL;
   return new_node;
 }
@@ -113,67 +175,6 @@ InstructionNode * generate_intermediate_code(ASTNode * root) {
   return NULL;
 }
 
-/*
-	Recorre el cuerpo de una funcion y crea las instrucciones en codigo intermedio
-*/
-InstructionNode * create_instruction_from_ASTNode(ASTNode * root) {
-  InstructionNode * new_node = malloc(sizeof(InstructionNode));
-  // in every case we need to set the new_node -> operation field.
-  switch (root -> node_type) {
-    case _if:
-      new_node -> operation = IF;
-      break;
-    case _if_body:
-      new_node -> operation = IF_BODY;
-      break;
-    case _while:
-      new_node -> operation = WHILE;
-      break;
-    case _arith_op:
-      if (root -> data == '+')
-        new_node -> operation = PLUS;
-      else if (root -> data == '-')
-        new_node -> operation = MINUS;
-      else if (root -> data == '*')
-        new_node -> operation = PROD;
-      else if (root -> data == '/')
-        new_node -> operation = DIV;
-      else //root -> data == '%'
-        new_node -> operation = MOD;
-      break;
-    case _boolean_op:
-      if (root -> data == '>')
-        new_node -> operation = GRATER_THAN;
-      else if (root -> data == '<')
-        new_node -> operation = LESSER_THAN;
-      else if (root -> data == 'e')
-        new_node -> operation = EQUALS;
-      else if (root -> data == '&')
-        new_node -> operation = AND;
-      else if (root -> data == '|')
-        new_node -> operation = OR;
-      else //root -> data == '!'
-        new_node -> operation = NOT;
-      break;
-    case _assign:
-      new_node -> operation = ASSIGN;
-      break;
-    case _method_call:
-      new_node -> operation = METH_CALL;
-      break;
-    case _return:
-      new_node -> operation = RETURN;
-      break;
-    default:
-      new_node -> operation = -1;
-      break;
-  }
-  new_node -> result = create_temporal("aca va el nombre del temporal");
-  new_node -> back = NULL;
-  new_node -> next = NULL;
-  return new_node;
-}
-
 InstructionNode * generate_fun_name_code(char * id) {
   InstructionNode * init_fun_ins = malloc(sizeof(InstructionNode));
   VarNode * fun_temp_varnode = create_temporal(id);
@@ -189,12 +190,12 @@ InstructionNode * generate_fun_name_code(char * id) {
 
 InstructionNode * generate_fun_name_end(VarNode * fun_temp_varnode) {
   InstructionNode * end_fun_ins = malloc(sizeof(InstructionNode));
-  init_fun_ins -> operation = END_FUN;
-  init_fun_ins -> op1 = fun_temp_varnode;
-  init_fun_ins -> op2 = NULL;
-  init_fun_ins -> result = NULL;
-  init_fun_ins -> back = NULL;
-  init_fun_ins -> next = NULL;
+  end_fun_ins -> operation = END_FUN;
+  end_fun_ins -> op1 = fun_temp_varnode;
+  end_fun_ins -> op2 = NULL;
+  end_fun_ins -> result = NULL;
+  end_fun_ins -> back = NULL;
+  end_fun_ins -> next = NULL;
   return end_fun_ins;
 }
 /*

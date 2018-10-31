@@ -73,9 +73,9 @@ typedef struct enviroment_stack {
 // Node of the intermidiate code list;
 typedef struct instruction_node {
   int operation;
-  VarNode op1;
-  VarNode op2;
-  VarNode result;
+  VarNode * op1;
+  VarNode * op2;
+  VarNode * result;
   struct instruction_node * next;
   struct instruction_node * back;
 } InstructionNode;
