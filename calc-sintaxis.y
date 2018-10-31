@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "structs.h"
+#include "intermediate_code.c"
 
 VarNode * temporal_enviroment;                          // Holds the last closed enviroment
 Parameter * temporal_parameter;                         // Holds the formal parameters of the current function
@@ -740,6 +740,15 @@ bool check_functions_return_types() {
   return no_errors_found;
 }
 
+/*
+    Invoca a la funcion generate_fun_code y luego de esto a la funcion que imprime por consola
+    para chequear que la generacion de codigo intermedio es correcta
+ */
+void check_intermediate_code(FunctionNode * list) {
+    generate_fun_code(list);
+    print_instructions();
+}
+
 %}
 
 %union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
@@ -813,6 +822,7 @@ bool check_functions_return_types() {
 prog: _PROGRAM_ scope_open prog_body scope_close
     {
       print_functions();
+      check_intermediate_code(fun_list_head);
       if (!check_functions_return_types()) {
         yyerror(error_message);
         return -1;
@@ -986,6 +996,7 @@ statement:  _ID_ _ASSIGNMENT_ expr _SEMICOLON_
 
 conditional_statement: _IF_ _L_PARENTHESIS_ expr _R_PARENTHESIS_ _THEN_ code_block
     {
+      ASTNode * if_body;
       if (is_boolean_expression($3)) {
         if_body = create_AST_node($6, 'b', NULL);
         $$ = create_AST_node($3, 'i', if_body);

@@ -34,6 +34,7 @@
 #define METH_CALL 'm' + 'c'
 
 InstructionNode * head, *last;
+int cant_temp = 0;
 
 void add_instruction(InstructionNode * node) {
   if (head != NULL && last != NULL) {
@@ -47,7 +48,7 @@ void add_instruction(InstructionNode * node) {
   }
 }
 
-VarNode * create_temporal(char * id) {
+VarNode * create_temporal(char id[36]) {
   VarNode * new_node = malloc(sizeof(VarNode));
   new_node -> id = id;
   new_node -> next = NULL;
@@ -109,9 +110,15 @@ InstructionNode * create_instruction_from_ASTNode(ASTNode * root) {
       new_node -> operation = -1;
       break;
   }
-  new_node -> result = create_temporal("aca va el nombre del temporal");
+  char temp_name[128];
+  sprintf(temp_name, "Var_temp%d\0", cant_temp);
+  char * res = malloc(strlen(temp_name));
+  sprintf(res, temp_name);
+  printf("%s\n", res);
+  new_node -> result = create_temporal(res);
   new_node -> back = NULL;
   new_node -> next = NULL;
+  cant_temp++;
   return new_node;
 }
 
@@ -218,12 +225,18 @@ InstructionNode * generate_fun_code(FunctionNode * root) {
 }
 
 void print_instruction(InstructionNode * i) {
+  if(i -> operation >= 42 && i -> operation <= 122){
+      printf("operation: %c\n", i -> operation);
+  }
+  else{
+      printf("operation_as_int: %d\n", i -> operation);
+  }
   if (i -> op1 != NULL)
-    printf("op1: %s\n", i -> op1);
+    printf("op1: %s\n", i -> op1 -> id);
   if (i -> op2 != NULL)
-    printf("op2: %s\n", i -> op2);
+    printf("op2: %s\n", i -> op2 -> id);
   if (i -> result != NULL)
-    printf("result: %s\n", i -> result);
+    printf("result: %s\n", i -> result -> id);
 }
 
 void print_instructions() {
@@ -234,5 +247,6 @@ void print_instructions() {
     print_instruction(aux);
     printf("----------------\n\n");
     aux = aux -> next;
+    i++;
   }
 }
