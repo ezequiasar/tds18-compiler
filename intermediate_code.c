@@ -3,7 +3,7 @@
 #include "structs.h"
 
 #define BEGIN_FUN 'b' + 'f'
-#define END_FUN 'e' + 'f'
+#define END_FUN 'e' + 'd'
 /////////////////////////////////////////
 #define IF 'i'
 #define IF_BODY 'i' + 'b'
@@ -34,7 +34,7 @@
 #define METH_CALL 'm' + 'c'
 
 InstructionNode * head, *last;
-int cant_temp = 0;
+int temp_quantity = 0;
 
 void add_instruction(InstructionNode * node) {
   if (head != NULL && last != NULL) {
@@ -111,14 +111,14 @@ InstructionNode * create_instruction_from_ASTNode(ASTNode * root) {
       break;
   }
   char temp_name[128];
-  sprintf(temp_name, "Var_temp%d\0", cant_temp);
+  sprintf(temp_name, "Var_temp %d\0", temp_quantity);
   char * res = malloc(strlen(temp_name));
   sprintf(res, temp_name);
   printf("%s\n", res);
   new_node -> result = create_temporal(res);
   new_node -> back = NULL;
   new_node -> next = NULL;
-  cant_temp++;
+  temp_quantity++;
   return new_node;
 }
 
@@ -207,7 +207,7 @@ InstructionNode * generate_fun_name_end(VarNode * fun_temp_varnode) {
 }
 /*
 	Funcion que recorre la lista de funciones y para cada una:
-		1) Crea el bloque de inicio de buncion INIT_FUN_<ID>
+		1) Crea el bloque de inicio de funcion INIT_FUN_<ID>
 		2) Crea codigo intermedio del cuerpo de la funcion
 		3) Cierra el bloque de funcion END_FUN_<ID>
 **/
@@ -224,13 +224,42 @@ InstructionNode * generate_fun_code(FunctionNode * root) {
 	return head;
 }
 
+void print_operators(InstructionNode * i){
+    if(i -> operation >= 42 && i -> operation <= 122){
+        printf("Operation: %c\n", i -> operation);
+    }
+    else{
+        switch (i -> operation) {
+            case 200:
+                printf("Operator: begin_fun \n");
+                break;
+            case 201:
+                printf("Operator: end_fun \n");
+                break;
+            case 203:
+                printf("Operator: if_body \n");
+                break;
+            case 204:
+                printf("Operator: if_cond \n");
+                break;
+            case 221:
+                printf("Operator: if_then \n");
+                break;
+            case 206:
+                printf("Operator: if_else \n");
+                break;
+            case 218:
+                printf("Operator: while_cond \n");
+                break;
+            case 217:
+                printf("Operator: while_body \n");
+                break;
+        }
+    }
+}
+
 void print_instruction(InstructionNode * i) {
-  if(i -> operation >= 42 && i -> operation <= 122){
-      printf("operation: %c\n", i -> operation);
-  }
-  else{
-      printf("operation_as_int: %d\n", i -> operation);
-  }
+  print_operators(i);
   if (i -> op1 != NULL)
     printf("op1: %s\n", i -> op1 -> id);
   if (i -> op2 != NULL)
