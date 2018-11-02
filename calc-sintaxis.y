@@ -740,15 +740,6 @@ bool check_functions_return_types() {
   return no_errors_found;
 }
 
-/*
-    Invoca a la funcion generate_fun_code y luego de esto a la funcion que imprime por consola
-    para chequear que la generacion de codigo intermedio es correcta
- */
-void check_intermediate_code(FunctionNode * list) {
-    generate_fun_code(list);
-    print_instructions();
-}
-
 %}
 
 %union { int i; char *s; ASTNode *node; VarNode *varnode; FunctionNode *functionnode; Parameter *parameternode;};
@@ -822,7 +813,7 @@ void check_intermediate_code(FunctionNode * list) {
 prog: _PROGRAM_ scope_open prog_body scope_close
     {
       print_functions();
-      check_intermediate_code(fun_list_head);
+      generate_fun_code(fun_list_head);
       if (!check_functions_return_types()) {
         yyerror(error_message);
         return -1;

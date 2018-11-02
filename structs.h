@@ -26,6 +26,7 @@ typedef struct var_struct {
   char *id;
   int value;
   bool is_boolean;
+  bool is_defined;
   struct var_struct *next;
 } VarNode;
 
