@@ -1,0 +1,13 @@
+program
+begin
+
+    void main()
+        begin
+            integer x,y,z;
+            bool asd;
+            x = 10 + 2;
+            y = x * x;
+            asd = true == false;
+        end
+        
+end
